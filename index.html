@@ -1,1928 +1,705 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#eeeae2">
-  <meta name="description" content="Настенные полки и напольные стеллажи из дерева, металла и латуни. Выберите готовую композицию или создайте свой стеллаж в онлайн-конструкторе.">
-  <title>ПОЛКИ — стеллажи и полки из дерева, металла и латуни</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ПОЛКИ — стеллажи и полки из дерева, металла и латуни</title>
+<meta name="description" content="Настенные полки и напольные стеллажи из дерева, металла и латуни. Выберите готовую композицию или создайте свой стеллаж в онлайн-конструкторе.">
+<meta name="theme-color" content="#f3efe7">
+<style>
+:root{
+  --paper:#f3efe7;--paper-2:#ebe5d9;--ink:#1c1a17;--ink-2:#4a463f;--mute:#8a8276;
+  --brass:#b8925a;--brass-2:#d9b77c;--line:rgba(28,26,23,.14);
+  --serif:"Iowan Old Style","Palatino Linotype","Book Antiqua",Georgia,"Times New Roman",serif;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --gutter:20px;--radius:4px;--ease:cubic-bezier(.22,1,.36,1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{font-family:var(--sans);background:var(--paper);color:var(--ink);line-height:1.5;font-size:16px;overflow-x:hidden}
+img{display:block;max-width:100%;height:auto}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+ul{list-style:none}
+::selection{background:var(--brass);color:#fff}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.35;
+  background-image:radial-gradient(rgba(0,0,0,.035) 1px,transparent 1px);background-size:3px 3px}
+.wrap{width:100%;padding-inline:var(--gutter);margin-inline:auto;max-width:1320px;position:relative}
+.serif{font-family:var(--serif);font-weight:400;letter-spacing:-.015em;line-height:1.02}
+.eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--brass);font-weight:600;display:flex;align-items:center;gap:12px}
+.eyebrow::before{content:"";width:28px;height:1px;background:var(--brass)}
+.lead{color:var(--ink-2);font-size:17px;max-width:46ch}
+.h2{font-size:clamp(38px,8.5vw,84px)}
+.h3{font-size:clamp(26px,5vw,40px)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:52px;padding:0 26px;border-radius:999px;
+  font-size:15px;font-weight:600;letter-spacing:.01em;transition:transform .5s var(--ease),background .3s,color .3s,box-shadow .3s;will-change:transform}
+.btn:active{transform:scale(.97)}
+.btn-dark{background:var(--ink);color:var(--paper)}
+.btn-dark:hover{background:#000;box-shadow:0 14px 30px -14px rgba(0,0,0,.5)}
+.btn-ghost{border:1px solid var(--ink);color:var(--ink)}
+.btn-ghost:hover{background:var(--ink);color:var(--paper)}
+.btn-brass{background:var(--brass);color:#fff}
+.btn-brass:hover{background:#a7824c}
+.btn .arr{transition:transform .4s var(--ease)}
+.btn:hover .arr{transform:translateX(4px)}
+.sec{padding:clamp(72px,12vw,160px) 0;position:relative}
+.sec-head{display:grid;gap:18px;margin-bottom:clamp(36px,6vw,72px)}
+.num{font-family:var(--serif);font-size:13px;color:var(--mute);letter-spacing:.1em}
+.rule{height:1px;background:var(--line)}
 
-  <!--
-  КАК ПОДГОТОВИТЬ САЙТ
+/* progress */
+#progress{position:fixed;top:0;left:0;height:2px;width:0;background:var(--brass);z-index:60;transition:width .1s linear}
 
-  1. Сохраните этот файл как index.html.
-  2. Ваш существующий конструктор сохраните РЯДОМ как constructor.html.
-     Кнопки конструктора откроют этот файл. Сам конструктор здесь не переписан.
-  3. Положите рядом следующие изображения:
+/* header */
+.hdr{position:sticky;top:0;z-index:50;background:rgba(243,239,231,.85);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid transparent;transition:border-color .3s}
+.hdr.scrolled{border-bottom-color:var(--line)}
+.hdr .wrap{display:flex;align-items:center;justify-content:space-between;height:64px}
+.logo{font-family:var(--serif);font-size:22px;letter-spacing:.22em;display:flex;align-items:center;gap:10px}
+.logo i{width:9px;height:9px;border-radius:50%;background:var(--brass);display:inline-block}
+.nav{display:none;gap:30px;font-size:14px;color:var(--ink-2)}
+.nav a{position:relative;padding:4px 0}
+.nav a::after{content:"";position:absolute;left:0;bottom:0;height:1px;width:0;background:var(--brass);transition:width .4s var(--ease)}
+.nav a:hover::after{width:100%}
+.hdr-cta{display:none}
+.burger{width:44px;height:44px;display:grid;place-items:center;margin-right:-10px}
+.burger span{display:block;width:24px;height:1.5px;background:var(--ink);transition:transform .4s var(--ease),opacity .3s;position:relative}
+.burger span+span{margin-top:7px}
+.burger.on span:nth-child(1){transform:translateY(8.5px) rotate(45deg)}
+.burger.on span:nth-child(2){opacity:0}
+.burger.on span:nth-child(3){transform:translateY(-8.5px) rotate(-45deg)}
+.menu{position:fixed;inset:0;z-index:45;background:var(--ink);color:var(--paper);padding:100px var(--gutter) 40px;display:flex;flex-direction:column;
+  transform:translateY(-100%);transition:transform .6s var(--ease);overflow:auto}
+.menu.on{transform:translateY(0)}
+.menu a.big{font-family:var(--serif);font-size:clamp(36px,10vw,64px);line-height:1.1;display:flex;align-items:baseline;gap:14px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.12);opacity:0;transform:translateY(20px);transition:opacity .5s,transform .6s var(--ease)}
+.menu.on a.big{opacity:1;transform:none}
+.menu a.big small{font-family:var(--sans);font-size:12px;color:var(--brass-2);letter-spacing:.15em}
+.menu .foot{margin-top:auto;padding-top:30px;display:grid;gap:12px;font-size:14px;color:rgba(255,255,255,.6)}
+.menu .foot a{color:var(--brass-2)}
 
-     hero-shelving.png          — основной интерьерный кадр, примерно 1800 × 1500
-     model-linea.png            — настенная композиция, примерно 1000 × 1200
-     model-frame.png            — стеллаж вокруг телевизора, примерно 1000 × 1200
-     model-column.png           — узкий напольный стеллаж, примерно 1000 × 1200
-     model-horizon.png          — длинная настенная полка, примерно 1000 × 1200
-     model-library.png          — глубокий книжный стеллаж, примерно 1000 × 1200
-     model-duo.png              — две настенные полки, примерно 1000 × 1200
-     detail-wood.png            — фактура мебельного щита, примерно 1100 × 1300
-     detail-brass.png           — латунное соединение крупным планом, примерно 1000 × 1000
-     constructor-preview.png   — скриншот вашего конструктора, примерно 1600 × 1000
-     interior-living.png        — стеллаж в гостиной, примерно 1400 × 1100
-     interior-workspace.png     — полки над рабочим столом, примерно 1100 × 1300
+/* hero */
+.hero{min-height:calc(100svh - 64px);display:grid;align-content:end;padding:40px 0 48px;position:relative;overflow:hidden}
+.hero-bg{position:absolute;inset:0;z-index:-1}
+.hero-bg img{width:100%;height:100%;object-fit:cover;filter:saturate(.9)}
+.hero-bg::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(243,239,231,.1) 0%,rgba(243,239,231,.55) 45%,var(--paper) 100%)}
+.hero h1{font-size:clamp(44px,13vw,140px);line-height:.95;letter-spacing:-.03em}
+.hero h1 em{font-style:italic;color:var(--brass)}
+.hero p{margin:22px 0 28px}
+.hero-actions{display:flex;flex-wrap:wrap;gap:12px}
+.hero-meta{margin-top:40px;display:grid;grid-template-columns:repeat(2,1fr);gap:14px 20px;font-size:13px;color:var(--ink-2)}
+.hero-meta b{display:block;font-family:var(--serif);font-size:24px;color:var(--ink);font-weight:400;line-height:1}
+.hero-tag{position:absolute;top:24px;right:var(--gutter);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-2);writing-mode:vertical-rl;opacity:.7}
 
-     Пока изображений нет, сайт показывает аккуратные заглушки с именами файлов.
-     После добавления PNG обновите страницу.
+/* marquee */
+.marquee{border-top:1px solid var(--ink);border-bottom:1px solid var(--ink);overflow:hidden;background:var(--ink);color:var(--paper);padding:14px 0}
+.marquee .track{display:flex;width:max-content;animation:mq 28s linear infinite}
+.marquee span{font-family:var(--serif);font-size:20px;padding:0 28px;white-space:nowrap;display:flex;align-items:center;gap:28px}
+.marquee span::after{content:"";width:6px;height:6px;border-radius:50%;background:var(--brass)}
+@keyframes mq{to{transform:translateX(-50%)}}
 
-  4. В объекте SITE внизу укажите название, email, телефон и другие контакты.
-     Название «ПОЛКИ» — рабочее, замените на свой бренд.
-  5. Модели и размеры в PRODUCTS — демонстрационный ассортимент.
-     Замените на реально доступные изделия. Цены не выдуманы: «по запросу».
-  6. Без бэкенда форма НЕ отправляет данные на сервер.
-     Она сохраняет текст заявки и, если указан email, открывает почтовую программу.
-  7. Перед запуском продаж добавьте реальные реквизиты, условия и документы.
-     Домен и canonical добавьте после выбора настоящего адреса сайта.
+/* features */
+.feat{display:grid;gap:0;border-top:1px solid var(--line)}
+.feat li{display:grid;grid-template-columns:40px 1fr;gap:14px;padding:22px 0;border-bottom:1px solid var(--line);align-items:start}
+.feat .k{font-family:var(--serif);color:var(--brass);font-size:14px;padding-top:4px}
+.feat b{display:block;font-family:var(--serif);font-size:22px;font-weight:400;margin-bottom:4px}
+.feat p{color:var(--ink-2);font-size:15px}
 
-  Сайт не требует внешних библиотек, шрифтов или сборки.
-  -->
+/* collection */
+.filters{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;scrollbar-width:none;margin-bottom:22px}
+.filters::-webkit-scrollbar{display:none}
+.chip{flex:0 0 auto;padding:10px 16px;border:1px solid var(--line);border-radius:999px;font-size:13px;color:var(--ink-2);transition:.3s}
+.chip.on,.chip:hover{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.count{font-size:13px;color:var(--mute);margin-bottom:14px}
+.grid{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;margin-inline:calc(var(--gutter)*-1);padding-inline:var(--gutter);padding-bottom:10px;scrollbar-width:none}
+.grid::-webkit-scrollbar{display:none}
+.card{flex:0 0 82%;scroll-snap-align:start;background:#fff;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column;transition:transform .6s var(--ease),box-shadow .5s}
+.card:hover{transform:translateY(-6px);box-shadow:0 30px 50px -30px rgba(28,26,23,.45)}
+.card.hide{display:none}
+.card .fig{aspect-ratio:4/3;background:var(--paper-2);position:relative;overflow:hidden}
+.card .fig img{width:100%;height:100%;object-fit:cover;transition:transform 1.2s var(--ease)}
+.card:hover .fig img{transform:scale(1.05)}
+.card .tag{position:absolute;top:12px;left:12px;background:rgba(243,239,231,.92);font-size:11px;letter-spacing:.12em;text-transform:uppercase;padding:6px 10px;border-radius:2px}
+.card .body{padding:18px 18px 20px;display:grid;gap:8px;flex:1}
+.card h4{font-family:var(--serif);font-size:30px;font-weight:400;line-height:1}
+.card .spec{font-size:13px;color:var(--ink-2);display:flex;gap:14px;flex-wrap:wrap}
+.card .spec b{font-weight:600;color:var(--ink)}
+.card .foot{display:flex;justify-content:space-between;align-items:center;margin-top:auto;padding-top:12px;border-top:1px solid var(--line);font-size:13px}
+.card .foot a{color:var(--brass);font-weight:600;display:inline-flex;gap:6px;align-items:center}
+.note{font-size:13px;color:var(--mute);margin-top:22px;max-width:60ch}
+.coll-cta{margin-top:36px;padding:28px;background:var(--ink);color:var(--paper);border-radius:var(--radius);display:grid;gap:18px}
+.coll-cta .serif{font-size:clamp(26px,6vw,40px)}
 
-  <style>
-    :root {
-      --paper: #f5f2ec;
-      --sand: #eeeae2;
-      --white: #fffefa;
-      --ink: #252823;
-      --muted: #6e7269;
-      --line: #d8d9cf;
-      --olive: #3b473b;
-      --olive-dark: #283329;
-      --brass: #ad8955;
-      --container: 1360px;
-      --header-height: 82px;
-      --radius: 5px;
-      --ease: cubic-bezier(.22,.61,.36,1);
-    }
+/* ph fallback */
+.ph{background:linear-gradient(135deg,#e6dfd1,#d5cbb8);display:grid;place-items:center;color:var(--mute);font-size:12px;letter-spacing:.1em;text-transform:uppercase;text-align:center;padding:20px}
+.ph::before{content:"";width:44px;height:44px;border:1px solid var(--brass);border-radius:50%;margin-bottom:10px}
 
-    * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; scroll-padding-top: 100px; }
-    body {
-      margin: 0;
-      color: var(--ink);
-      background: var(--paper);
-      font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
-      -webkit-font-smoothing: antialiased;
-    }
-    body.menu-open { overflow: hidden; }
-    a { color: inherit; text-decoration: none; }
-    button, input, select, textarea { font: inherit; }
-    button, a { -webkit-tap-highlight-color: transparent; }
-    button { cursor: pointer; }
-    button:disabled { cursor: not-allowed; opacity: .5; }
-    img { display: block; width: 100%; height: auto; }
-    svg { display: block; }
-    h1, h2, h3, p, figure { margin: 0; }
-    h1, h2, h3 { line-height: 1.08; font-weight: 450; }
-    h1, h2 { letter-spacing: -.055em; }
-    ul { margin: 0; padding: 0; list-style: none; }
-    ::selection { color: white; background: var(--olive); }
-    :focus-visible { outline: 3px solid var(--brass); outline-offset: 5px; }
-    [hidden] { display: none !important; }
+/* architecture */
+.arch{background:var(--ink);color:var(--paper)}
+.arch .eyebrow{color:var(--brass-2)}.arch .eyebrow::before{background:var(--brass-2)}
+.arch .lead{color:rgba(255,255,255,.7)}
+.diagram{margin:30px 0 10px;border:1px solid rgba(255,255,255,.12);border-radius:var(--radius);padding:20px;background:rgba(255,255,255,.03)}
+.diagram svg{width:100%;height:auto}
+.diagram small{display:block;color:rgba(255,255,255,.45);font-size:12px;margin-top:10px}
+.arch-list{display:grid;gap:0;margin-top:30px}
+.arch-list li{padding:22px 0;border-top:1px solid rgba(255,255,255,.14);display:grid;gap:8px}
+.arch-list b{font-family:var(--serif);font-size:24px;font-weight:400}
+.arch-list p{color:rgba(255,255,255,.65);font-size:15px}
 
-    .container {
-      width: min(var(--container), calc(100% - 80px));
-      margin-inline: auto;
-    }
-    .section { padding: 112px 0; }
-    .eyebrow {
-      display: flex;
-      align-items: center;
-      gap: 13px;
-      margin-bottom: 25px;
-      font-size: 11px;
-      font-weight: 650;
-      line-height: 1.5;
-      letter-spacing: .15em;
-      text-transform: uppercase;
-    }
-    .eyebrow::before {
-      content: "";
-      width: 25px;
-      height: 1px;
-      background: currentColor;
-      opacity: .6;
-    }
-    .section-title { font-size: clamp(36px, 4.5vw, 68px); }
-    .serif {
-      font-family: Georgia, "Times New Roman", serif;
-      font-weight: 400;
-      font-style: italic;
-    }
-    .muted { color: var(--muted); }
-    .button {
-      display: inline-flex;
-      min-height: 52px;
-      padding: 15px 22px;
-      align-items: center;
-      justify-content: center;
-      gap: 25px;
-      border: 1px solid var(--olive);
-      border-radius: var(--radius);
-      background: var(--olive);
-      color: white;
-      font-size: 13px;
-      font-weight: 550;
-      line-height: 1.4;
-      text-align: center;
-      transition: background .2s, border-color .2s, transform .2s;
-    }
-    .button:hover {
-      background: var(--olive-dark);
-      border-color: var(--olive-dark);
-      transform: translateY(-2px);
-    }
-    .button svg { width: 17px; height: 17px; flex: 0 0 auto; }
-    .button-outline { background: transparent; color: var(--ink); border-color: #a6aa9d; }
-    .button-outline:hover { color: white; }
-    .button-light { background: var(--paper); border-color: var(--paper); color: var(--ink); }
-    .button-light:hover { background: #dedbcf; border-color: #dedbcf; }
-    .button-dark-outline { color: var(--paper); background: transparent; border-color: #8b9388; }
-    .button-dark-outline:hover { background: #455044; border-color: #abb2a5; }
-    .text-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 17px;
-      padding-block: 8px;
-      border-bottom: 1px solid currentColor;
-      font-size: 13px;
-    }
-    .text-link svg { width: 16px; height: 16px; }
-    .section-top {
-      display: flex;
-      justify-content: space-between;
-      gap: 48px;
-      align-items: flex-end;
-      margin-bottom: 44px;
-    }
-    .section-intro { max-width: 370px; color: var(--muted); font-size: 15px; }
-    .section-intro p + a { margin-top: 16px; }
-    .skip-link {
-      position: fixed;
-      z-index: 200;
-      left: 20px;
-      top: -80px;
-      padding: 12px;
-      background: white;
-      color: black;
-    }
-    .skip-link:focus { top: 15px; }
-    .sr-only {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      padding: 0;
-      margin: -1px;
-      overflow: hidden;
-      clip: rect(0,0,0,0);
-      white-space: nowrap;
-      border: 0;
-    }
+/* materials */
+.mat{display:grid;gap:28px}
+.mat-item{display:grid;gap:16px}
+.mat-item .fig{aspect-ratio:4/5;background:var(--paper-2);overflow:hidden;border-radius:var(--radius)}
+.mat-item .fig img{width:100%;height:100%;object-fit:cover}
+.mat-item .idx{font-family:var(--serif);font-size:13px;color:var(--brass);letter-spacing:.1em}
+.mat-item h3{font-family:var(--serif);font-weight:400;font-size:clamp(30px,7vw,48px);line-height:1}
+.mat-item p{color:var(--ink-2);font-size:15px}
+.mat-item .fine{font-size:12px;color:var(--mute)}
 
-    /* Шапка */
-    .header {
-      position: sticky;
-      top: 0;
-      z-index: 50;
-      background: rgba(245,242,236,.96);
-      border-bottom: 1px solid rgba(37,40,35,.12);
-      backdrop-filter: blur(15px);
-    }
-    .header-row {
-      display: flex;
-      height: var(--header-height);
-      gap: 40px;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .logo {
-      display: inline-flex;
-      flex-direction: column;
-      gap: 3px;
-      flex-shrink: 0;
-    }
-    .logo-word { font-size: 29px; font-weight: 750; line-height: 1; letter-spacing: -.07em; }
-    .logo-caption { font-size: 8px; line-height: 1.5; letter-spacing: .14em; text-transform: uppercase; }
-    .desktop-nav { display: flex; align-items: center; gap: 28px; }
-    .desktop-nav a { font-size: 12px; padding-block: 12px; }
-    .desktop-nav a:hover { color: #8b693b; }
-    .header-action { font-size: 12px; min-height: 42px; padding: 11px 17px; }
-    .menu-toggle {
-      display: none;
-      width: 44px;
-      height: 44px;
-      border: 1px solid var(--line);
-      border-radius: 4px;
-      background: transparent;
-      align-items: center;
-      justify-content: center;
-    }
-    .menu-toggle svg { width: 23px; height: 23px; }
-    .mobile-nav {
-      position: fixed;
-      inset: var(--header-height) 0 0;
-      z-index: 49;
-      background: var(--paper);
-      padding: 35px 24px;
-      overflow-y: auto;
-    }
-    .mobile-nav a {
-      display: block;
-      padding: 16px 0;
-      border-bottom: 1px solid var(--line);
-      font-size: 26px;
-      letter-spacing: -.04em;
-    }
-    .mobile-nav p { font-size: 13px; margin-top: 30px; color: var(--muted); }
+/* constructor */
+.ctor{background:var(--paper-2)}
+.ctor-steps{display:grid;gap:0;margin:26px 0 30px}
+.ctor-steps li{display:grid;grid-template-columns:auto 1fr;gap:16px;padding:16px 0;border-top:1px solid var(--line);align-items:center}
+.ctor-steps li span{font-family:var(--serif);width:40px;height:40px;border:1px solid var(--brass);color:var(--brass);border-radius:50%;display:grid;place-items:center;font-size:14px}
+.ctor-prev{position:relative;border-radius:var(--radius);overflow:hidden;aspect-ratio:4/3;background:var(--ink);box-shadow:0 40px 60px -40px rgba(0,0,0,.6);display:block}
+.ctor-prev img{width:100%;height:100%;object-fit:cover;opacity:.9}
+.ctor-prev .lbl{position:absolute;left:14px;bottom:14px;background:var(--brass);color:#fff;font-size:11px;letter-spacing:.14em;text-transform:uppercase;padding:8px 12px;border-radius:2px}
+.ctor-prev .badge{position:absolute;top:14px;right:14px;width:56px;height:56px;border-radius:50%;background:var(--paper);display:grid;place-items:center;font-family:var(--serif);font-size:16px;animation:spin 14s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ctor-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:26px}
+.ctor-more{font-size:14px;color:var(--ink-2);margin-top:18px}
+.ctor-more a{color:var(--brass);border-bottom:1px solid var(--brass)}
 
-    /* Изображения и автоматические заглушки */
-    .visual {
-      position: relative;
-      overflow: hidden;
-      isolation: isolate;
-      background: #deddd3;
-    }
-    .visual img {
-      position: absolute;
-      inset: 0;
-      height: 100%;
-      object-fit: cover;
-      opacity: 0;
-      transition: opacity .4s, transform .8s var(--ease);
-      z-index: 1;
-    }
-    .visual.has-image img { opacity: 1; }
-    .visual.has-image .placeholder { visibility: hidden; }
-    .placeholder {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 18px;
-      padding: 24px;
-      background:
-        linear-gradient(110deg, transparent 50%, rgba(255,255,255,.16)),
-        linear-gradient(160deg, #e5e1d7, #c8c8bc);
-      color: #5d6658;
-      text-align: center;
-    }
-    .placeholder > svg { width: 40px; height: 40px; opacity: .4; }
-    .placeholder strong { font-size: 11px; font-weight: 500; letter-spacing: .04em; overflow-wrap: anywhere; }
-    .placeholder small { max-width: 260px; font-size: 11px; color: #72796b; line-height: 1.5; }
-    .visual-dark .placeholder { background: linear-gradient(145deg, #495247, #303a31); color: #d8dece; }
-    .visual-dark .placeholder small { color: #b2bda7; }
+/* interiors */
+.int{display:grid;gap:18px}
+.int a{position:relative;display:block;border-radius:var(--radius);overflow:hidden;aspect-ratio:3/4;background:var(--paper-2)}
+.int a img{width:100%;height:100%;object-fit:cover;transition:transform 1.4s var(--ease)}
+.int a:hover img{transform:scale(1.06)}
+.int .cap{position:absolute;left:0;right:0;bottom:0;padding:22px 18px;background:linear-gradient(0deg,rgba(28,26,23,.85),transparent);color:var(--paper)}
+.int .cap small{display:block;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--brass-2);margin-bottom:6px}
+.int .cap b{font-family:var(--serif);font-size:26px;font-weight:400}
 
-    /* Первый экран */
-    .hero { padding-top: 35px; }
-    .hero-grid { display: grid; grid-template-columns: .95fr 1.05fr; min-height: 650px; }
-    .hero-copy {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      justify-content: center;
-      padding: 50px 45px 55px 0;
-    }
-    .hero h1 { font-size: clamp(49px, 5.65vw, 86px); }
-    .hero h1 .serif { display: block; color: #788069; }
-    .hero-description { max-width: 390px; color: var(--muted); margin-top: 28px; font-size: 15px; }
-    .hero-buttons { display: flex; flex-wrap: wrap; align-items: center; gap: 13px; margin-top: 34px; }
-    .hero-footnote { display: flex; gap: 25px; margin-top: 48px; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
-    .hero-footnote span { display: flex; align-items: center; gap: 8px; }
-    .hero-footnote span::before { content: ""; width: 5px; height: 5px; background: var(--brass); border-radius: 50%; }
-    .hero-visual { min-height: 650px; }
-    .hero-image-caption {
-      position: absolute;
-      z-index: 2;
-      bottom: 22px;
-      left: 22px;
-      right: 22px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 15px;
-      padding: 16px 18px;
-      background: rgba(245,242,236,.91);
-      backdrop-filter: blur(10px);
-    }
-    .hero-image-caption strong { font-size: 12px; font-weight: 550; }
-    .hero-image-caption span { font-size: 11px; color: var(--muted); }
-    .hero-image-caption svg { width: 21px; height: 21px; flex-shrink: 0; }
-    .benefits { margin-top: 35px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
-    .benefits-grid { display: grid; grid-template-columns: repeat(4,1fr); }
-    .benefit { padding: 23px 20px; border-right: 1px solid var(--line); }
-    .benefit:first-child { padding-left: 0; }
-    .benefit:last-child { border: 0; }
-    .benefit span { display: block; font-size: 11px; color: var(--muted); margin-top: 4px; }
-    .benefit strong { display: block; font-size: 13px; font-weight: 550; }
+/* process */
+.proc{display:grid;gap:0;counter-reset:s}
+.proc li{position:relative;padding:26px 0 26px 56px;border-top:1px solid var(--line)}
+.proc li::before{counter-increment:s;content:"0" counter(s);position:absolute;left:0;top:28px;font-family:var(--serif);color:var(--brass);font-size:18px}
+.proc li::after{content:"";position:absolute;left:14px;top:60px;bottom:-1px;width:1px;background:var(--line)}
+.proc li:last-child::after{display:none}
+.proc small{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+.proc b{display:block;font-family:var(--serif);font-size:28px;font-weight:400;margin:6px 0 8px;line-height:1.05}
+.proc p{color:var(--ink-2);font-size:15px}
 
-    /* Каталог */
-    .catalog { padding-top: 105px; }
-    .filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 30px; }
-    .filter {
-      min-height: 43px;
-      border: 1px solid var(--line);
-      background: transparent;
-      color: var(--muted);
-      padding: 9px 17px;
-      border-radius: 30px;
-      font-size: 12px;
-    }
-    .filter:hover { border-color: var(--olive); color: var(--ink); }
-    .filter[aria-pressed="true"] { color: white; border-color: var(--olive); background: var(--olive); }
-    .product-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 38px 25px; }
-    .product-card { min-width: 0; }
-    .product-photo { aspect-ratio: 4/4.6; }
-    .product-open {
-      display: block;
-      position: relative;
-      width: 100%;
-      padding: 0;
-      border: 0;
-      background: transparent;
-      text-align: left;
-    }
-    .product-open:hover .visual img { transform: scale(1.04); }
-    .product-tag {
-      position: absolute;
-      top: 15px;
-      left: 15px;
-      z-index: 2;
-      padding: 6px 10px;
-      color: var(--ink);
-      background: rgba(245,242,236,.9);
-      font-size: 10px;
-    }
-    .product-arrow {
-      position: absolute;
-      right: 15px;
-      bottom: 15px;
-      z-index: 2;
-      display: grid;
-      place-items: center;
-      width: 42px;
-      height: 42px;
-      border-radius: 50%;
-      color: var(--ink);
-      background: var(--paper);
-      transition: background .2s, color .2s;
-    }
-    .product-arrow svg { width: 18px; height: 18px; }
-    .product-open:hover .product-arrow { background: var(--olive); color: white; }
-    .product-info { padding-top: 18px; }
-    .product-title-row { display: flex; gap: 12px; justify-content: space-between; align-items: baseline; }
-    .product-title-row h3 { font-size: 23px; letter-spacing: -.035em; }
-    .product-type { color: var(--muted); font-size: 10px; }
-    .product-meta { color: var(--muted); font-size: 12px; margin-top: 9px; }
-    .product-bottom { display: flex; gap: 12px; justify-content: space-between; align-items: center; margin-top: 14px; padding-top: 13px; border-top: 1px solid var(--line); }
-    .product-price { font-size: 12px; }
-    .product-details {
-      min-height: 35px;
-      border: 0;
-      padding: 6px 0 6px 10px;
-      background: none;
-      color: var(--olive);
-      font-size: 12px;
-      text-decoration: underline;
-      text-underline-offset: 4px;
-    }
-    .catalog-note { font-size: 12px; max-width: 740px; color: var(--muted); margin-top: 30px; }
-    .catalog-order {
-      display: flex;
-      margin-top: 40px;
-      padding: 28px 0 0;
-      border-top: 1px solid var(--line);
-      align-items: center;
-      justify-content: space-between;
-      gap: 25px;
-    }
-    .catalog-order p { font-size: 18px; letter-spacing: -.02em; }
-    .catalog-order p span { color: var(--muted); }
+/* faq */
+.faq details{border-top:1px solid var(--line)}
+.faq details:last-child{border-bottom:1px solid var(--line)}
+.faq summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;gap:20px;align-items:center;padding:20px 0;font-family:var(--serif);font-size:20px;line-height:1.2}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary i{flex:0 0 32px;height:32px;border:1px solid var(--line);border-radius:50%;position:relative;transition:transform .5s var(--ease),background .3s}
+.faq summary i::before,.faq summary i::after{content:"";position:absolute;left:50%;top:50%;width:12px;height:1px;background:var(--ink);transform:translate(-50%,-50%)}
+.faq summary i::after{transform:translate(-50%,-50%) rotate(90deg)}
+.faq details[open] summary i{transform:rotate(45deg);background:var(--brass);border-color:var(--brass)}
+.faq details[open] summary i::before,.faq details[open] summary i::after{background:#fff}
+.faq .a{padding:0 0 22px;color:var(--ink-2);font-size:15px;max-width:66ch}
+.faq-ask{margin-top:28px}
 
-    /* Блок о системе */
-    .system { color: var(--paper); background: var(--olive-dark); }
-    .system .eyebrow { color: #bcc5b5; }
-    .system .section-title { max-width: 850px; }
-    .system .serif { color: #c1b08d; }
-    .system-grid { display: grid; grid-template-columns: 1.1fr .9fr; gap: 100px; margin-top: 55px; align-items: center; }
-    .shelf-drawing {
-      position: relative;
-      min-height: 340px;
-      padding: 30px 50px;
-      border: 1px solid #5b6558;
-      display: grid;
-      place-items: center;
-      background: radial-gradient(ellipse at center, #3a483b, transparent 70%);
-    }
-    .shelf-drawing > svg { width: 100%; max-height: 330px; }
-    .drawing-caption { position: absolute; left: 20px; bottom: 15px; color: #b5bfac; font-size: 10px; letter-spacing: .06em; }
-    .system-points { counter-reset: point; }
-    .system-points li { position: relative; padding: 23px 0 23px 47px; border-bottom: 1px solid #55614f; counter-increment: point; }
-    .system-points li:first-child { padding-top: 0; }
-    .system-points li::before { content: "0" counter(point); position: absolute; left: 0; top: 26px; font-size: 10px; color: #b5bfac; }
-    .system-points li:first-child::before { top: 4px; }
-    .system-points h3 { font-size: 21px; letter-spacing: -.025em; }
-    .system-points p { margin-top: 10px; color: #b9c2b2; font-size: 13px; max-width: 370px; }
+/* contact */
+.contact{background:var(--ink);color:var(--paper)}
+.contact .eyebrow{color:var(--brass-2)}.contact .eyebrow::before{background:var(--brass-2)}
+.contact .lead{color:rgba(255,255,255,.7)}
+.form{display:grid;gap:14px;margin-top:30px}
+.field{display:grid;gap:6px}
+.field label{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.5)}
+.field input,.field textarea,.field select{width:100%;background:transparent;border:0;border-bottom:1px solid rgba(255,255,255,.25);color:var(--paper);padding:12px 0;font:inherit;font-size:17px;border-radius:0;outline:none;transition:border-color .3s;-webkit-appearance:none;appearance:none}
+.field select option{color:var(--ink)}
+.field textarea{min-height:90px;resize:vertical}
+.field input:focus,.field textarea:focus,.field select:focus{border-bottom-color:var(--brass-2)}
+.form-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px}
+.form .hint{font-size:12px;color:rgba(255,255,255,.45)}
+.toast{position:fixed;left:50%;bottom:90px;transform:translate(-50%,20px);background:var(--brass);color:#fff;padding:12px 18px;border-radius:999px;font-size:14px;opacity:0;pointer-events:none;transition:.4s var(--ease);z-index:70;white-space:nowrap}
+.toast.on{opacity:1;transform:translate(-50%,0)}
 
-    /* Материалы */
-    .materials-grid { display: grid; grid-template-columns: 1.05fr .95fr; gap: 70px; align-items: start; }
-    .material-main { aspect-ratio: 4/4.7; }
-    .material-right { padding-top: 60px; }
-    .material-copy { max-width: 440px; }
-    .material-copy h3 { font-size: clamp(30px,3.1vw,46px); letter-spacing: -.04em; }
-    .material-copy p { font-size: 14px; color: var(--muted); margin-top: 22px; }
-    .material-detail { aspect-ratio: 1.5; margin-top: 40px; }
-    .material-footer { display: flex; justify-content: space-between; gap: 15px; padding-top: 15px; font-size: 11px; color: var(--muted); }
-    .material-swatches { display: flex; gap: 8px; margin-top: 24px; }
-    .swatch { width: 29px; height: 29px; border-radius: 50%; border: 3px solid var(--paper); outline: 1px solid #c7c9bc; }
-    .swatch-oak { background: #b69768; }
-    .swatch-walnut { background: #71513d; }
-    .swatch-metal { background: #353934; }
-    .swatch-brass { background: linear-gradient(120deg,#846037,#e1c18c,#9d7947); }
+/* footer */
+.ftr{padding:40px 0 100px;font-size:13px;color:var(--mute);display:grid;gap:18px}
+.ftr .big{font-family:var(--serif);font-size:clamp(48px,18vw,200px);line-height:.85;letter-spacing:.06em;color:var(--ink);opacity:.08;user-select:none}
+.ftr .row{display:flex;flex-wrap:wrap;gap:16px 28px;justify-content:space-between;border-top:1px solid var(--line);padding-top:18px}
+.ftr .row a:hover{color:var(--brass)}
 
-    /* Конструктор */
-    .constructor { background: #e7e8de; overflow: hidden; }
-    .constructor-grid { display: grid; grid-template-columns: .8fr 1.2fr; gap: 70px; align-items: center; }
-    .constructor-copy .section-title { font-size: clamp(37px,4.3vw,62px); }
-    .constructor-copy > p { max-width: 365px; color: var(--muted); font-size: 14px; margin-top: 25px; }
-    .constructor-steps { margin: 29px 0; }
-    .constructor-steps li { display: flex; gap: 14px; margin: 12px 0; font-size: 12px; }
-    .constructor-steps span { color: #7c826f; font-size: 10px; min-width: 18px; padding-top: 2px; }
-    .constructor-preview { padding: 12px; background: #f5f4ef; border: 1px solid #ccd0bf; box-shadow: 0 30px 70px #34432b12; transform: rotate(-1.5deg); }
-    .preview-bar { display: flex; justify-content: space-between; gap: 10px; align-items: center; padding: 5px 7px 14px; color: var(--muted); font-size: 9px; letter-spacing: .1em; text-transform: uppercase; }
-    .preview-dots { display: flex; gap: 5px; }
-    .preview-dots i { display: block; width: 5px; height: 5px; border: 1px solid #a0a58f; border-radius: 50%; }
-    .constructor-photo { aspect-ratio: 1.45; }
-    .constructor-under { font-size: 11px; color: var(--muted); margin-top: 15px; }
-    .constructor-under a { text-decoration: underline; text-underline-offset: 3px; }
+/* sticky mobile bar */
+.mbar{position:fixed;left:12px;right:12px;bottom:12px;z-index:40;display:flex;gap:8px;background:rgba(28,26,23,.92);backdrop-filter:blur(12px);padding:8px;border-radius:999px;transform:translateY(120%);transition:transform .6s var(--ease)}
+.mbar.on{transform:none}
+.mbar a{flex:1;min-height:44px;display:grid;place-items:center;border-radius:999px;color:var(--paper);font-size:14px;font-weight:600}
+.mbar a.p{background:var(--brass)}
 
-    /* Интерьеры */
-    .inspiration-grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: 65px; align-items: start; }
-    .inspiration-main { aspect-ratio: 1.2; }
-    .inspiration-secondary { aspect-ratio: .9; margin-top: 90px; }
-    .image-caption { display: flex; justify-content: space-between; gap: 20px; margin-top: 15px; font-size: 11px; color: var(--muted); }
-    .image-caption strong { color: var(--ink); font-weight: 500; }
+/* reveal */
+.rv{opacity:0;transform:translateY(24px);transition:opacity .9s var(--ease),transform 1s var(--ease)}
+.rv.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.rv{opacity:1;transform:none}}
 
-    /* Заказ */
-    .process { border-top: 1px solid var(--line); }
-    .process-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 30px; margin-top: 55px; }
-    .process-card { border-top: 1px solid #9ca38e; padding-top: 22px; }
-    .process-number { color: var(--brass); font-size: 11px; }
-    .process-card h3 { margin-top: 32px; font-size: 23px; letter-spacing: -.035em; }
-    .process-card p { color: var(--muted); font-size: 13px; margin-top: 14px; }
-
-    /* Вопросы */
-    .faq { background: #eceee5; }
-    .faq-grid { display: grid; grid-template-columns: .7fr 1.3fr; gap: 100px; }
-    .faq-intro p { margin-top: 24px; color: var(--muted); max-width: 270px; font-size: 14px; }
-    .faq-list details { border-bottom: 1px solid #cbd0c1; }
-    .faq-list details:first-child { border-top: 1px solid #cbd0c1; }
-    .faq-list summary {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 24px;
-      min-height: 82px;
-      padding: 22px 0;
-      cursor: pointer;
-      font-size: 16px;
-      list-style: none;
-      letter-spacing: -.025em;
-    }
-    .faq-list summary::-webkit-details-marker { display: none; }
-    .faq-list summary::after { content: "+"; font-size: 25px; font-weight: 300; color: #68795c; }
-    .faq-list details[open] summary::after { content: "−"; }
-    .faq-list details p { padding: 0 40px 25px 0; color: var(--muted); font-size: 13px; max-width: 650px; }
-
-    /* Контакты и форма */
-    .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 110px; }
-    .contact-copy .section-title { max-width: 500px; }
-    .contact-copy > p { max-width: 380px; margin-top: 25px; color: var(--muted); font-size: 14px; }
-    .contact-methods { margin-top: 35px; display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
-    .contact-methods a { font-size: 20px; letter-spacing: -.03em; border-bottom: 1px solid var(--line); }
-    .contact-methods a:hover { border-color: var(--ink); }
-    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
-    .field { display: flex; flex-direction: column; margin-bottom: 22px; }
-    .field label { font-size: 11px; color: var(--muted); margin-bottom: 7px; }
-    .field input, .field select, .field textarea {
-      width: 100%;
-      min-height: 48px;
-      background: transparent;
-      border: 0;
-      border-bottom: 1px solid #aeb6a3;
-      border-radius: 0;
-      padding: 10px 0;
-      color: var(--ink);
-      outline-offset: 3px;
-      font-size: 14px;
-    }
-    .field textarea { resize: vertical; min-height: 100px; }
-    .field input::placeholder, .field textarea::placeholder { color: #959b8c; }
-    .form-info { font-size: 11px; color: var(--muted); line-height: 1.7; margin-bottom: 20px; }
-    .form-info strong { font-weight: 550; color: var(--ink); }
-    .form-status { font-size: 12px; color: var(--olive); margin-top: 18px; }
-    .request-form .button { width: 100%; }
-    .no-js-note { margin: 10px 0; color: #7f583a; font-size: 13px; }
-
-    /* Подвал */
-    .footer { color: #d5dbce; background: #283127; padding: 58px 0 22px; }
-    .footer-top { display: grid; grid-template-columns: 1.2fr .8fr .8fr; gap: 60px; }
-    .footer .logo-word { font-size: 37px; }
-    .footer .logo-caption { font-size: 8px; }
-    .footer-about { max-width: 290px; margin-top: 20px; color: #a5b29c; font-size: 12px; }
-    .footer-label { font-size: 10px; text-transform: uppercase; letter-spacing: .13em; margin-bottom: 18px; color: #a5b29c; }
-    .footer-links a { display: block; width: fit-content; margin: 10px 0; font-size: 12px; }
-    .footer-links a:hover { color: white; }
-    .footer-bottom { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 18px; margin-top: 55px; padding-top: 20px; border-top: 1px solid #495642; font-size: 10px; color: #a5b29c; }
-    .footer-bottom button { color: inherit; font-size: 10px; padding: 0; background: none; border: 0; text-decoration: underline; text-underline-offset: 3px; }
-    .back-top { display: inline-flex; align-items: center; gap: 10px; }
-
-    /* Модальные окна */
-    dialog {
-      width: min(970px, calc(100% - 40px));
-      max-height: calc(100dvh - 40px);
-      margin: auto;
-      padding: 0;
-      border: 1px solid var(--line);
-      background: var(--paper);
-      color: var(--ink);
-      overscroll-behavior: contain;
-    }
-    dialog::backdrop { background: rgba(20,27,19,.68); backdrop-filter: blur(4px); }
-    .dialog-close {
-      position: absolute;
-      top: 12px;
-      right: 12px;
-      z-index: 5;
-      display: grid;
-      place-items: center;
-      width: 44px;
-      height: 44px;
-      padding: 0;
-      background: var(--paper);
-      color: var(--ink);
-      border: 1px solid var(--line);
-      border-radius: 50%;
-    }
-    .dialog-close svg { width: 20px; height: 20px; }
-    .product-dialog-grid { display: grid; grid-template-columns: 1fr 1fr; }
-    .dialog-photo { min-height: 570px; }
-    .dialog-copy { padding: 55px 35px 35px; }
-    .dialog-copy .eyebrow { font-size: 9px; margin-bottom: 18px; }
-    .dialog-copy h2 { font-size: 48px; }
-    .dialog-description { margin-top: 20px; color: var(--muted); font-size: 13px; }
-    .spec-list { margin-top: 25px; }
-    .spec-list div { display: flex; justify-content: space-between; gap: 20px; padding: 12px 0; border-bottom: 1px solid var(--line); font-size: 11px; }
-    .spec-list dt { color: var(--muted); }
-    .spec-list dd { margin: 0; text-align: right; }
-    .dialog-price { margin: 24px 0 20px; font-size: 20px; letter-spacing: -.025em; }
-    .dialog-actions { display: grid; gap: 10px; }
-    .dialog-note { margin-top: 18px; color: var(--muted); font-size: 10px; }
-    .info-dialog { width: min(650px,calc(100% - 32px)); padding: 55px 30px 35px; }
-    .info-dialog h2 { font-size: 32px; }
-    .info-dialog p { margin-top: 18px; font-size: 14px; color: var(--muted); }
-
-    @media (min-width: 1700px) {
-      .hero-grid, .hero-visual { min-height: 740px; }
-    }
-    @media (max-width: 1150px) {
-      .container { width: calc(100% - 48px); }
-      .desktop-nav { gap: 17px; }
-      .header-row { gap: 22px; }
-      .hero-grid, .hero-visual { min-height: 580px; }
-      .hero-copy { padding-right: 27px; }
-      .hero-buttons { gap: 10px; }
-      .hero-buttons .button { font-size: 12px; padding-inline: 16px; gap: 12px; }
-      .system-grid, .faq-grid { gap: 55px; }
-      .materials-grid, .constructor-grid { gap: 45px; }
-      .contact-grid { gap: 60px; }
-      .inspiration-grid { gap: 35px; }
-    }
-    @media (max-width: 900px) {
-      :root { --header-height: 70px; }
-      .section { padding: 80px 0; }
-      .desktop-nav { display: none; }
-      .header-action { margin-left: auto; }
-      .menu-toggle { display: flex; }
-      .hero-grid { grid-template-columns: 1fr 1fr; min-height: 530px; }
-      .hero h1 { font-size: 54px; }
-      .hero-visual { min-height: 530px; }
-      .hero-copy { padding-block: 35px; }
-      .hero-description { font-size: 13px; }
-      .hero-buttons { align-items: stretch; flex-direction: column; width: 100%; max-width: 260px; }
-      .hero-footnote { flex-direction: column; gap: 9px; margin-top: 28px; }
-      .benefit { padding-inline: 14px; }
-      .benefit strong { font-size: 11px; }
-      .benefit span { font-size: 10px; }
-      .section-top { gap: 30px; }
-      .section-intro { max-width: 280px; font-size: 13px; }
-      .product-grid { grid-template-columns: repeat(2,1fr); gap: 35px 20px; }
-      .system-grid { gap: 35px; }
-      .shelf-drawing { padding: 20px; min-height: 300px; }
-      .materials-grid { gap: 35px; }
-      .material-right { padding-top: 30px; }
-      .constructor-grid { grid-template-columns: 1fr; gap: 45px; }
-      .constructor-copy { max-width: 650px; }
-      .constructor-copy > p { max-width: 550px; }
-      .constructor-preview { max-width: 760px; transform: rotate(-1deg); }
-      .process-grid { grid-template-columns: repeat(2,1fr); row-gap: 40px; }
-      .faq-grid { gap: 40px; grid-template-columns: .8fr 1.2fr; }
-      .contact-grid { gap: 45px; }
-      .footer-top { gap: 35px; }
-      .dialog-copy { padding-inline: 25px; }
-    }
-    @media (max-width: 640px) {
-      .container { width: calc(100% - 36px); }
-      .section { padding: 64px 0; }
-      .eyebrow { font-size: 9px; margin-bottom: 20px; }
-      .section-title { font-size: 40px; }
-      .header-row { gap: 12px; }
-      .logo-word { font-size: 25px; }
-      .logo-caption { font-size: 6px; }
-      .header-action { min-height: 40px; padding: 9px 12px; font-size: 10px; gap: 8px; }
-      .header-action svg { width: 14px; height: 14px; }
-      .hero { padding-top: 0; }
-      .hero-grid { grid-template-columns: 1fr; }
-      .hero-copy { padding: 39px 0 32px; }
-      .hero h1 { font-size: clamp(47px,12vw,66px); }
-      .hero-description { margin-top: 22px; max-width: 340px; font-size: 14px; }
-      .hero-buttons { flex-direction: row; max-width: none; margin-top: 25px; }
-      .hero-buttons .button { flex: 1; padding-inline: 10px; font-size: 11px; min-height: 49px; }
-      .hero-footnote { flex-direction: row; gap: 17px; font-size: 8px; margin-top: 25px; flex-wrap: wrap; }
-      .hero-visual { min-height: 0; aspect-ratio: 1/1.08; }
-      .hero-image-caption { left: 12px; right: 12px; bottom: 12px; padding: 13px; }
-      .hero-image-caption strong { font-size: 11px; }
-      .hero-image-caption span { font-size: 9px; }
-      .benefits { margin-top: 22px; }
-      .benefits-grid { grid-template-columns: 1fr 1fr; }
-      .benefit { padding: 16px 12px !important; }
-      .benefit:nth-child(2) { border-right: 0; }
-      .benefit:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
-      .section-top { display: block; margin-bottom: 28px; }
-      .section-intro { margin-top: 22px; max-width: 350px; }
-      .filters { gap: 6px; margin-bottom: 23px; }
-      .filter { font-size: 10px; padding: 9px 12px; min-height: 42px; }
-      .product-grid { gap: 28px 12px; }
-      .product-photo { aspect-ratio: 3/4; }
-      .product-tag { top: 8px; left: 8px; font-size: 8px; padding: 4px 6px; }
-      .product-arrow { right: 8px; bottom: 8px; width: 34px; height: 34px; }
-      .product-info { padding-top: 13px; }
-      .product-title-row { display: block; }
-      .product-title-row h3 { font-size: 23px; }
-      .product-type { display: block; margin-top: 6px; font-size: 9px; }
-      .product-meta { font-size: 10px; margin-top: 6px; line-height: 1.7; }
-      .product-bottom { display: block; margin-top: 10px; padding-top: 9px; }
-      .product-price { display: block; font-size: 10px; }
-      .product-details { padding-left: 0; font-size: 10px; min-height: 36px; }
-      .product-photo .placeholder { padding: 10px; gap: 10px; }
-      .product-photo .placeholder > svg { width: 25px; height: 25px; }
-      .product-photo .placeholder strong { font-size: 9px; }
-      .product-photo .placeholder small { display: none; }
-      .catalog-note { font-size: 10px; margin-top: 22px; }
-      .catalog-order { display: block; padding-top: 22px; margin-top: 26px; }
-      .catalog-order p { font-size: 17px; }
-      .catalog-order .text-link { margin-top: 17px; }
-      .system-grid { grid-template-columns: 1fr; margin-top: 32px; gap: 30px; }
-      .shelf-drawing { min-height: 270px; }
-      .system-points h3 { font-size: 23px; }
-      .materials-grid { grid-template-columns: 1fr; gap: 25px; }
-      .material-main { aspect-ratio: 1.1; }
-      .material-right { padding-top: 10px; }
-      .material-copy h3 { font-size: 34px; }
-      .material-copy p { font-size: 13px; margin-top: 18px; }
-      .material-detail { margin-top: 28px; }
-      .material-footer { font-size: 10px; }
-      .constructor-grid { gap: 35px; }
-      .constructor-copy .section-title { font-size: 40px; }
-      .constructor-copy > p { font-size: 13px; }
-      .constructor-copy .button { width: 100%; }
-      .constructor-preview { padding: 8px; }
-      .preview-bar { font-size: 7px; }
-      .constructor-photo { aspect-ratio: 1.15; }
-      .inspiration-grid { grid-template-columns: 1fr; gap: 32px; }
-      .inspiration-main { aspect-ratio: 1; }
-      .inspiration-secondary { margin-top: 0; aspect-ratio: 1.15; }
-      .image-caption { font-size: 10px; gap: 10px; }
-      .process-grid { gap: 29px 20px; margin-top: 30px; }
-      .process-card h3 { font-size: 21px; margin-top: 22px; }
-      .process-card p { font-size: 12px; }
-      .faq-grid { grid-template-columns: 1fr; gap: 30px; }
-      .faq-intro p { max-width: 340px; margin-top: 18px; font-size: 13px; }
-      .faq-list summary { min-height: 74px; font-size: 14px; }
-      .faq-list details p { font-size: 12px; padding-right: 20px; }
-      .contact-grid { grid-template-columns: 1fr; gap: 35px; }
-      .contact-copy > p { font-size: 13px; }
-      .contact-methods { margin-top: 22px; }
-      .form-row { gap: 14px; }
-      .field input, .field textarea, .field select { font-size: 16px; }
-      .footer { padding-top: 40px; }
-      .footer-top { grid-template-columns: 1fr 1fr; gap: 30px; }
-      .footer-brand { grid-column: 1/-1; }
-      .footer-about { max-width: 330px; }
-      .footer-bottom { margin-top: 32px; flex-direction: column; align-items: flex-start; gap: 12px; }
-      dialog { width: calc(100% - 20px); max-height: calc(100dvh - 20px); }
-      .product-dialog-grid { grid-template-columns: 1fr; }
-      .dialog-photo { min-height: 0; aspect-ratio: 1.25; }
-      .dialog-copy { padding: 26px 22px; }
-      .dialog-copy h2 { font-size: 40px; }
-      .dialog-close { top: 9px; right: 9px; }
-      .info-dialog { padding-inline: 22px; }
-    }
-    @media (prefers-reduced-motion: reduce) {
-      html { scroll-behavior: auto; }
-      *, *::before, *::after {
-        transition-duration: .01ms !important;
-        animation-duration: .01ms !important;
-      }
-      .button:hover { transform: none; }
-      .product-open:hover .visual img { transform: none; }
-    }
-  </style>
+/* tablet */
+@media (min-width:640px){
+  :root{--gutter:32px}
+  .hero-meta{grid-template-columns:repeat(4,1fr)}
+  .feat{grid-template-columns:1fr 1fr;column-gap:40px}
+  .card{flex-basis:46%}
+  .mat{grid-template-columns:1fr 1fr;gap:32px}
+  .int{grid-template-columns:1fr 1fr}
+  .proc{grid-template-columns:1fr 1fr;column-gap:40px}
+  .proc li::after{display:none}
+  .form{grid-template-columns:1fr 1fr}
+  .form .full{grid-column:1/-1}
+  .coll-cta{grid-template-columns:1fr auto;align-items:center}
+  .ftr{padding-bottom:60px}
+}
+/* desktop */
+@media (min-width:960px){
+  :root{--gutter:48px}
+  .nav,.hdr-cta{display:flex}
+  .burger,.menu,.mbar{display:none}
+  .hero{grid-template-columns:1.2fr .8fr;align-items:end;min-height:calc(100vh - 64px)}
+  .hero-meta{grid-column:1/-1;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line);padding-top:24px}
+  .sec-head{grid-template-columns:1fr 1fr;align-items:end}
+  .sec-head .lead{justify-self:end;padding-bottom:10px}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;overflow:visible;margin-inline:0;padding-inline:0}
+  .card{flex-basis:auto}
+  .feat{grid-template-columns:repeat(4,1fr);column-gap:32px}
+  .feat li{grid-template-columns:1fr;border-bottom:0;border-top:1px solid var(--line)}
+  .arch-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:start}
+  .arch-grid .diagram{position:sticky;top:90px;margin:0}
+  .mat{gap:60px}
+  .mat-item:nth-child(2){margin-top:120px}
+  .ctor-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
+  .proc{grid-template-columns:repeat(4,1fr)}
+  .faq-grid{display:grid;grid-template-columns:1fr 1.4fr;gap:60px}
+  .faq-grid .sec-head{display:block;position:sticky;top:90px;margin:0}
+  .contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px}
+  .contact-grid .form{margin-top:0}
+}
+@media (min-width:1280px){.card h4{font-size:34px}}
+</style>
 </head>
+<body>
+<div id="progress"></div>
 
-<body id="top">
-  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden">
-    <symbol id="icon-arrow" viewBox="0 0 24 24">
-      <path d="M5 19 19 5M5 5h14v14" fill="none" stroke="currentColor" stroke-width="1.4"/>
-    </symbol>
-    <symbol id="icon-close" viewBox="0 0 24 24">
-      <path d="m6 6 12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="1.5"/>
-    </symbol>
-    <symbol id="icon-menu" viewBox="0 0 24 24">
-      <path d="M3 8h18M3 16h18" fill="none" stroke="currentColor" stroke-width="1.5"/>
-    </symbol>
-    <symbol id="icon-photo" viewBox="0 0 48 48">
-      <rect x="5" y="7" width="38" height="34" rx="2" fill="none" stroke="currentColor" stroke-width="1.3"/>
-      <path d="m5 34 12-12 10 10 6-6 10 11" fill="none" stroke="currentColor" stroke-width="1.3"/>
-      <circle cx="33" cy="17" r="4" fill="none" stroke="currentColor" stroke-width="1.3"/>
-    </symbol>
-  </svg>
+<header class="hdr" id="top">
+  <div class="wrap">
+    <a href="#top" class="logo" aria-label="ПОЛКИ — на главную"><i></i>ПОЛКИ</a>
+    <nav class="nav" aria-label="Основная навигация">
+      <a href="#collection">Коллекция</a>
+      <a href="#architecture">Система</a>
+      <a href="#materials">Материалы</a>
+      <a href="#constructor">Конструктор</a>
+      <a href="#process">Как заказать</a>
+      <a href="#faq">Вопросы</a>
+    </nav>
+    <a href="#contact" class="btn btn-dark hdr-cta" style="min-height:42px;padding:0 20px;font-size:14px">Заявка</a>
+    <button class="burger" id="burger" aria-label="Меню" aria-expanded="false" aria-controls="menu"><span></span><span></span><span></span></button>
+  </div>
+</header>
 
-  <a href="#main" class="skip-link">Перейти к содержанию</a>
+<div class="menu" id="menu" aria-hidden="true">
+  <a class="big" href="#collection" style="transition-delay:.05s">Коллекция <small>01</small></a>
+  <a class="big" href="#architecture" style="transition-delay:.1s">Система <small>02</small></a>
+  <a class="big" href="#materials" style="transition-delay:.15s">Материалы <small>03</small></a>
+  <a class="big" href="constructor.html" style="transition-delay:.2s">Конструктор <small>3D</small></a>
+  <a class="big" href="#process" style="transition-delay:.25s">Как заказать <small>06</small></a>
+  <a class="big" href="#faq" style="transition-delay:.3s">Вопросы <small>07</small></a>
+  <div class="foot">
+    <span>Дерево · металл · латунь</span>
+    <!-- Замените USERNAME на ваш Telegram -->
+    <a href="https://t.me/USERNAME" target="_blank" rel="noopener">Написать в Telegram ↗</a>
+  </div>
+</div>
 
-  <header class="header">
-    <div class="container header-row">
-      <a class="logo" href="#top" aria-label="ПОЛКИ — на главную">
-        <span class="logo-word" data-brand>ПОЛКИ</span>
-        <span class="logo-caption">дерево · металл · латунь</span>
-      </a>
-
-      <nav class="desktop-nav" aria-label="Основная навигация">
-        <a href="#catalog">Коллекция</a>
-        <a href="#materials">Материалы</a>
-        <a href="#constructor">Конструктор</a>
-        <a href="#process">Как заказать</a>
-        <a href="#contacts">Контакты</a>
-      </nav>
-
-      <a class="button button-outline header-action" href="./constructor.html">
-        Создать стеллаж
-        <svg aria-hidden="true"><use href="#icon-arrow"/></svg>
-      </a>
-
-      <button class="menu-toggle" id="menu-toggle" type="button" aria-label="Открыть меню" aria-controls="mobile-nav" aria-expanded="false">
-        <svg aria-hidden="true"><use href="#icon-menu"/></svg>
-      </button>
+<main>
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"><img src="img/hero-shelving.png" alt="Стеллаж из дерева и латуни в мягком дневном свете" fetchpriority="high"></div>
+  <span class="hero-tag">Мебельный щит · латунные соединения</span>
+  <div class="wrap" style="display:contents">
+    <div style="padding-inline:var(--gutter)">
+      <p class="eyebrow">Полки и стеллажи под ваш интерьер</p>
+      <h1 class="serif" style="margin-top:18px">У каждой вещи<br><em>своё место.</em></h1>
+      <p class="lead">Дерево, металл и латунь. Готовые композиции и стеллажи по вашим размерам — для вещей, которые хочется оставить на виду.</p>
+      <div class="hero-actions">
+        <a href="#collection" class="btn btn-dark">Выбрать модель <span class="arr">→</span></a>
+        <a href="constructor.html" class="btn btn-ghost">Собрать свою</a>
+      </div>
     </div>
-  </header>
+    <div style="padding-inline:var(--gutter)">
+      <ul class="hero-meta">
+        <li><b>2</b>глубины: 200 и 400 мм</li>
+        <li><b>2</b>исполнения: настенное и напольное</li>
+        <li><b>6</b>готовых композиций</li>
+        <li><b>3D</b>онлайн-конструктор</li>
+      </ul>
+    </div>
+  </div>
+</section>
 
-  <nav class="mobile-nav" id="mobile-nav" aria-label="Мобильная навигация" hidden>
-    <a href="#catalog">Коллекция</a>
-    <a href="#materials">Материалы</a>
-    <a href="#constructor">Конструктор</a>
-    <a href="#inspiration">В интерьере</a>
-    <a href="#process">Как заказать</a>
-    <a href="#contacts">Обсудить проект</a>
-    <p>Полки и стеллажи, в которых каждая деталь на своём месте.</p>
-  </nav>
+<div class="marquee" aria-hidden="true">
+  <div class="track">
+    <span>Меньше лишнего. Больше вашего.</span><span>Дерево</span><span>Металл</span><span>Латунь</span><span>По вашим размерам</span><span>Настенное и напольное</span>
+    <span>Меньше лишнего. Больше вашего.</span><span>Дерево</span><span>Металл</span><span>Латунь</span><span>По вашим размерам</span><span>Настенное и напольное</span>
+  </div>
+</div>
 
-  <main id="main">
-    <section class="hero" aria-labelledby="hero-title">
-      <div class="container hero-grid">
-        <div class="hero-copy">
-          <p class="eyebrow">Полки и стеллажи под ваш интерьер</p>
-          <h1 id="hero-title">
-            У каждой вещи
-            <span class="serif">своё место.</span>
-          </h1>
-          <p class="hero-description">
-            Дерево, металл и латунь. Готовые композиции
-            и стеллажи по вашим размерам — для вещей,
-            которые хочется оставить на виду.
-          </p>
-          <div class="hero-buttons">
-            <a class="button" href="#catalog">
-              Выбрать модель
-              <svg aria-hidden="true"><use href="#icon-arrow"/></svg>
-            </a>
-            <a class="button button-outline" href="./constructor.html">
-              Собрать свою
-              <svg aria-hidden="true"><use href="#icon-arrow"/></svg>
-            </a>
-          </div>
-          <div class="hero-footnote">
-            <span>Мебельный щит</span>
-            <span>Латунные соединения</span>
-          </div>
-        </div>
+<!-- FEATURES -->
+<section class="sec" style="padding-top:56px;padding-bottom:40px">
+  <div class="wrap">
+    <ul class="feat rv">
+      <li><span class="k">I</span><div><b>По вашим размерам</b><p>Композиция под конкретную стену — от узкой ниши до целой гостиной.</p></div></li>
+      <li><span class="k">II</span><div><b>Две глубины</b><p>Полки 200 мм для предметов и 400 мм — для книг и глубокого хранения.</p></div></li>
+      <li><span class="k">III</span><div><b>Два исполнения</b><p>Настенное или напольное с верхним креплением к стене.</p></div></li>
+      <li><span class="k">IV</span><div><b>Онлайн-конструктор</b><p>Попробуйте свои идеи в 3D до разговора с нами.</p></div></li>
+    </ul>
+  </div>
+</section>
 
-        <div class="visual hero-visual">
-          <img src="img/hero-shelving.png" alt="Стеллаж из деревянных полок на металлических стойках с латунными соединениями в светлой гостиной" fetchpriority="high" width="1800" height="1500">
-          <div class="placeholder" aria-hidden="true">
-            <svg><use href="#icon-photo"/></svg>
-            <strong>hero-shelving.png</strong>
-            <small>Главный интерьерный кадр: стеллаж, дерево, мягкий дневной свет</small>
-          </div>
-          <a href="#catalog" class="hero-image-caption">
-            <div>
-              <strong>Меньше лишнего. Больше вашего.</strong><br>
-              <span>Открытые системы хранения для жилых пространств</span>
-            </div>
-            <svg aria-hidden="true"><use href="#icon-arrow"/></svg>
-          </a>
-        </div>
+<!-- COLLECTION -->
+<section class="sec" id="collection">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <div>
+        <p class="eyebrow">01 / Коллекция</p>
+        <h2 class="serif h2" style="margin-top:16px">Найдите свою<br>композицию.</h2>
       </div>
+      <p class="lead">Лаконичная полка или целая система хранения. Выберите основу — размеры и детали обсудим под ваш интерьер.</p>
+    </div>
 
-      <div class="container benefits">
-        <div class="benefits-grid">
-          <div class="benefit">
-            <strong>По вашим размерам</strong>
-            <span>Композиция под конкретную стену</span>
-          </div>
-          <div class="benefit">
-            <strong>Две глубины</strong>
-            <span>Полки 200 и 400 мм</span>
-          </div>
-          <div class="benefit">
-            <strong>Два исполнения</strong>
-            <span>Настенное и напольное</span>
-          </div>
-          <div class="benefit">
-            <strong>Онлайн-конструктор</strong>
-            <span>Попробуйте свои идеи в 3D</span>
-          </div>
+    <div class="filters" role="tablist" aria-label="Фильтр моделей">
+      <button class="chip on" data-f="all">Все модели</button>
+      <button class="chip" data-f="wall">Настенные</button>
+      <button class="chip" data-f="floor">Напольные</button>
+      <button class="chip" data-f="shelf">Полки</button>
+    </div>
+    <p class="count">Показано <span id="cnt">6</span> моделей</p>
+
+    <div class="grid" id="grid">
+      <article class="card rv" data-t="wall">
+        <div class="fig"><img src="img/model-linea.png" alt="Настенная композиция с тремя полками" loading="lazy"><span class="tag">Настенный стеллаж</span></div>
+        <div class="body">
+          <h4>Линия</h4>
+          <div class="spec"><span>Дерево + латунь</span></div>
+          <div class="spec"><span>Ширина <b>1200</b> мм</span><span>Глубина <b>200</b> мм</span></div>
+          <div class="foot"><span>Стоимость по запросу</span><a href="#contact" data-model="Линия">Подробнее →</a></div>
         </div>
+      </article>
+      <article class="card rv" data-t="wall">
+        <div class="fig"><img src="img/model-frame.png" alt="Стеллаж вокруг телевизора" loading="lazy"><span class="tag">Вокруг телевизора</span></div>
+        <div class="body">
+          <h4>Контур</h4>
+          <div class="spec"><span>Дерево + латунь</span></div>
+          <div class="spec"><span>Ширина <b>2200</b> мм</span><span>Глубина <b>200</b> мм</span></div>
+          <div class="foot"><span>Стоимость по запросу</span><a href="#contact" data-model="Контур">Подробнее →</a></div>
+        </div>
+      </article>
+      <article class="card rv" data-t="floor">
+        <div class="fig"><img src="img/model-column.png" alt="Узкий напольный стеллаж" loading="lazy"><span class="tag">Напольный стеллаж</span></div>
+        <div class="body">
+          <h4>Вертикаль</h4>
+          <div class="spec"><span>Дерево + латунь</span></div>
+          <div class="spec"><span>Ширина <b>700</b> мм</span><span>Глубина <b>200</b> мм</span></div>
+          <div class="foot"><span>Стоимость по запросу</span><a href="#contact" data-model="Вертикаль">Подробнее →</a></div>
+        </div>
+      </article>
+      <article class="card rv" data-t="shelf wall">
+        <div class="fig"><img src="img/model-horizon.png" alt="Одна длинная настенная полка" loading="lazy"><span class="tag">Настенная полка</span></div>
+        <div class="body">
+          <h4>Горизонт</h4>
+          <div class="spec"><span>Дерево + латунь</span></div>
+          <div class="spec"><span>Ширина <b>1500</b> мм</span><span>Глубина <b>200</b> мм</span></div>
+          <div class="foot"><span>Стоимость по запросу</span><a href="#contact" data-model="Горизонт">Подробнее →</a></div>
+        </div>
+      </article>
+      <article class="card rv" data-t="wall floor">
+        <div class="fig"><img src="img/model-library.png" alt="Глубокий стеллаж для книг" loading="lazy"><span class="tag">Глубина 400 мм</span></div>
+        <div class="body">
+          <h4>Библиотека</h4>
+          <div class="spec"><span>Дерево + латунь</span></div>
+          <div class="spec"><span>Ширина <b>1800</b> мм</span><span>Глубина <b>400</b> мм</span></div>
+          <div class="foot"><span>Стоимость по запросу</span><a href="#contact" data-model="Библиотека">Подробнее →</a></div>
+        </div>
+      </article>
+      <article class="card rv" data-t="shelf wall">
+        <div class="fig"><img src="img/model-duo.png" alt="Две полки на общей паре стоек" loading="lazy"><span class="tag">Два яруса</span></div>
+        <div class="body">
+          <h4>Дуэт</h4>
+          <div class="spec"><span>Дерево + латунь</span></div>
+          <div class="spec"><span>Ширина <b>900</b> мм</span><span>Глубина <b>200</b> мм</span></div>
+          <div class="foot"><span>Стоимость по запросу</span><a href="#contact" data-model="Дуэт">Подробнее →</a></div>
+        </div>
+      </article>
+    </div>
+
+    <p class="note">Показаны примеры композиций. Итоговые размеры, отделку, стоимость и возможность изготовления выбранного варианта согласуем до заказа.</p>
+
+    <div class="coll-cta rv">
+      <p class="serif">Нужна другая композиция?<br>Она может быть вашей.</p>
+      <a href="constructor.html" class="btn btn-brass">Открыть конструктор <span class="arr">→</span></a>
+    </div>
+  </div>
+</section>
+
+<!-- ARCHITECTURE -->
+<section class="sec arch" id="architecture">
+  <div class="wrap">
+    <div class="arch-grid">
+      <div>
+        <div class="rv">
+          <p class="eyebrow">02 / Архитектура предмета</p>
+          <h2 class="serif h2" style="margin-top:16px">Простая система.<br>Ваш собственный ритм.</h2>
+        </div>
+        <ul class="arch-list rv">
+          <li><b>Место для вашего пространства</b><p>Узкая стена, рабочий уголок или большая гостиная: композиция начинается с реальных размеров комнаты.</p></li>
+          <li><b>Открытая конструкция</b><p>Стойки и полки оставляют стену видимой. Книги, керамика и любимые предметы становятся частью интерьера.</p></li>
+          <li><b>Детали с характером</b><p>Деревянные плоскости, строгие металлические линии и тёплые латунные соединения — без лишнего декора.</p></li>
+        </ul>
       </div>
-    </section>
-
-    <section class="section catalog" id="catalog" aria-labelledby="catalog-title">
-      <div class="container">
-        <div class="section-top">
-          <div>
-            <p class="eyebrow">01 / Коллекция</p>
-            <h2 class="section-title" id="catalog-title">
-              Найдите свою<br><span class="serif">композицию.</span>
-            </h2>
-          </div>
-          <div class="section-intro">
-            <p>Лаконичная полка или целая система хранения.
-              Выберите основу — размеры и детали обсудим под ваш интерьер.</p>
-          </div>
-        </div>
-
-        <div class="filters" role="group" aria-label="Фильтр каталога">
-          <button class="filter" type="button" data-filter="all" aria-pressed="true">Все модели</button>
-          <button class="filter" type="button" data-filter="wall" aria-pressed="false">Настенные</button>
-          <button class="filter" type="button" data-filter="floor" aria-pressed="false">Напольные</button>
-          <button class="filter" type="button" data-filter="shelf" aria-pressed="false">Полки</button>
-        </div>
-
-        <p class="sr-only" id="catalog-status" aria-live="polite">Показано 6 моделей</p>
-
-        <div class="product-grid">
-          <article class="product-card" data-category="wall" data-product="linea">
-            <button class="product-open" type="button" data-open-product="linea" aria-label="Подробнее о настенном стеллаже Линия">
-              <div class="visual product-photo">
-                <img src="img/model-linea.png" alt="Линия — настенный стеллаж из дерева и металла, три яруса" loading="lazy" width="1000" height="1200">
-                <div class="placeholder" aria-hidden="true">
-                  <svg><use href="#icon-photo"/></svg>
-                  <strong>model-linea.png</strong>
-                  <small>Настенная композиция с тремя полками</small>
-                </div>
-              </div>
-              <span class="product-tag">Настенный стеллаж</span>
-              <span class="product-arrow"><svg aria-hidden="true"><use href="#icon-arrow"/></svg></span>
-            </button>
-            <div class="product-info">
-              <div class="product-title-row">
-                <h3>Линия</h3>
-                <span class="product-type">Дерево + латунь</span>
-              </div>
-              <p class="product-meta">Ширина 1200 мм · глубина 200 мм</p>
-              <div class="product-bottom">
-                <span class="product-price">Стоимость по запросу</span>
-                <button class="product-details" type="button" data-open-product="linea">Подробнее</button>
-              </div>
-            </div>
-          </article>
-
-          <article class="product-card" data-category="wall" data-product="frame">
-            <button class="product-open" type="button" data-open-product="frame" aria-label="Подробнее о композиции Контур">
-              <div class="visual product-photo">
-                <img src="img/model-frame.png" alt="Контур — композиция деревянных полок вокруг телевизора" loading="lazy" width="1000" height="1200">
-                <div class="placeholder" aria-hidden="true">
-                  <svg><use href="#icon-photo"/></svg>
-                  <strong>model-frame.png</strong>
-                  <small>Стеллаж вокруг телевизора</small>
-                </div>
-              </div>
-              <span class="product-tag">Вокруг телевизора</span>
-              <span class="product-arrow"><svg aria-hidden="true"><use href="#icon-arrow"/></svg></span>
-            </button>
-            <div class="product-info">
-              <div class="product-title-row">
-                <h3>Контур</h3>
-                <span class="product-type">Дерево + латунь</span>
-              </div>
-              <p class="product-meta">Ширина 2200 мм · глубина 200 мм</p>
-              <div class="product-bottom">
-                <span class="product-price">Стоимость по запросу</span>
-                <button class="product-details" type="button" data-open-product="frame">Подробнее</button>
-              </div>
-            </div>
-          </article>
-
-          <article class="product-card" data-category="floor" data-product="column">
-            <button class="product-open" type="button" data-open-product="column" aria-label="Подробнее о напольном стеллаже Вертикаль">
-              <div class="visual product-photo">
-                <img src="img/model-column.png" alt="Вертикаль — узкий напольный стеллаж с деревянными полками" loading="lazy" width="1000" height="1200">
-                <div class="placeholder" aria-hidden="true">
-                  <svg><use href="#icon-photo"/></svg>
-                  <strong>model-column.png</strong>
-                  <small>Узкий напольный стеллаж</small>
-                </div>
-              </div>
-              <span class="product-tag">Напольный стеллаж</span>
-              <span class="product-arrow"><svg aria-hidden="true"><use href="#icon-arrow"/></svg></span>
-            </button>
-            <div class="product-info">
-              <div class="product-title-row">
-                <h3>Вертикаль</h3>
-                <span class="product-type">Дерево + латунь</span>
-              </div>
-              <p class="product-meta">Ширина 700 мм · глубина 200 мм</p>
-              <div class="product-bottom">
-                <span class="product-price">Стоимость по запросу</span>
-                <button class="product-details" type="button" data-open-product="column">Подробнее</button>
-              </div>
-            </div>
-          </article>
-
-          <article class="product-card" data-category="shelf" data-product="horizon">
-            <button class="product-open" type="button" data-open-product="horizon" aria-label="Подробнее о полке Горизонт">
-              <div class="visual product-photo">
-                <img src="img/model-horizon.png" alt="Горизонт — длинная деревянная полка на металлических опорах" loading="lazy" width="1000" height="1200">
-                <div class="placeholder" aria-hidden="true">
-                  <svg><use href="#icon-photo"/></svg>
-                  <strong>model-horizon.png</strong>
-                  <small>Одна длинная настенная полка</small>
-                </div>
-              </div>
-              <span class="product-tag">Настенная полка</span>
-              <span class="product-arrow"><svg aria-hidden="true"><use href="#icon-arrow"/></svg></span>
-            </button>
-            <div class="product-info">
-              <div class="product-title-row">
-                <h3>Горизонт</h3>
-                <span class="product-type">Дерево + латунь</span>
-              </div>
-              <p class="product-meta">Ширина 1500 мм · глубина 200 мм</p>
-              <div class="product-bottom">
-                <span class="product-price">Стоимость по запросу</span>
-                <button class="product-details" type="button" data-open-product="horizon">Подробнее</button>
-              </div>
-            </div>
-          </article>
-
-          <article class="product-card" data-category="floor" data-product="library">
-            <button class="product-open" type="button" data-open-product="library" aria-label="Подробнее о глубоком стеллаже Библиотека">
-              <div class="visual product-photo">
-                <img src="img/model-library.png" alt="Библиотека — глубокий напольный стеллаж для книг и предметов интерьера" loading="lazy" width="1000" height="1200">
-                <div class="placeholder" aria-hidden="true">
-                  <svg><use href="#icon-photo"/></svg>
-                  <strong>model-library.png</strong>
-                  <small>Глубокий стеллаж для книг</small>
-                </div>
-              </div>
-              <span class="product-tag">Глубина 400 мм</span>
-              <span class="product-arrow"><svg aria-hidden="true"><use href="#icon-arrow"/></svg></span>
-            </button>
-            <div class="product-info">
-              <div class="product-title-row">
-                <h3>Библиотека</h3>
-                <span class="product-type">Дерево + латунь</span>
-              </div>
-              <p class="product-meta">Ширина 1800 мм · глубина 400 мм</p>
-              <div class="product-bottom">
-                <span class="product-price">Стоимость по запросу</span>
-                <button class="product-details" type="button" data-open-product="library">Подробнее</button>
-              </div>
-            </div>
-          </article>
-
-          <article class="product-card" data-category="shelf" data-product="duo">
-            <button class="product-open" type="button" data-open-product="duo" aria-label="Подробнее о двухъярусной полке Дуэт">
-              <div class="visual product-photo">
-                <img src="img/model-duo.png" alt="Дуэт — две деревянные полки с латунными соединениями и креплением к стене" loading="lazy" width="1000" height="1200">
-                <div class="placeholder" aria-hidden="true">
-                  <svg><use href="#icon-photo"/></svg>
-                  <strong>model-duo.png</strong>
-                  <small>Две полки на общей паре стоек</small>
-                </div>
-              </div>
-              <span class="product-tag">Два яруса</span>
-              <span class="product-arrow"><svg aria-hidden="true"><use href="#icon-arrow"/></svg></span>
-            </button>
-            <div class="product-info">
-              <div class="product-title-row">
-                <h3>Дуэт</h3>
-                <span class="product-type">Дерево + латунь</span>
-              </div>
-              <p class="product-meta">Ширина 900 мм · глубина 200 мм</p>
-              <div class="product-bottom">
-                <span class="product-price">Стоимость по запросу</span>
-                <button class="product-details" type="button" data-open-product="duo">Подробнее</button>
-              </div>
-            </div>
-          </article>
-        </div>
-
-        <p class="catalog-note">
-          Показаны примеры композиций. Итоговые размеры, отделку, стоимость
-          и возможность изготовления выбранного варианта согласуем до заказа.
-        </p>
-
-        <div class="catalog-order">
-          <p>Нужна другая композиция? <span>Она может быть вашей.</span></p>
-          <a class="text-link" href="./constructor.html">
-            Открыть конструктор
-            <svg aria-hidden="true"><use href="#icon-arrow"/></svg>
-          </a>
-        </div>
+      <div class="diagram rv" aria-label="Схема стеллажа">
+        <svg viewBox="0 0 400 300" fill="none" stroke="#f3efe7" stroke-width="1.2">
+          <rect x="20" y="20" width="360" height="260" stroke-opacity=".12" stroke-dasharray="3 5"/>
+          <line x1="90" y1="30" x2="90" y2="270"/><line x1="200" y1="30" x2="200" y2="270"/><line x1="310" y1="30" x2="310" y2="270"/>
+          <g stroke="#d9b77c" stroke-width="7" stroke-linecap="round">
+            <line x1="60" y1="80" x2="340" y2="80"/><line x1="60" y1="140" x2="230" y2="140"/><line x1="170" y1="200" x2="340" y2="200"/><line x1="60" y1="250" x2="340" y2="250"/>
+          </g>
+          <g fill="#b8925a" stroke="none">
+            <circle cx="90" cy="80" r="5"/><circle cx="200" cy="80" r="5"/><circle cx="310" cy="80" r="5"/>
+            <circle cx="90" cy="140" r="5"/><circle cx="200" cy="140" r="5"/>
+            <circle cx="200" cy="200" r="5"/><circle cx="310" cy="200" r="5"/>
+            <circle cx="90" cy="250" r="5"/><circle cx="200" cy="250" r="5"/><circle cx="310" cy="250" r="5"/>
+          </g>
+          <g stroke-opacity=".5" stroke-width="1">
+            <line x1="60" y1="35" x2="340" y2="35"/><line x1="60" y1="30" x2="60" y2="40"/><line x1="340" y1="30" x2="340" y2="40"/>
+            <line x1="30" y1="80" x2="30" y2="250"/><line x1="25" y1="80" x2="35" y2="80"/><line x1="25" y1="250" x2="35" y2="250"/>
+          </g>
+          <g fill="#f3efe7" fill-opacity=".6" stroke="none" font-family="Georgia,serif" font-size="11">
+            <text x="200" y="27" text-anchor="middle">ширина — по вашей стене</text>
+            <text x="18" y="165" transform="rotate(-90 18 165)" text-anchor="middle">ярусы</text>
+            <text x="320" y="268" font-size="9" fill-opacity=".4">латунные соединения</text>
+          </g>
+        </svg>
+        <small>Схема — иллюстрация принципа, не монтажный чертёж.</small>
       </div>
-    </section>
+    </div>
+  </div>
+</section>
 
-    <section class="section system" id="system" aria-labelledby="system-title">
-      <div class="container">
-        <p class="eyebrow">02 / Архитектура предмета</p>
-        <h2 class="section-title" id="system-title">
-          Простая система.<br>
-          <span class="serif">Ваш собственный ритм.</span>
-        </h2>
-
-        <div class="system-grid">
-          <div class="shelf-drawing">
-            <svg viewBox="0 0 560 360" role="img" aria-labelledby="drawing-title">
-              <title id="drawing-title">Условная схема стеллажа с полками разной длины</title>
-              <g fill="none" stroke="#9ba98e" stroke-width="1" opacity=".45">
-                <path d="M30 330H530M70 20V340M490 20V340"/>
-                <path d="M75 30H485M75 25V35M485 25V35"/>
-                <path d="M35 65V300M30 65H40M30 300H40"/>
-                <path d="M140 42V320M420 42V320" stroke-dasharray="4 5"/>
-              </g>
-              <g fill="none" stroke="#cbb78e" stroke-width="5">
-                <path d="M140 72V300M420 72V300"/>
-                <path d="M140 72V48H113M420 72V48H393"/>
-                <path d="M140 300V322H113M420 300V322H393"/>
-              </g>
-              <g fill="#a88b61" stroke="#e1c694" stroke-width="1">
-                <path d="M90 95H455L478 81H113Z"/>
-                <path d="M90 95H455V105H90Z"/>
-                <path d="M90 190H360L383 176H113Z"/>
-                <path d="M90 190H360V200H90Z"/>
-                <path d="M90 280H455L478 266H113Z"/>
-                <path d="M90 280H455V290H90Z"/>
-              </g>
-              <g fill="#d6bd87">
-                <rect x="133" y="105" width="14" height="11" rx="2"/>
-                <rect x="413" y="105" width="14" height="11" rx="2"/>
-                <rect x="133" y="200" width="14" height="11" rx="2"/>
-                <rect x="133" y="290" width="14" height="11" rx="2"/>
-                <rect x="413" y="290" width="14" height="11" rx="2"/>
-              </g>
-              <g fill="#b8c0ab" font-family="Arial,sans-serif" font-size="9" letter-spacing="2">
-                <text x="235" y="20">КОМПОЗИЦИЯ</text>
-                <text x="485" y="101">01</text>
-                <text x="390" y="196">02</text>
-                <text x="485" y="286">03</text>
-              </g>
-            </svg>
-            <span class="drawing-caption">Схема — иллюстрация принципа, не монтажный чертёж</span>
-          </div>
-
-          <ul class="system-points">
-            <li>
-              <h3>Место для вашего пространства</h3>
-              <p>Узкая стена, рабочий уголок или большая гостиная:
-                композиция начинается с реальных размеров комнаты.</p>
-            </li>
-            <li>
-              <h3>Открытая конструкция</h3>
-              <p>Стойки и полки оставляют стену видимой.
-                Книги, керамика и любимые предметы становятся частью интерьера.</p>
-            </li>
-            <li>
-              <h3>Детали с характером</h3>
-              <p>Деревянные плоскости, строгие металлические линии
-                и тёплые латунные соединения — без лишнего декора.</p>
-            </li>
-          </ul>
-        </div>
+<!-- MATERIALS -->
+<section class="sec" id="materials">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <div>
+        <p class="eyebrow">03 / Материалы</p>
+        <h2 class="serif h2" style="margin-top:16px">Красота —<br>в деталях.</h2>
       </div>
-    </section>
-
-    <section class="section" id="materials" aria-labelledby="materials-title">
-      <div class="container">
-        <div class="section-top">
-          <div>
-            <p class="eyebrow">03 / Материалы</p>
-            <h2 class="section-title" id="materials-title">
-              Красота —<br><span class="serif">в деталях.</span>
-            </h2>
-          </div>
-          <p class="section-intro">
-            Материалы не прячутся за декором.
-            Они и есть основа формы: рисунок древесины, металл и латунь.
-          </p>
-        </div>
-
-        <div class="materials-grid">
-          <div>
-            <div class="visual material-main">
-              <img src="img/detail-wood.png" alt="Фактура деревянного мебельного щита и обработанный край полки крупным планом" loading="lazy" width="1100" height="1300">
-              <div class="placeholder" aria-hidden="true">
-                <svg><use href="#icon-photo"/></svg>
-                <strong>detail-wood.png</strong>
-                <small>Живая фактура дерева и обработка торца</small>
-              </div>
-            </div>
-            <div class="material-footer">
-              <span>01 / Деревянный мебельный щит</span>
-              <span>Естественный рисунок</span>
-            </div>
-          </div>
-
-          <div class="material-right">
-            <div class="material-copy">
-              <h3>Тёплое дерево.<br>Точная геометрия.</h3>
-              <p>У каждой деревянной полки собственный рисунок.
-                Оттенок и отделку согласуем так, чтобы стеллаж
-                сочетался с вашим полом, мебелью и светом.</p>
-              <p>Латунные контргайки, муфты и уголки остаются видимыми.
-                Это функциональные элементы, которые формируют характер системы.</p>
-              <div class="material-swatches" aria-label="Иллюстрация сочетания оттенков дерева, металла и латуни">
-                <span class="swatch swatch-oak"></span>
-                <span class="swatch swatch-walnut"></span>
-                <span class="swatch swatch-metal"></span>
-                <span class="swatch swatch-brass"></span>
-              </div>
-              <p style="font-size:11px;margin-top:12px">Оттенки на экране условны. Доступные варианты уточняются при заказе.</p>
-            </div>
-
-            <div class="visual material-detail">
-              <img src="img/detail-brass.png" alt="Латунная муфта и контргайка на соединении деревянной полки и металлической трубы" loading="lazy" width="1000" height="1000">
-              <div class="placeholder" aria-hidden="true">
-                <svg><use href="#icon-photo"/></svg>
-                <strong>detail-brass.png</strong>
-                <small>Фитинг и крепление полки крупным планом</small>
-              </div>
-            </div>
-            <div class="material-footer">
-              <span>02 / Латунные соединения</span>
-              <span>Функция становится деталью</span>
-            </div>
-          </div>
-        </div>
+      <p class="lead">Материалы не прячутся за декором. Они и есть основа формы: рисунок древесины, металл и латунь.</p>
+    </div>
+    <div class="mat">
+      <div class="mat-item rv">
+        <div class="fig"><img src="img/detail-wood.png" alt="Живая фактура дерева и обработка торца" loading="lazy"></div>
+        <span class="idx">01 / Деревянный мебельный щит · естественный рисунок</span>
+        <h3>Тёплое дерево.<br>Точная геометрия.</h3>
+        <p>У каждой деревянной полки собственный рисунок. Оттенок и отделку согласуем так, чтобы стеллаж сочетался с вашим полом, мебелью и светом.</p>
+        <p class="fine">Оттенки на экране условны. Доступные варианты уточняются при заказе.</p>
       </div>
-    </section>
-
-    <section class="section constructor" id="constructor" aria-labelledby="constructor-title">
-      <div class="container constructor-grid">
-        <div class="constructor-copy">
-          <p class="eyebrow">04 / Ваш дизайн</p>
-          <h2 class="section-title" id="constructor-title">
-            Не выбирайте<br>из чужих идей.<br>
-            <span class="serif">Создайте свою.</span>
-          </h2>
-          <p>
-            Соберите стеллаж в онлайн-конструкторе:
-            меняйте длину, добавляйте полки и находите
-            композицию под своё пространство.
-          </p>
-          <ul class="constructor-steps">
-            <li><span>01</span>Выберите настенное или напольное исполнение</li>
-            <li><span>02</span>Задайте размеры и добавьте нужные ярусы</li>
-            <li><span>03</span>Разметьте место под телевизор или другие предметы</li>
-          </ul>
-          <a class="button" href="./constructor.html">
-            Перейти в 3D-конструктор
-            <svg aria-hidden="true"><use href="#icon-arrow"/></svg>
-          </a>
-          <p class="constructor-under">
-            Не хотите проектировать самостоятельно?
-            <a href="#contacts">Обсудим вашу задачу.</a>
-          </p>
-        </div>
-
-        <div class="constructor-preview">
-          <div class="preview-bar">
-            <span class="preview-dots" aria-hidden="true"><i></i><i></i><i></i></span>
-            <span>Пространство для ваших идей</span>
-            <span>3D</span>
-          </div>
-          <a href="./constructor.html" aria-label="Открыть конструктор стеллажей">
-            <div class="visual constructor-photo">
-              <img src="img/constructor-preview.png" alt="Интерфейс 3D-конструктора стеллажей с настройкой размеров полок и опор" loading="lazy" width="1600" height="1000">
-              <div class="placeholder" aria-hidden="true">
-                <svg><use href="#icon-photo"/></svg>
-                <strong>constructor-preview.png</strong>
-                <small>Здесь будет скриншот вашего конструктора. Нажмите, чтобы открыть constructor.html</small>
-              </div>
-            </div>
-          </a>
-        </div>
+      <div class="mat-item rv">
+        <div class="fig"><img src="img/detail-brass.png" alt="Латунный фитинг и крепление полки крупным планом" loading="lazy"></div>
+        <span class="idx">02 / Латунные соединения · функция становится деталью</span>
+        <h3>Видимый узел.<br>Честная конструкция.</h3>
+        <p>Латунные контргайки, муфты и уголки остаются видимыми. Это функциональные элементы, которые формируют характер системы.</p>
       </div>
-    </section>
+    </div>
+  </div>
+</section>
 
-    <section class="section" id="inspiration" aria-labelledby="inspiration-title">
-      <div class="container">
-        <div class="section-top">
-          <div>
-            <p class="eyebrow">05 / В пространстве</p>
-            <h2 class="section-title" id="inspiration-title">
-              Не просто хранить.<br><span class="serif">Жить среди своего.</span>
-            </h2>
-          </div>
-          <p class="section-intro">
-            Книги с заметками, находки из поездок, любимая керамика.
-            Стеллаж — не только про порядок. Он про то, что важно вам.
-          </p>
+<!-- CONSTRUCTOR -->
+<section class="sec ctor" id="constructor">
+  <div class="wrap">
+    <div class="ctor-grid">
+      <div class="rv">
+        <p class="eyebrow">04 / Ваш дизайн</p>
+        <h2 class="serif h2" style="margin-top:16px">Не выбирайте<br>из чужих идей.<br><span style="color:var(--brass);font-style:italic">Создайте свою.</span></h2>
+        <p class="lead" style="margin-top:20px">Соберите стеллаж в онлайн-конструкторе: меняйте длину, добавляйте полки и находите композицию под своё пространство.</p>
+        <ol class="ctor-steps">
+          <li><span>01</span>Выберите настенное или напольное исполнение</li>
+          <li><span>02</span>Задайте размеры и добавьте нужные ярусы</li>
+          <li><span>03</span>Разметьте место под телевизор или другие предметы</li>
+        </ol>
+        <div class="ctor-actions">
+          <a href="constructor.html" class="btn btn-dark">Перейти в 3D-конструктор <span class="arr">→</span></a>
         </div>
-
-        <div class="inspiration-grid">
-          <figure>
-            <div class="visual inspiration-main">
-              <img src="img/interior-living.png" alt="Композиция открытых деревянных полок в гостиной с книгами и керамикой" loading="lazy" width="1400" height="1100">
-              <div class="placeholder" aria-hidden="true">
-                <svg><use href="#icon-photo"/></svg>
-                <strong>interior-living.png</strong>
-                <small>Интерьер гостиной со стеллажом</small>
-              </div>
-            </div>
-            <figcaption class="image-caption">
-              <strong>Для вещей с историей</strong>
-              <span>Идея для гостиной</span>
-            </figcaption>
-          </figure>
-
-          <figure>
-            <div class="visual inspiration-secondary">
-              <img src="img/interior-workspace.png" alt="Деревянные настенные полки над домашним рабочим столом" loading="lazy" width="1100" height="1300">
-              <div class="placeholder" aria-hidden="true">
-                <svg><use href="#icon-photo"/></svg>
-                <strong>interior-workspace.png</strong>
-                <small>Домашний кабинет и полки над столом</small>
-              </div>
-            </div>
-            <figcaption class="image-caption">
-              <strong>Для своего ритма</strong>
-              <span>Идея для рабочего места</span>
-            </figcaption>
-          </figure>
-        </div>
+        <p class="ctor-more">Не хотите проектировать самостоятельно? <a href="#contact">Обсудим вашу задачу.</a></p>
       </div>
-    </section>
+      <a href="constructor.html" class="ctor-prev rv" aria-label="Открыть конструктор">
+        <img src="img/constructor-preview.png" alt="Превью онлайн-конструктора стеллажей" loading="lazy">
+        <span class="badge">3D</span>
+        <span class="lbl">Пространство для ваших идей</span>
+      </a>
+    </div>
+  </div>
+</section>
 
-    <section class="section process" id="process" aria-labelledby="process-title">
-      <div class="container">
+<!-- INTERIORS -->
+<section class="sec" id="spaces">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <div>
+        <p class="eyebrow">05 / В пространстве</p>
+        <h2 class="serif h2" style="margin-top:16px">Не просто хранить.<br>Жить среди своего.</h2>
+      </div>
+      <p class="lead">Книги с заметками, находки из поездок, любимая керамика. Стеллаж — не только про порядок. Он про то, что важно вам.</p>
+    </div>
+    <div class="int">
+      <a href="#contact" class="rv"><img src="img/interior-living.png" alt="Интерьер гостиной со стеллажом" loading="lazy"><span class="cap"><small>Для вещей с историей</small><b>Идея для гостиной</b></span></a>
+      <a href="#contact" class="rv"><img src="img/interior-workspace.png" alt="Домашний кабинет и полки над столом" loading="lazy"><span class="cap"><small>Для своего ритма</small><b>Идея для рабочего места</b></span></a>
+    </div>
+  </div>
+</section>
+
+<!-- PROCESS -->
+<section class="sec" id="process" style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <div>
         <p class="eyebrow">06 / От идеи к предмету</p>
-        <h2 class="section-title" id="process-title">Понятный путь<br><span class="serif">к вашему стеллажу.</span></h2>
-
-        <div class="process-grid">
-          <div class="process-card">
-            <span class="process-number">01 / Выбор</span>
-            <h3>Найдите<br>свою форму</h3>
-            <p>Выберите композицию из коллекции или попробуйте
-              собственный вариант в конструкторе.</p>
-          </div>
-          <div class="process-card">
-            <span class="process-number">02 / Согласование</span>
-            <h3>Уточним<br>каждую деталь</h3>
-            <p>Обсудим размеры, отделку, стену, стоимость
-              и сроки изготовления до подтверждения заказа.</p>
-          </div>
-          <div class="process-card">
-            <span class="process-number">03 / Изготовление</span>
-            <h3>Подготовим<br>вашу систему</h3>
-            <p>Изготовим щиты и скомплектуем трубы и соединения
-              под согласованную конфигурацию.</p>
-          </div>
-          <div class="process-card">
-            <span class="process-number">04 / Ваш интерьер</span>
-            <h3>Останется<br>расставить своё</h3>
-            <p>Способ доставки, комплектацию и условия монтажа
-              согласуем для конкретного заказа.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section faq" id="faq" aria-labelledby="faq-title">
-      <div class="container faq-grid">
-        <div class="faq-intro">
-          <p class="eyebrow">07 / Важно знать</p>
-          <h2 class="section-title" id="faq-title">Вопросы<br><span class="serif">по существу.</span></h2>
-          <p>Не нашли ответа? Опишите свою задачу — разберём её до заказа.</p>
-          <a href="#contacts" class="text-link" style="margin-top:20px">
-            Задать вопрос
-            <svg aria-hidden="true"><use href="#icon-arrow"/></svg>
-          </a>
-        </div>
-
-        <div class="faq-list">
-          <details>
-            <summary>Можно ли изменить размеры готовой модели?</summary>
-            <p>Да, стандартная композиция может стать отправной точкой.
-              Возможность изменения ширины, числа ярусов и расстояний между полками
-              проверяется с учётом пролётов, креплений и выбранных деталей.</p>
-          </details>
-          <details>
-            <summary>Напольный стеллаж нужно крепить к стене?</summary>
-            <p>Да. В нашей системе напольное исполнение опирается на пол,
-              но верхние крепления остаются настенными.
-              Это не отдельно стоящая мебель для размещения посреди комнаты.</p>
-          </details>
-          <details>
-            <summary>Какая глубина у полок?</summary>
-            <p>В конструкторе предусмотрены варианты глубиной 200 и 400 мм.
-              В глубоком исполнении применяются дополнительные поперечные опоры.
-              Назначение и допустимое размещение вещей согласуем для вашей конструкции.</p>
-          </details>
-          <details>
-            <summary>Подойдёт ли моя стена?</summary>
-            <p>Это зависит от материала стены, основания и предполагаемой нагрузки.
-              До заказа сообщите, из чего сделана стена.
-              Для гипсокартона и других полых конструкций необходима отдельная проверка
-              основания и подходящего крепежа.</p>
-          </details>
-          <details>
-            <summary>Сколько веса выдерживает полка?</summary>
-            <p>Единого числа для всех композиций нет: важны длина пролёта,
-              материал и толщина щита, число опор, крепления и основание стены.
-              Допустимую нагрузку нужно подтверждать для конкретного исполнения.
-              До этого мы не обещаем универсальную грузоподъёмность.</p>
-          </details>
-          <details>
-            <summary>Как узнать стоимость и сроки?</summary>
-            <p>Выберите модель и подготовьте заявку с нужными размерами.
-              Окончательная стоимость и сроки согласуются после проверки конструкции,
-              отделки и условий доставки. Оплата на этой версии сайта пока не подключена.</p>
-          </details>
-        </div>
-      </div>
-    </section>
-
-    <section class="section" id="contacts" aria-labelledby="contacts-title">
-      <div class="container contact-grid">
-        <div class="contact-copy">
-          <p class="eyebrow">08 / Начнём с вашей идеи</p>
-          <h2 class="section-title" id="contacts-title">
-            Что вы хотите<br><span class="serif">оставить на виду?</span>
-          </h2>
-          <p>Расскажите о месте, размерах и вещах,
-            для которых нужен стеллаж. Можно начать с одной полки —
-            или сразу продумать целую стену.</p>
-
-          <div class="contact-methods">
-            <a id="contact-email" hidden></a>
-            <a id="contact-phone" hidden></a>
-            <a id="contact-telegram" target="_blank" rel="noopener noreferrer" hidden>Написать в Telegram ↗</a>
-          </div>
-          <p id="contact-location" hidden></p>
-          <p style="font-size:11px;margin-top:25px">
-            Сейчас заявка подготавливается на вашем устройстве.
-            Автоматическая отправка и онлайн-оплата пока не подключены.
-          </p>
-        </div>
-
-        <form class="request-form" id="request-form">
-          <div class="form-row">
-            <div class="field">
-              <label for="name">Как к вам обращаться</label>
-              <input id="name" name="name" autocomplete="name" placeholder="Ваше имя" maxlength="100" required>
-            </div>
-            <div class="field">
-              <label for="contact">Email или телефон</label>
-              <input id="contact" name="contact" autocomplete="email" placeholder="Как с вами связаться" maxlength="150" required>
-            </div>
-          </div>
-          <div class="field">
-            <label for="interest">Что вас интересует</label>
-            <select id="interest" name="interest">
-              <option value="Индивидуальный стеллаж">Индивидуальный стеллаж</option>
-              <option value="Линия">Модель «Линия»</option>
-              <option value="Контур">Модель «Контур»</option>
-              <option value="Вертикаль">Модель «Вертикаль»</option>
-              <option value="Горизонт">Модель «Горизонт»</option>
-              <option value="Библиотека">Модель «Библиотека»</option>
-              <option value="Дуэт">Модель «Дуэт»</option>
-              <option value="Консультация">Нужна консультация</option>
-            </select>
-          </div>
-          <div class="field">
-            <label for="message">Несколько слов о вашей задаче</label>
-            <textarea id="message" name="message" placeholder="Размеры стены, глубина полок, что планируете хранить…" maxlength="5000"></textarea>
-          </div>
-
-          <p class="form-info">
-            <strong>Без автоматической отправки.</strong>
-            Кнопка сохранит текст заявки в файл.
-            Если на сайте настроен адрес мастерской, дополнительно откроется
-            ваша почтовая программа. Перед отправкой письма проверьте его содержание.
-          </p>
-
-          <button type="submit" class="button" id="request-submit" disabled>
-            Подготовить заявку
-            <svg aria-hidden="true"><use href="#icon-arrow"/></svg>
-          </button>
-          <p class="form-status" id="form-status" role="status" aria-live="polite"></p>
-          <noscript>
-            <p class="no-js-note">Для подготовки заявки включите JavaScript либо воспользуйтесь контактами мастерской, если они указаны.</p>
-          </noscript>
-        </form>
-      </div>
-    </section>
-  </main>
-
-  <footer class="footer">
-    <div class="container">
-      <div class="footer-top">
-        <div class="footer-brand">
-          <a class="logo" href="#top">
-            <span class="logo-word" data-brand>ПОЛКИ</span>
-            <span class="logo-caption">дерево · металл · латунь</span>
-          </a>
-          <p class="footer-about">Открытые системы хранения.
-            Готовые композиции и ваши собственные идеи.</p>
-        </div>
-        <div class="footer-links">
-          <p class="footer-label">Предметы</p>
-          <a href="#catalog">Коллекция</a>
-          <a href="./constructor.html">3D-конструктор</a>
-          <a href="#materials">Материалы и детали</a>
-          <a href="#inspiration">Идеи для интерьера</a>
-        </div>
-        <div class="footer-links">
-          <p class="footer-label">Информация</p>
-          <a href="#process">Как заказать</a>
-          <a href="#faq">Вопросы и ответы</a>
-          <a href="#contacts">Связаться</a>
-          <a href="#contacts">Обсудить доставку</a>
-        </div>
-      </div>
-
-      <div class="footer-bottom">
-        <span>© <span id="year">2026</span> <span data-brand>ПОЛКИ</span></span>
-        <button type="button" id="data-info-open">О работе формы и данных</button>
-        <span>Стоимость и условия согласуются индивидуально</span>
-        <a href="#top" class="back-top">Наверх ↑</a>
+        <h2 class="serif h2" style="margin-top:16px">Понятный путь<br>к вашему стеллажу.</h2>
       </div>
     </div>
-  </footer>
+    <ol class="proc rv">
+      <li><small>Выбор</small><b>Найдите свою форму</b><p>Выберите композицию из коллекции или попробуйте собственный вариант в конструкторе.</p></li>
+      <li><small>Согласование</small><b>Уточним каждую деталь</b><p>Обсудим размеры, отделку, стену, стоимость и сроки изготовления до подтверждения заказа.</p></li>
+      <li><small>Изготовление</small><b>Подготовим вашу систему</b><p>Изготовим щиты и скомплектуем трубы и соединения под согласованную конфигурацию.</p></li>
+      <li><small>Ваш интерьер</small><b>Останется расставить своё</b><p>Способ доставки, комплектацию и условия монтажа согласуем для конкретного заказа.</p></li>
+    </ol>
+  </div>
+</section>
 
-  <dialog id="product-dialog" aria-labelledby="dialog-title">
-    <button type="button" class="dialog-close" data-close-dialog aria-label="Закрыть карточку">
-      <svg aria-hidden="true"><use href="#icon-close"/></svg>
-    </button>
-    <div class="product-dialog-grid">
-      <div class="visual dialog-photo" id="dialog-visual">
-        <img id="dialog-image" alt="" width="1000" height="1200">
-        <div class="placeholder" aria-hidden="true">
-          <svg><use href="#icon-photo"/></svg>
-          <strong id="dialog-image-name"></strong>
-          <small>Добавьте изображение с этим именем рядом с index.html</small>
-        </div>
+<!-- FAQ -->
+<section class="sec" id="faq" style="border-top:1px solid var(--line)">
+  <div class="wrap">
+    <div class="faq-grid">
+      <div class="sec-head rv">
+        <p class="eyebrow">07 / Важно знать</p>
+        <h2 class="serif h2" style="margin-top:16px">Вопросы<br>по существу.</h2>
+        <p class="lead" style="margin-top:18px">Не нашли ответа? Опишите свою задачу — разберём её до заказа.</p>
+        <a href="#contact" class="btn btn-ghost faq-ask">Задать вопрос</a>
       </div>
-      <div class="dialog-copy">
-        <p class="eyebrow" id="dialog-category">Коллекция</p>
-        <h2 id="dialog-title"></h2>
-        <p class="dialog-description" id="dialog-description"></p>
-
-        <dl class="spec-list">
-          <div><dt>Ширина</dt><dd id="dialog-width"></dd></div>
-          <div><dt>Глубина</dt><dd id="dialog-depth"></dd></div>
-          <div><dt>Исполнение</dt><dd id="dialog-mount"></dd></div>
-          <div><dt>Материалы</dt><dd>Мебельный щит, металл, латунь</dd></div>
-          <div><dt>Изменение размеров</dt><dd>По согласованию</dd></div>
-        </dl>
-
-        <p class="dialog-price" id="dialog-price">Стоимость по запросу</p>
-        <div class="dialog-actions">
-          <button type="button" class="button" id="dialog-request">
-            Обсудить эту модель
-            <svg aria-hidden="true"><use href="#icon-arrow"/></svg>
-          </button>
-          <a class="button button-outline" href="./constructor.html">
-            Создать свой вариант
-            <svg aria-hidden="true"><use href="#icon-arrow"/></svg>
-          </a>
-        </div>
-        <p class="dialog-note">Пример композиции. Размеры, отделка,
-          монтаж и окончательная комплектация уточняются до заказа.
-          Конструктор открывается отдельно, без автоматической загрузки этой модели.</p>
+      <div class="faq rv">
+        <details><summary>Можно ли изменить размеры готовой модели?<i></i></summary><div class="a">Да, стандартная композиция может стать отправной точкой. Возможность изменения ширины, числа ярусов и расстояний между полками проверяется с учётом пролётов, креплений и выбранных деталей.</div></details>
+        <details><summary>Напольный стеллаж нужно крепить к стене?<i></i></summary><div class="a">Да. Напольное исполнение опирается на пол, но верхние крепления остаются настенными. Это не отдельно стоящая мебель для размещения посреди комнаты.</div></details>
+        <details><summary>Какая глубина у полок?<i></i></summary><div class="a">В конструкторе предусмотрены варианты глубиной 200 и 400 мм. В глубоком исполнении применяются дополнительные поперечные опоры. Назначение и допустимое размещение вещей согласуем для вашей конструкции.</div></details>
+        <details><summary>Подойдёт ли моя стена?<i></i></summary><div class="a">Это зависит от материала стены, основания и предполагаемой нагрузки. До заказа сообщите, из чего сделана стена. Для гипсокартона и других полых конструкций необходима отдельная проверка основания и подходящего крепежа.</div></details>
+        <details><summary>Сколько веса выдерживает полка?<i></i></summary><div class="a">Единого числа для всех композиций нет: важны длина пролёта, материал и толщина щита, число опор, крепления и основание стены. Допустимую нагрузку подтверждаем для конкретного исполнения — универсальную грузоподъёмность не обещаем.</div></details>
+        <details><summary>Как узнать стоимость и сроки?<i></i></summary><div class="a">Выберите модель и подготовьте заявку с нужными размерами. Окончательная стоимость и сроки согласуются после проверки конструкции, отделки и условий доставки. Оплата на этой версии сайта пока не подключена.</div></details>
       </div>
     </div>
-  </dialog>
+  </div>
+</section>
 
-  <dialog id="data-dialog" class="info-dialog" aria-labelledby="data-dialog-title">
-    <button type="button" class="dialog-close" data-close-dialog aria-label="Закрыть">
-      <svg aria-hidden="true"><use href="#icon-close"/></svg>
-    </button>
-    <h2 id="data-dialog-title">Как работает заявка</h2>
-    <p>Эта версия страницы не отправляет поля формы на сервер
-      и не сохраняет их в базе данных или локальном хранилище браузера.</p>
-    <p>По нажатию кнопки создаётся текстовый файл на вашем устройстве.
-      Если указан email мастерской, браузер также предложит открыть почтовую программу.
-      Письмо отправляется только вашим действием в этой программе.</p>
-    <p>Этот текст описывает работу текущей формы и не заменяет полноценную
-      политику обработки персональных данных. Перед подключением серверных заявок,
-      аналитики и онлайн-оплаты владелец сайта должен опубликовать необходимые документы
-      с реальными данными оператора.</p>
-  </dialog>
+<!-- CONTACT -->
+<section class="sec contact" id="contact">
+  <div class="wrap">
+    <div class="contact-grid">
+      <div class="rv">
+        <p class="eyebrow">08 / Начнём с вашей идеи</p>
+        <h2 class="serif h2" style="margin-top:16px">Что вы хотите<br>оставить на виду?</h2>
+        <p class="lead" style="margin-top:18px">Расскажите о месте, размерах и вещах, для которых нужен стеллаж. Можно начать с одной полки — или сразу продумать целую стену.</p>
+      </div>
+      <form class="form rv" id="form" novalidate>
+        <div class="field"><label for="f-model">Модель</label>
+          <select id="f-model"><option>Своя композиция</option><option>Линия</option><option>Контур</option><option>Вертикаль</option><option>Горизонт</option><option>Библиотека</option><option>Дуэт</option></select></div>
+        <div class="field"><label for="f-type">Исполнение</label>
+          <select id="f-type"><option>Настенное</option><option>Напольное</option><option>Пока не знаю</option></select></div>
+        <div class="field"><label for="f-w">Ширина, мм</label><input id="f-w" type="number" inputmode="numeric" placeholder="1200"></div>
+        <div class="field"><label for="f-d">Глубина</label>
+          <select id="f-d"><option>200 мм</option><option>400 мм</option></select></div>
+        <div class="field full"><label for="f-wall">Стена</label><input id="f-wall" type="text" placeholder="Бетон, кирпич, гипсокартон…"></div>
+        <div class="field full"><label for="f-msg">Что будет стоять на полках</label><textarea id="f-msg" placeholder="Книги, керамика, техника…"></textarea></div>
+        <div class="form-actions full">
+          <!-- Замените USERNAME на ваш Telegram -->
+          <a id="tg" href="https://t.me/USERNAME" target="_blank" rel="noopener" class="btn btn-brass">Написать в Telegram ↗</a>
+          <button type="button" id="copy" class="btn btn-ghost" style="border-color:rgba(255,255,255,.4);color:var(--paper)">Скопировать заявку</button>
+        </div>
+        <p class="hint full">Заявка подготавливается на вашем устройстве. Автоматическая отправка и онлайн-оплата пока не подключены.</p>
+      </form>
+    </div>
+  </div>
+</section>
+</main>
 
-  <script>
-    (() => {
-      "use strict";
+<footer class="ftr">
+  <div class="wrap">
+    <div class="big" aria-hidden="true">ПОЛКИ</div>
+    <div class="row">
+      <span>Стеллажи и полки из дерева, металла и латуни</span>
+      <span style="display:flex;gap:20px"><a href="#collection">Коллекция</a><a href="constructor.html">Конструктор</a><a href="#faq">Вопросы</a><a href="#top">Наверх ↑</a></span>
+    </div>
+  </div>
+</footer>
 
-      // НАСТРОЙКИ ВЛАДЕЛЬЦА САЙТА
-      const SITE = {
-        brand: "ПОЛКИ",
-        email: "",          // Например: hello@ваш-домен.ru
-        phone: "",          // Например: +7 (999) 123-45-67
-        telegram: "",       // Полная ссылка: https://t.me/имя
-        location: "",       // Например: Мастерская в Москве
-        constructorUrl: "./constructor.html"
-      };
+<div class="mbar" id="mbar">
+  <a href="constructor.html">Конструктор</a>
+  <a href="#contact" class="p">Заявка</a>
+</div>
+<div class="toast" id="toast">Заявка скопирована</div>
 
-      // ДЕМОНСТРАЦИОННЫЙ КАТАЛОГ.
-      // Названия и размеры нужно согласовать с реальным ассортиментом.
-      // price: null означает «Стоимость по запросу».
-      // Если ставите цену числом, проверьте её перед публикацией.
-      const PRODUCTS = {
-        linea: {
-          name: "Линия",
-          category: "Настенный стеллаж",
-          image: "img/model-linea.png",
-          width: 1200,
-          depth: 200,
-          mount: "Настенное",
-          price: null,
-          description: "Открытая композиция с несколькими ярусами. Для книг, керамики и предметов, которые хочется видеть каждый день. Лаконичная основа для гостиной или домашнего кабинета."
-        },
-        frame: {
-          name: "Контур",
-          category: "Композиция вокруг телевизора",
-          image: "img/model-frame.png",
-          width: 2200,
-          depth: 200,
-          mount: "Настенное",
-          price: null,
-          description: "Полки формируют композицию вокруг экрана, оставляя центр свободным. Размеры проёма и расположение ярусов согласуются под ваш телевизор и стену."
-        },
-        column: {
-          name: "Вертикаль",
-          category: "Напольный стеллаж",
-          image: "img/model-column.png",
-          width: 700,
-          depth: 200,
-          mount: "Напольное, с креплением к стене",
-          price: null,
-          description: "Узкая композиция для небольшого простенка, рабочей зоны или места рядом с диваном. Нижние опоры стоят на полу, верхняя часть крепится к стене."
-        },
-        horizon: {
-          name: "Горизонт",
-          category: "Настенная полка",
-          image: "img/model-horizon.png",
-          width: 1500,
-          depth: 200,
-          mount: "Настенное",
-          price: null,
-          description: "Одна выразительная горизонталь вместо лишних деталей. Подойдёт для небольших предметов, фотографий и декора. Число опор определяется длиной и назначением полки."
-        },
-        library: {
-          name: "Библиотека",
-          category: "Глубокий напольный стеллаж",
-          image: "img/model-library.png",
-          width: 1800,
-          depth: 400,
-          mount: "Напольное, с креплением к стене",
-          price: null,
-          description: "Глубокие полки для более объёмных предметов и книжной коллекции. Поперечные опоры дополняют конструкцию. Нагрузку и распределение книг проверяем для выбранного исполнения."
-        },
-        duo: {
-          name: "Дуэт",
-          category: "Двухъярусная настенная полка",
-          image: "img/model-duo.png",
-          width: 900,
-          depth: 200,
-          mount: "Настенное",
-          price: null,
-          description: "Две деревянные полки на общей паре металлических стоек. Компактная композиция над столом, комодом или в небольшой жилой зоне."
-        }
-      };
+<script>
+(function(){
+  const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 
-      const $ = id => document.getElementById(id);
-      const formatNumber = value => new Intl.NumberFormat("ru-RU").format(value);
-      const priceLabel = product => product.price === null
-        ? "Стоимость по запросу"
-        : new Intl.NumberFormat("ru-RU", {
-            style: "currency",
-            currency: "RUB",
-            maximumFractionDigits: 0
-          }).format(product.price);
+  // header + progress + mobile bar
+  const hdr=$('.hdr'),prog=$('#progress'),mbar=$('#mbar');
+  const onScroll=()=>{
+    const y=scrollY,h=document.documentElement.scrollHeight-innerHeight;
+    hdr.classList.toggle('scrolled',y>10);
+    prog.style.width=(h>0?y/h*100:0)+'%';
+    mbar.classList.toggle('on',y>innerHeight*.6 && y<h-400);
+  };
+  addEventListener('scroll',onScroll,{passive:true});onScroll();
 
-      document.querySelectorAll("[data-brand]").forEach(node => {
-        node.textContent = SITE.brand;
-      });
-      document.title = `${SITE.brand} — стеллажи и полки из дерева, металла и латуни`;
-      $("year").textContent = new Date().getFullYear();
+  // mobile menu
+  const burger=$('#burger'),menu=$('#menu');
+  const setMenu=o=>{burger.classList.toggle('on',o);menu.classList.toggle('on',o);burger.setAttribute('aria-expanded',o);menu.setAttribute('aria-hidden',!o);document.body.style.overflow=o?'hidden':''};
+  burger.addEventListener('click',()=>setMenu(!menu.classList.contains('on')));
+  menu.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>setMenu(false)));
 
-      document.querySelectorAll('a[href="./constructor.html"]').forEach(link => {
-        link.setAttribute("href", SITE.constructorUrl);
-      });
+  // reveal
+  const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.12,rootMargin:'0px 0px -6% 0px'});
+  $$('.rv').forEach(el=>io.observe(el));
 
-      if (SITE.email.trim()) {
-        $("contact-email").textContent = SITE.email.trim();
-        $("contact-email").href = "mailto:" + SITE.email.trim();
-        $("contact-email").hidden = false;
-      }
+  // image fallback
+  $$('img').forEach(img=>{img.addEventListener('error',()=>{const p=document.createElement('div');p.className='ph';p.style.cssText='position:absolute;inset:0;';p.textContent=img.alt||'Изображение';const par=img.parentElement;if(getComputedStyle(par).position==='static')par.style.position='relative';img.replaceWith(p)})});
 
-      if (SITE.phone.trim()) {
-        $("contact-phone").textContent = SITE.phone;
-        $("contact-phone").href = "tel:" + SITE.phone.replace(/[^\d+]/g, "");
-        $("contact-phone").hidden = false;
-      }
+  // filters
+  const cards=$$('.card'),cnt=$('#cnt');
+  $$('.chip').forEach(c=>c.addEventListener('click',()=>{
+    $$('.chip').forEach(x=>x.classList.remove('on'));c.classList.add('on');
+    const f=c.dataset.f;let n=0;
+    cards.forEach(k=>{const show=f==='all'||k.dataset.t.split(' ').includes(f);k.classList.toggle('hide',!show);if(show)n++});
+    cnt.textContent=n;$('#grid').scrollTo({left:0,behavior:'smooth'});
+  }));
 
-      if (SITE.telegram && /^https:\/\/t\.me\/[a-zA-Z0-9_/?=-]+$/.test(SITE.telegram)) {
-        $("contact-telegram").href = SITE.telegram;
-        $("contact-telegram").hidden = false;
-      }
+  // card "Подробнее" -> preselect model
+  $$('[data-model]').forEach(a=>a.addEventListener('click',()=>{$('#f-model').value=a.dataset.model}));
 
-      if (SITE.location.trim()) {
-        $("contact-location").textContent = SITE.location;
-        $("contact-location").hidden = false;
-      }
+  // faq: one open at a time
+  const ds=$$('.faq details');
+  ds.forEach(d=>d.addEventListener('toggle',()=>{if(d.open)ds.forEach(o=>{if(o!==d)o.open=false})}));
 
-      // Изображения: показываем фото, только когда оно успешно загрузилось.
-      function connectImage(image) {
-        const visual = image.closest(".visual");
-        if (!visual) return;
-
-        const update = () => {
-          visual.classList.toggle("has-image", image.complete && image.naturalWidth > 0);
-        };
-
-        image.addEventListener("load", update);
-        image.addEventListener("error", () => visual.classList.remove("has-image"));
-        update();
-      }
-      document.querySelectorAll(".visual img").forEach(connectImage);
-
-      // Мобильное меню.
-      const menuToggle = $("menu-toggle");
-      const mobileNav = $("mobile-nav");
-
-      function setMenu(open, restoreFocus = false) {
-        mobileNav.hidden = !open;
-        menuToggle.setAttribute("aria-expanded", String(open));
-        menuToggle.setAttribute("aria-label", open ? "Закрыть меню" : "Открыть меню");
-        menuToggle.querySelector("use").setAttribute("href", open ? "#icon-close" : "#icon-menu");
-        document.body.classList.toggle("menu-open", open);
-        if (restoreFocus) menuToggle.focus();
-      }
-
-      menuToggle.addEventListener("click", () => {
-        setMenu(menuToggle.getAttribute("aria-expanded") !== "true");
-      });
-
-      mobileNav.querySelectorAll("a").forEach(link => {
-        link.addEventListener("click", () => setMenu(false));
-      });
-
-      // Не даём Tab уйти в скрытое меню/основной контент при открытом мобильном меню.
-      document.addEventListener("keydown", event => {
-        if (event.key === "Escape" && !mobileNav.hidden) {
-          setMenu(false, true);
-          return;
-        }
-        if (event.key !== "Tab" || mobileNav.hidden) return;
-
-        const items = [menuToggle, ...mobileNav.querySelectorAll("a")];
-        const current = items.indexOf(document.activeElement);
-
-        if (event.shiftKey && current <= 0) {
-          event.preventDefault();
-          items[items.length - 1].focus();
-        } else if (!event.shiftKey && (current === items.length - 1 || current === -1)) {
-          event.preventDefault();
-          items[0].focus();
-        }
-      });
-
-      const desktopMedia = matchMedia("(min-width: 901px)");
-      const closeMenuOnDesktop = event => {
-        if (event.matches) setMenu(false);
-      };
-      if (desktopMedia.addEventListener) {
-        desktopMedia.addEventListener("change", closeMenuOnDesktop);
-      } else {
-        desktopMedia.addListener(closeMenuOnDesktop);
-      }
-
-      // Фильтрация каталога.
-      const cards = [...document.querySelectorAll(".product-card")];
-      document.querySelectorAll("[data-filter]").forEach(button => {
-        button.addEventListener("click", () => {
-          const filter = button.dataset.filter;
-          document.querySelectorAll("[data-filter]").forEach(item => {
-            item.setAttribute("aria-pressed", String(item === button));
-          });
-
-          let count = 0;
-          cards.forEach(card => {
-            const show = filter === "all" || card.dataset.category === filter;
-            card.hidden = !show;
-            if (show) count++;
-          });
-          $("catalog-status").textContent = `Показано моделей: ${count}`;
-        });
-      });
-
-      // Цены берём из единого справочника.
-      cards.forEach(card => {
-        const product = PRODUCTS[card.dataset.product];
-        if (!product) return;
-        card.querySelector(".product-price").textContent = priceLabel(product);
-      });
-
-      // Модальные окна.
-      let selectedProduct = null;
-      let dialogOpener = null;
-      const productDialog = $("product-dialog");
-      const dataDialog = $("data-dialog");
-
-      function openDialog(dialog, opener) {
-        dialogOpener = opener || document.activeElement;
-        dialog.showModal();
-      }
-
-      function closeDialog(dialog) {
-        dialog.close();
-      }
-
-      [productDialog, dataDialog].forEach(dialog => {
-        dialog.querySelector("[data-close-dialog]").addEventListener("click", () => {
-          closeDialog(dialog);
-        });
-
-        dialog.addEventListener("click", event => {
-          if (event.target !== dialog) return;
-          const rect = dialog.getBoundingClientRect();
-          if (
-            event.clientX < rect.left || event.clientX > rect.right ||
-            event.clientY < rect.top || event.clientY > rect.bottom
-          ) {
-            closeDialog(dialog);
-          }
-        });
-
-        dialog.addEventListener("close", () => {
-          if (dialogOpener && dialogOpener.isConnected) dialogOpener.focus();
-        });
-      });
-
-      function openProduct(id, opener) {
-        const product = PRODUCTS[id];
-        if (!product) return;
-        selectedProduct = product;
-
-        $("dialog-title").textContent = product.name;
-        $("dialog-category").textContent = product.category;
-        $("dialog-description").textContent = product.description;
-        $("dialog-width").textContent = `${formatNumber(product.width)} мм`;
-        $("dialog-depth").textContent = `${formatNumber(product.depth)} мм`;
-        $("dialog-mount").textContent = product.mount;
-        $("dialog-price").textContent = priceLabel(product);
-        $("dialog-image-name").textContent = product.image;
-
-        $("dialog-visual").classList.remove("has-image");
-        $("dialog-image").alt = `${product.name} — ${product.category.toLowerCase()}`;
-        $("dialog-image").src = product.image;
-
-        if ($("dialog-image").complete && $("dialog-image").naturalWidth > 0) {
-          $("dialog-visual").classList.add("has-image");
-        }
-
-        openDialog(productDialog, opener);
-      }
-
-      document.querySelectorAll("[data-open-product]").forEach(button => {
-        button.addEventListener("click", () => {
-          openProduct(button.dataset.openProduct, button);
-        });
-      });
-
-      $("dialog-request").addEventListener("click", () => {
-        if (!selectedProduct) return;
-        $("interest").value = selectedProduct.name;
-        productDialog.close();
-
-        // Ждём закрытия диалога, затем переводим фокус в заявку.
-        requestAnimationFrame(() => {
-          $("contacts").scrollIntoView({
-            behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
-            block: "start"
-          });
-          $("name").focus({ preventScroll: true });
-        });
-      });
-
-      $("data-info-open").addEventListener("click", event => {
-        openDialog(dataDialog, event.currentTarget);
-      });
-
-      // Заявка без бэкенда: локальный TXT + почтовый клиент при наличии email.
-      // Не показываем ложное сообщение «заявка отправлена».
-      $("request-submit").disabled = false;
-
-      $("request-form").addEventListener("submit", event => {
-        event.preventDefault();
-        const form = event.currentTarget;
-        if (!form.reportValidity()) return;
-
-        const name = $("name").value.trim();
-        const contact = $("contact").value.trim();
-        const interest = $("interest").value;
-        const message = $("message").value.trim();
-
-        if (!name || !contact) {
-          $("form-status").textContent = "Укажите имя и контакт для связи.";
-          return;
-        }
-
-        const chosen = Object.values(PRODUCTS).find(product => product.name === interest);
-        const lines = [
-          `ЗАЯВКА — ${SITE.brand}`,
-          "",
-          `Имя: ${name}`,
-          `Контакт: ${contact}`,
-          `Интересует: ${interest}`,
-          chosen ? `Пример размеров: ширина ${chosen.width} мм, глубина ${chosen.depth} мм` : "",
-          "",
-          "Комментарий:",
-          message || "Не указан.",
-          "",
-          "Размеры, комплектация, стоимость и сроки подлежат согласованию.",
-          "Этот файл — заявка, а не подтверждённый заказ и не подтверждение оплаты."
-        ].filter(line => line !== undefined);
-
-        const text = lines.join("\r\n");
-        const file = new Blob(["\ufeff", text], { type: "text/plain;charset=utf-8" });
-        const url = URL.createObjectURL(file);
-        const download = document.createElement("a");
-        download.href = url;
-        download.download = "zayavka-na-stellazh.txt";
-        document.body.appendChild(download);
-        download.click();
-        download.remove();
-        setTimeout(() => URL.revokeObjectURL(url), 30000);
-
-        if (SITE.email.trim()) {
-          const subject = encodeURIComponent(`Заявка на стеллаж — ${interest}`);
-          const body = encodeURIComponent(text);
-          const mail = document.createElement("a");
-          mail.href = `mailto:${SITE.email.trim()}?subject=${subject}&body=${body}`;
-          document.body.appendChild(mail);
-          mail.click();
-          mail.remove();
-
-          $("form-status").textContent =
-            `Файл заявки подготовлен. Отправьте письмо в открывшейся почтовой программе. ` +
-            `Если она не открылась, отправьте скачанный файл на ${SITE.email.trim()}. ` +
-            `Сайт автоматически заявку не отправлял.`;
-        } else {
-          $("form-status").textContent =
-            "Файл заявки подготовлен для скачивания. Адрес мастерской пока не настроен: " +
-            "автоматической отправки нет. Сохраните файл, чтобы передать его при обсуждении заказа.";
-        }
-      });
-    })();
-  </script>
+  // request composer
+  const build=()=>[
+    'Заявка на стеллаж',
+    'Модель: '+$('#f-model').value,
+    'Исполнение: '+$('#f-type').value,
+    'Ширина: '+($('#f-w').value||'—')+' мм',
+    'Глубина: '+$('#f-d').value,
+    'Стена: '+($('#f-wall').value||'—'),
+    'Содержимое: '+($('#f-msg').value||'—')
+  ].join('\n');
+  const toast=$('#toast');let tt;
+  const say=m=>{toast.textContent=m;toast.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>toast.classList.remove('on'),2200)};
+  const copy=async()=>{try{await navigator.clipboard.writeText(build());say('Заявка скопирована')}catch(e){say('Скопируйте текст вручную')}};
+  $('#copy').addEventListener('click',copy);
+  $('#tg').addEventListener('click',()=>{copy()});
+})();
+</script>
 </body>
 </html>
