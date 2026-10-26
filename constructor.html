@@ -1,0 +1,1915 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#37474f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>3D-конструктор стеллажей</title>
+<style>
+  :root {
+    --c: 28px; --cs: 22px; --bar-h: 60px;
+    --safe-t: env(safe-area-inset-top, 0px);
+    --safe-b: env(safe-area-inset-bottom, 0px);
+    --safe-l: env(safe-area-inset-left, 0px);
+    --safe-r: env(safe-area-inset-right, 0px);
+  }
+  @media (pointer: coarse) { :root { --c: 30px; --cs: 24px; } }
+  @media (max-width: 600px), (max-height: 500px) { :root { --c: 22px; --cs: 18px; } }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; }
+  body {
+    margin: 0; overflow: hidden; background: #dedede; color: #1f2a30;
+    font: 14px "Segoe UI", Roboto, Arial, sans-serif;
+    overscroll-behavior: none; touch-action: none;
+    -webkit-user-select: none; user-select: none; -webkit-touch-callout: none;
+  }
+  #scene { position: fixed; inset: 0; }
+  #scene canvas { display: block; touch-action: none; }
+  body.mark-mode #scene canvas { cursor: crosshair; }
+
+  .panel {
+    position: absolute; z-index: 10; top: 18px; width: 290px;
+    max-height: calc(100% - 36px); overflow-y: auto;
+    padding: 16px 18px 18px; border-radius: 14px; background: rgba(255,255,255,.97);
+    box-shadow: 0 8px 28px #0002; touch-action: pan-y;
+    -webkit-overflow-scrolling: touch; overscroll-behavior: contain;
+  }
+  #settings { left: 18px; }
+  #estimate { right: 18px; }
+  body.ui-hidden:not(.compact) #settings { display: none; }
+  .panel-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 10px; }
+  h2 { margin: 0; font-size: 18px; }
+  .sheet-close {
+    display: none; place-items: center; width: 34px; height: 34px; border: 0; border-radius: 50%;
+    background: #eef2f3; color: #37474f; font-size: 15px; cursor: pointer; flex: 0 0 auto;
+  }
+  label, .field-title { display: block; margin: 12px 0 6px; }
+  .field-title { margin-top: 2px; }
+  input, select { -webkit-user-select: auto; user-select: auto; }
+  input[type="number"], select {
+    width: 100%; padding: 9px; border: 1px solid #cbd2d6; border-radius: 8px;
+    background: #fff; font: inherit; font-size: 15px; color: inherit;
+  }
+  input[type="number"] { -moz-appearance: textfield; }
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+  .check { display: flex; align-items: center; gap: 10px; cursor: pointer; margin-top: 12px; }
+  .check input { width: 20px; height: 20px; margin: 0; accent-color: #37474f; }
+
+  .seg { display: flex; border: 1px solid #cbd2d6; border-radius: 8px; overflow: hidden; }
+  .seg label { flex: 1; margin: 0; position: relative; cursor: pointer; }
+  .seg input { position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none; }
+  .seg span {
+    display: flex; align-items: center; justify-content: center; min-height: 40px; padding: 6px;
+    background: #f3f6f7; color: #37474f; font-weight: 600; text-align: center;
+    touch-action: manipulation; transition: background .15s, color .15s;
+  }
+  .seg label + label span { border-left: 1px solid #cbd2d6; }
+  .seg input:checked + span { background: #37474f; color: #fff; }
+  .seg input:focus-visible + span { outline: 2px solid #348dca; outline-offset: -2px; }
+
+  .stepper { display: flex; gap: 6px; }
+  .stepper input { flex: 1; min-width: 0; text-align: center; }
+  .stepper button {
+    flex: 0 0 38px; border: 1px solid #cbd2d6; border-radius: 8px; background: #f3f6f7;
+    color: #37474f; font-size: 19px; line-height: 1; cursor: pointer; touch-action: manipulation;
+  }
+  .stepper button:active { background: #dde4e7; }
+  .muted { color: #66757b; font-size: 12px; line-height: 1.45; }
+  .reset {
+    width: 100%; margin-top: 16px; padding: 11px; border: 0; border-radius: 8px;
+    background: #37474f; color: #fff; font: inherit; cursor: pointer; touch-action: manipulation;
+  }
+  .reset:hover { background: #263238; }
+
+  .section { margin-top: 18px; padding-top: 14px; border-top: 1px solid #e3e8ea; }
+  .section-title { font-weight: 700; font-size: 15px; margin-bottom: 4px; }
+  .section .muted { margin: 0 0 6px; }
+  .btn-secondary {
+    width: 100%; margin-top: 10px; padding: 10px; border: 1px solid #cbd2d6; border-radius: 8px;
+    background: #f3f6f7; color: #37474f; font: inherit; font-weight: 600; cursor: pointer;
+    touch-action: manipulation;
+  }
+  .btn-secondary:active { background: #dde4e7; }
+  .btn-secondary.active { background: #2c6fb5; border-color: #2c6fb5; color: #fff; }
+  .btn-link {
+    display: block; margin: 10px auto 0; padding: 8px; border: 0; background: none;
+    color: #b8322a; font: inherit; font-size: 13px; cursor: pointer; touch-action: manipulation;
+  }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .mark-item { margin-top: 10px; padding: 10px; border: 1px solid #e0e6e8; border-radius: 10px; background: #f8fafb; }
+  .mark-item-head { display: flex; justify-content: space-between; align-items: center; font-weight: 600; font-size: 13px; margin-bottom: 6px; }
+  .mark-item-del {
+    width: 30px; height: 30px; border: 0; border-radius: 50%; background: #fbe3e1;
+    color: #b8322a; font-size: 14px; cursor: pointer; touch-action: manipulation;
+  }
+  .mark-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(72px, 1fr)); gap: 6px; }
+  .mark-fields label { margin: 0; font-size: 11px; color: #66757b; }
+  .mark-fields label span { display: block; margin-bottom: 3px; }
+  .mark-fields input[type="number"] { padding: 7px; text-align: center; }
+
+  .help { margin-top: 14px; }
+  .help summary { cursor: pointer; font-weight: 600; color: #37474f; padding: 4px 0; }
+  .help ul { margin: 8px 0 0; padding-left: 18px; }
+  .help li { margin: 4px 0; }
+  .estimate-row { display: flex; justify-content: space-between; gap: 10px; margin: 11px 0; }
+  .estimate-row strong { white-space: nowrap; }
+  #estimate .total {
+    display: flex; justify-content: space-between; align-items: baseline; gap: 8px;
+    margin-top: 14px; padding-top: 13px; border-top: 1px solid #ddd;
+    font-size: 17px; font-weight: bold;
+  }
+  #total { color: #168050; white-space: nowrap; }
+
+  .fab {
+    position: absolute; z-index: 30; display: grid; place-items: center; padding: 0;
+    width: 44px; height: 44px; border: 1px solid #ccc; border-radius: 50%;
+    background: #fff; color: #37474f; box-shadow: 0 3px 12px #0003; cursor: pointer; font-size: 19px;
+  }
+  .fab.active { background: #2c6fb5; border-color: #2c6fb5; color: #fff; }
+  #toggle { top: 18px; right: 326px; }
+  #fit { top: 70px; right: 326px; }
+  #mark { top: 122px; right: 326px; }
+
+  #buttons, #dimension-layer { position: fixed; inset: 0; pointer-events: none; }
+  #buttons { z-index: 5; }
+  #dimension-layer { z-index: 4; overflow: hidden; }
+  #dimension-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+
+  .control {
+    position: absolute; left: 0; top: 0; display: grid; place-items: center;
+    width: var(--c); height: var(--c); padding: 0; border: 2px solid #fff;
+    border-radius: 50%; color: #fff; font-size: calc(var(--c) * .6); font-weight: 700; line-height: 1;
+    box-shadow: 0 2px 6px #0006; cursor: pointer; pointer-events: auto;
+    touch-action: none; user-select: none; will-change: transform;
+  }
+  .control::after { content: ""; position: absolute; inset: -6px; border-radius: 50%; }
+  .control.small { width: var(--cs); height: var(--cs); font-size: calc(var(--cs) * .62); border-width: 1.5px; }
+  .horizontal { background: #24a663; cursor: ew-resize; }
+  .vertical { background: #348dca; }
+  .remove { background: #dc5249; }
+  .support { background: #ef8a2c; cursor: ew-resize; }
+  .del-support { background: #b8322a; }
+  .control.disabled { background: #9aa3a7; opacity: .45; cursor: not-allowed; }
+  .pipe { background: #e4b528; color: #222; }
+  .pipe.broken { background: #8852b4; color: #fff; }
+  .mark-h { background: #2c6fb5; }
+  .mark-h.nwse { cursor: nwse-resize; }
+  .mark-h.nesw { cursor: nesw-resize; }
+  .mark-move { background: #2c6fb5; cursor: move; }
+  .mark-del { background: #b8322a; }
+  @media (hover: hover) { .control:hover { filter: brightness(.88); } }
+
+  .dimension-label {
+    position: absolute; left: 0; top: 0; padding: 2px 5px; border-radius: 4px;
+    background: rgba(255,255,255,.94); color: #213d4b; white-space: nowrap;
+    font-size: 12px; font-weight: 600; box-shadow: 0 1px 3px #0002; pointer-events: none;
+  }
+  .dimension-label.span { font-size: 11px; font-weight: 500; color: #4f6169; padding: 1px 4px; }
+  .dimension-label.overhang { font-size: 11px; font-weight: 500; color: #9a6a2f; padding: 1px 4px; }
+  .dimension-label.level { font-size: 11px; color: #6a3fa0; }
+  .dimension-label.total { color: #12683d; font-weight: 700; }
+  .dimension-label.mark, .dimension-label.markfloor { font-size: 11px; color: #1d5a9a; padding: 1px 4px; }
+  @media (max-width: 600px), (max-height: 500px) {
+    .dimension-label { font-size: 10px; padding: 1px 3px; }
+    .dimension-label.span, .dimension-label.overhang, .dimension-label.level,
+    .dimension-label.mark, .dimension-label.markfloor { font-size: 9.5px; }
+  }
+  .dim-line { stroke: #245971; stroke-width: 1.3; fill: none; }
+  .dim-line.span { stroke: #7c929c; stroke-width: 1; }
+  .dim-line.overhang { stroke: #b9894f; stroke-width: 1; }
+  .dim-line.level { stroke: #7a4fb3; stroke-width: 1.2; }
+  .dim-line.total { stroke: #168050; stroke-width: 1.5; }
+  .dim-line.mark { stroke: #2c6fb5; stroke-width: 1.2; }
+  .dim-line.markfloor { stroke: #2c6fb5; stroke-width: 1; stroke-dasharray: 5 4; }
+  .leader { stroke: #7a4fb3; stroke-width: 1; stroke-dasharray: 4 4; opacity: .7; }
+  .leader.total { stroke: #168050; }
+
+  #drag-label {
+    position: fixed; z-index: 40; display: none; left: 0; top: 0;
+    padding: 4px 8px; border-radius: 6px; background: rgba(255,255,255,.96);
+    color: #12683d; font-size: 13px; font-weight: 600; white-space: nowrap;
+    box-shadow: 0 2px 8px #0003; pointer-events: none; transform: translate(-50%, -50%);
+  }
+  #toast {
+    position: fixed; z-index: 60; left: 50%; top: calc(14px + var(--safe-t));
+    transform: translate(-50%, -160%); max-width: calc(100% - 24px);
+    padding: 10px 14px; border-radius: 10px; background: #37474f; color: #fff;
+    font-size: 13px; box-shadow: 0 6px 18px #0004; transition: transform .25s;
+    pointer-events: none; text-align: center;
+  }
+  #toast.show { transform: translate(-50%, 0); }
+
+  #mark-hint {
+    position: fixed; z-index: 45; left: 50%; bottom: calc(18px + var(--safe-b));
+    transform: translateX(-50%); display: none; align-items: center; gap: 10px;
+    max-width: calc(100% - 24px); padding: 8px 8px 8px 14px; border-radius: 12px;
+    background: #2c6fb5; color: #fff; font-size: 13px; box-shadow: 0 6px 18px #0004;
+  }
+  body.mark-mode #mark-hint { display: flex; }
+  #mark-hint button {
+    flex: 0 0 auto; border: 0; border-radius: 8px; padding: 9px 14px; background: #fff;
+    color: #2c6fb5; font: inherit; font-weight: 700; cursor: pointer; touch-action: manipulation;
+  }
+  #mobile-bar { display: none; }
+
+  @media (max-width: 900px), (max-height: 520px) {
+    .panel {
+      position: fixed; z-index: 35;
+      left: var(--safe-l) !important; right: var(--safe-r) !important;
+      top: auto; bottom: calc(var(--bar-h) + var(--safe-b));
+      width: auto; max-height: 62%;
+      border-radius: 16px 16px 0 0; box-shadow: 0 -6px 24px #0003;
+      transform: translateY(130%); visibility: hidden;
+      transition: transform .25s ease, visibility .25s;
+    }
+    .panel.open { transform: none; visibility: visible; }
+    .sheet-close { display: grid; }
+    input[type="number"], select { font-size: 16px; }
+    .mark-fields input[type="number"] { font-size: 16px; }
+    #mobile-bar {
+      display: flex; position: fixed; z-index: 36; left: 0; right: 0; bottom: 0;
+      height: calc(var(--bar-h) + var(--safe-b));
+      padding: 8px calc(10px + var(--safe-r)) calc(8px + var(--safe-b)) calc(10px + var(--safe-l));
+      gap: 8px; background: #fff; box-shadow: 0 -2px 12px #0002;
+    }
+    #mobile-bar button {
+      flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px;
+      border: 0; border-radius: 10px; background: #eef2f3; color: #37474f;
+      font: inherit; font-weight: 600; cursor: pointer; touch-action: manipulation;
+    }
+    #mobile-bar button.active { background: #37474f; color: #fff; }
+    #bar-total { color: #168050; }
+    #mobile-bar button.active #bar-total { color: #9fe3bf; }
+    .fab { width: 40px; height: 40px; font-size: 17px; }
+    #toggle { top: calc(10px + var(--safe-t)); right: calc(10px + var(--safe-r)); }
+    #fit { top: calc(58px + var(--safe-t)); right: calc(10px + var(--safe-r)); }
+    #mark { top: calc(106px + var(--safe-t)); right: calc(10px + var(--safe-r)); }
+    #drag-label { font-size: 12px; }
+    #mark-hint { bottom: calc(var(--bar-h) + var(--safe-b) + 10px); font-size: 12px; }
+  }
+  @media (max-height: 520px) and (orientation: landscape) {
+    :root { --bar-h: 50px; }
+    .panel {
+      right: auto !important; width: 320px; max-width: 85vw; top: 0; max-height: none;
+      border-radius: 0 16px 16px 0; transform: translateX(-110%);
+    }
+  }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+</head>
+<body>
+<div id="scene"></div>
+<div id="dimension-layer"><svg id="dimension-svg"></svg></div>
+<div id="buttons"></div>
+<div id="drag-label"></div>
+<div id="toast"></div>
+<div id="mark-hint"><span>Проведите по стене, чтобы нарисовать прямоугольник</span><button id="mark-done" type="button">Готово</button></div>
+
+<div id="settings" class="panel">
+  <div class="panel-head">
+    <h2>Настройки стеллажа</h2>
+    <button class="sheet-close" type="button" data-close aria-label="Закрыть">✕</button>
+  </div>
+
+  <div class="field-title">Тип стеллажа</div>
+  <div class="seg" role="radiogroup" aria-label="Тип стеллажа">
+    <label><input type="radio" name="mount" value="wall" checked><span>Настенный</span></label>
+    <label><input type="radio" name="mount" value="floor"><span>Напольный</span></label>
+  </div>
+
+  <label class="check"><input id="deep" type="checkbox"> Глубокие полки — 400 мм</label>
+
+  <label for="first">Длина первого пролёта, мм</label>
+  <div class="stepper">
+    <button type="button" data-for="first" data-step="-10" aria-label="Уменьшить">−</button>
+    <input id="first" type="number" min="200" max="1500" step="10" value="500" inputmode="numeric">
+    <button type="button" data-for="first" data-step="10" aria-label="Увеличить">+</button>
+  </div>
+
+  <label for="length">Длина новой секции (нажатие на зелёный «+»), мм</label>
+  <div class="stepper">
+    <button type="button" data-for="length" data-step="-50" aria-label="Уменьшить">−</button>
+    <input id="length" type="number" min="200" max="6000" step="10" value="500" inputmode="numeric">
+    <button type="button" data-for="length" data-step="50" aria-label="Увеличить">+</button>
+  </div>
+
+  <label for="overhang">Свес щита за крайнюю опору, мм</label>
+  <div class="stepper">
+    <button type="button" data-for="overhang" data-step="-10" aria-label="Уменьшить">−</button>
+    <input id="overhang" type="number" min="100" max="500" step="10" value="200" inputmode="numeric">
+    <button type="button" data-for="overhang" data-step="10" aria-label="Увеличить">+</button>
+  </div>
+
+  <label for="height">Шаг по высоте, мм</label>
+  <select id="height">
+    <option>150</option><option>200</option><option selected>300</option>
+    <option>400</option><option>500</option>
+  </select>
+
+  <button id="reset" class="reset" type="button">Сбросить всё</button>
+
+  <div class="section">
+    <div class="section-title">Отметки на стене</div>
+    <p class="muted">Например, телевизор — чтобы встроить стеллаж вокруг него.</p>
+    <button id="mark-draw" class="btn-secondary" type="button">▭ Нарисовать на стене</button>
+
+    <label for="mark-preset">Шаблон</label>
+    <select id="mark-preset">
+      <option value="">Свой размер</option>
+      <option value="960x560">ТВ 43″ — 960 × 560</option>
+      <option value="1120x650">ТВ 50″ — 1120 × 650</option>
+      <option value="1230x710" selected>ТВ 55″ — 1230 × 710</option>
+      <option value="1450x830">ТВ 65″ — 1450 × 830</option>
+      <option value="1680x960">ТВ 75″ — 1680 × 960</option>
+      <option value="1900x1090">ТВ 85″ — 1900 × 1090</option>
+    </select>
+    <div class="grid2">
+      <div><label for="mark-w">Ширина, мм</label>
+        <input id="mark-w" type="number" min="50" max="10000" step="10" value="1230" inputmode="numeric"></div>
+      <div><label for="mark-h">Высота, мм</label>
+        <input id="mark-h" type="number" min="50" max="10000" step="10" value="710" inputmode="numeric"></div>
+    </div>
+    <div id="mark-floor-row">
+      <label for="mark-floor">От пола до низа, мм</label>
+      <input id="mark-floor" type="number" min="0" max="10000" step="10" value="800" inputmode="numeric">
+    </div>
+    <button id="mark-add" class="btn-secondary" type="button">Добавить отметку</button>
+    <div id="mark-list"></div>
+    <button id="mark-clear" class="btn-link" type="button">Удалить все отметки</button>
+  </div>
+
+  <details class="help">
+    <summary>Как пользоваться</summary>
+    <ul class="muted">
+      <li>Зелёный «+»: нажмите — добавится секция; потяните — щит удлиняется. При свесе больше 500 мм появляется опора. Если дотянуть щит до соседней полки на том же уровне, он соединяется с ней и крепится к её опоре.</li>
+      <li>Щит останавливается у чужой трубы, если трубка между полками получилась бы короче 150 мм.</li>
+      <li>Синий «+» — полка сверху или снизу пролёта.</li>
+      <li>Красный «−» — удалить пролёт.</li>
+      <li>Оранжевый «⇔» — сдвинуть опору, «×» — удалить опору.</li>
+      <li>Жёлтая «✂» — разрезать трубу, фиолетовая «↔» — соединить.</li>
+      <li>«▭» — разметка на стене: проведите по стене. Синие точки — размер, «✥» — сдвиг, «×» — удалить.</li>
+      <li>Один палец — вращение, два — масштаб и сдвиг. «⤢» — показать весь стеллаж, «◉» — скрыть размеры и кнопки.</li>
+    </ul>
+  </details>
+</div>
+
+<div id="estimate" class="panel">
+  <div class="panel-head">
+    <h2>Расчёт стоимости</h2>
+    <button class="sheet-close" type="button" data-close aria-label="Закрыть">✕</button>
+  </div>
+  <div class="estimate-row"><span>Габариты (Ш × В)</span><strong id="size">—</strong></div>
+  <div class="estimate-row"><span>Мебельный щит</span><strong id="wood-price">0 ₽</strong></div>
+  <div class="estimate-row"><span>Площадь щита</span><strong id="area">0 м²</strong></div>
+  <div class="estimate-row"><span>Трубки</span><strong id="pipe-price">0 ₽</strong></div>
+  <div class="estimate-row"><span>Количество трубок</span><strong id="pipe-count">0</strong></div>
+  <div class="total"><span>Итого</span><span id="total">0 ₽</span></div>
+  <p class="muted">Щит — 30 000 ₽/м²; каждая отдельная трубка — 1 000 ₽.
+    Фурнитура, крепёж, обработка и монтаж не включены.</p>
+</div>
+
+<button id="toggle" class="fab" type="button" title="Скрыть размеры и управление" aria-label="Скрыть размеры и управление">◉</button>
+<button id="fit" class="fab" type="button" title="Показать весь стеллаж" aria-label="Показать весь стеллаж">⤢</button>
+<button id="mark" class="fab" type="button" title="Разметка на стене" aria-label="Разметка на стене">▭</button>
+
+<div id="mobile-bar">
+  <button id="open-settings" type="button">⚙ Настройки</button>
+  <button id="open-estimate" type="button"><span>Итого</span><strong id="bar-total">0 ₽</strong></button>
+</div>
+
+<script>
+(() => {
+  "use strict";
+
+  const $ = id => document.getElementById(id);
+  const MM = {
+    minSpan: 200, maxSpan: 1500, maxOverhang: 500,
+    thickness: 20, cap: 80, pipeR: 10, attach: 10, maxLen: 6000,
+    minPipe: 150,   // минимальная трубка между полками
+    snap: 200,      // притяжение новой опоры к трубе другого яруса (клик)
+    foot: 25,       // высота латунной втулки / тройника
+    gap: 40,        // минимальный зазор новой опоры до чужой трубы
+    markMin: 50     // минимальный размер отметки на стене
+  };
+  const WOOD_RATE = 30000;
+  const PIPE_RATE = 1000;
+  const r10 = n => Math.round(n / 10) * 10;
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  const fmtNum = n => new Intl.NumberFormat("ru-RU").format(Math.round(n));
+  const money = n => fmtNum(n) + " ₽";
+  const V = (x, y, z) => new THREE.Vector3(x, y, z);
+  const bkey = (x, y1, y2) => `${x}|${y1}|${y2}`;
+  const uniqSort = a => [...new Set(a)].sort((p, q) => p - q);
+
+  // ---------- Состояние ----------
+  let boards = [];          // { id, y, x1, x2, sup: [x...] }
+  let nextId = 1;
+  let breaks = new Set();   // разрезанные участки труб
+  let marks = [];           // { id, x, y, w, h } — отметки на стене, мм
+  let nextMarkId = 1;
+  let markMode = false;
+  let draw = null;          // рисование отметки
+  const activePts = new Set();
+  let uiVisible = true;
+  let needsRender = true;
+  let gesture = null;
+  let overlayButtons = [], dims = [], leaders = [];
+  let L = {};
+
+  function watch(query, fn) {
+    const m = matchMedia(query);
+    if (m.addEventListener) m.addEventListener("change", fn); else m.addListener(fn);
+    return m;
+  }
+  const compactMQ = watch("(max-width: 900px), (max-height: 520px)", onLayoutChange);
+  const smallMQ = watch("(max-width: 600px), (max-height: 500px)", onLayoutChange);
+
+  // ---------- Three.js ----------
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color("#dedede");
+  const camera = new THREE.PerspectiveCamera(45, innerWidth / innerHeight, 10, 40000);
+  camera.position.set(650, 480, 1750);
+
+  const renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, compactMQ.matches ? 1.75 : 2));
+  renderer.setSize(innerWidth, innerHeight);
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  $("scene").appendChild(renderer.domElement);
+
+  const controls = new THREE.OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true;
+  controls.dampingFactor = .12;
+  controls.screenSpacePanning = true;
+  controls.minDistance = 250;
+  controls.maxDistance = 15000;
+  controls.touches = { ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY_PAN };
+  controls.addEventListener("change", requestRender);
+
+  scene.add(new THREE.AmbientLight(0xffffff, .7));
+  const light = new THREE.DirectionalLight(0xffffff, .75);
+  light.castShadow = true;
+  const shadowSize = compactMQ.matches ? 1024 : 2048;
+  light.shadow.mapSize.set(shadowSize, shadowSize);
+  light.shadow.bias = -0.0005;
+  scene.add(light);
+  scene.add(light.target);
+
+  const woodMat = new THREE.MeshStandardMaterial({ color: "#a6753e", roughness: .82 });
+  const pipeMat = new THREE.MeshStandardMaterial({ color: "#202528", metalness: .25, roughness: .65 });
+  const fitMat = new THREE.MeshStandardMaterial({ color: "#bf9d5b", metalness: .7, roughness: .3 });
+  const wallMat = new THREE.MeshStandardMaterial({ color: "#ececec" });
+  const floorMat = new THREE.MeshStandardMaterial({ color: "#cfc9c0", roughness: .9 });
+  const markFillMat = new THREE.MeshBasicMaterial({
+    color: "#2c6fb5", transparent: true, opacity: .14, depthWrite: false,
+    polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2
+  });
+  const markLineMat = new THREE.LineDashedMaterial({ color: "#2c6fb5", dashSize: 40, gapSize: 25 });
+  const previewFillMat = markFillMat.clone();
+  previewFillMat.opacity = .22;
+  const previewLineMat = new THREE.LineBasicMaterial({ color: "#2c6fb5" });
+
+  const G = {
+    box: new THREE.BoxGeometry(1, 1, 1),
+    cyl: new THREE.CylinderGeometry(1, 1, 1, 14),
+    sphere: new THREE.SphereGeometry(1, 14, 10),
+    plane: new THREE.PlaneGeometry(1, 1)
+  };
+
+  const model = new THREE.Group();
+  scene.add(model);
+
+  // Предпросмотр рисуемой отметки
+  const preview = new THREE.Group();
+  preview.visible = false;
+  {
+    const f = new THREE.Mesh(G.plane, previewFillMat);
+    f.position.set(.5, .5, 0);
+    preview.add(f);
+    const g = new THREE.BufferGeometry().setFromPoints(
+      [V(0, 0, 0), V(1, 0, 0), V(1, 1, 0), V(0, 1, 0), V(0, 0, 0)]);
+    preview.add(new THREE.Line(g, previewLineMat));
+  }
+  scene.add(preview);
+
+  function requestRender() { needsRender = true; }
+
+  // ---------- Настройки ----------
+  const isFloor = () => {
+    const r = document.querySelector('input[name="mount"]:checked');
+    return !!r && r.value === "floor";
+  };
+  const deep = () => $("deep").checked;
+  const depth = () => deep() ? 400 : 200;
+  const wallZ = () => deep() ? -300 : -150;
+  const woodZ = () => wallZ() + depth() / 2;     // задний край щита вплотную к стене
+  const frontZ = () => woodZ() + depth() / 2;
+  const stepH = () => Number($("height").value);
+  const floorLevel = () => boards.length ? Math.min(...boards.map(b => b.y)) : 0;
+  const floorY = () => floorLevel() - MM.thickness / 2 - MM.foot;
+
+  function readNum(id, def, min, max) {
+    const raw = $(id).value;
+    let v = Number(raw);
+    if (raw === "" || !Number.isFinite(v)) v = def;
+    return clamp(r10(v), min, max);
+  }
+  const OV = () => readNum("overhang", 200, 100, MM.maxOverhang);
+
+  // ---------- Модель данных ----------
+  const byId = id => boards.find(b => b.id === id);
+
+  function columns() {
+    const m = new Map();
+    for (const b of boards) for (const x of b.sup) {
+      if (!m.has(x)) m.set(x, new Set());
+      m.get(x).add(b.y);
+    }
+    const out = new Map();
+    for (const [x, s] of m) out.set(x, [...s].sort((a, c) => a - c));
+    return out;
+  }
+
+  function isBroken(x, y1, y2) {
+    return y2 - y1 > 2 * MM.cap && breaks.has(bkey(x, y1, y2));
+  }
+
+  function groupsOf(cols) {
+    const gs = [];
+    for (const [x, lv] of cols) {
+      let cur = [lv[0]];
+      for (let i = 1; i < lv.length; i++) {
+        if (isBroken(x, lv[i - 1], lv[i])) { gs.push({ x, levels: cur }); cur = [lv[i]]; }
+        else cur.push(lv[i]);
+      }
+      gs.push({ x, levels: cur });
+    }
+    return gs;
+  }
+
+  function groupBoards(x, levels) {
+    return boards.filter(b => levels.includes(b.y) && b.sup.includes(x));
+  }
+
+  function neighborLimit(b, dir) {
+    let lim = dir > 0 ? Infinity : -Infinity;
+    for (const o of boards) {
+      if (o === b || o.y !== b.y) continue;
+      if (dir > 0 && o.x1 >= b.x2) lim = Math.min(lim, o.x1);
+      if (dir < 0 && o.x2 <= b.x1) lim = Math.max(lim, o.x2);
+    }
+    return lim;
+  }
+
+  function neighborBoard(b, dir) {
+    let best = null;
+    for (const o of boards) {
+      if (o === b || o.y !== b.y) continue;
+      if (dir > 0 && o.x1 >= b.x2 && (!best || o.x1 < best.x1)) best = o;
+      if (dir < 0 && o.x2 <= b.x1 && (!best || o.x2 > best.x2)) best = o;
+    }
+    return best;
+  }
+
+  function blocked(y, a, c, sign) {
+    return boards.some(o => (o.y - y) * sign > 0 &&
+      o.sup[0] < c && o.sup[o.sup.length - 1] > a);
+  }
+
+  function firstSpan() {
+    const xs = [...columns().keys()].sort((a, c) => a - c);
+    return xs.length >= 2 ? { s0: xs[0], s1: xs[1] } : null;
+  }
+
+  // Как труба на оси x относится к щиту на уровне y:
+  // "none" — не мешает, "through" — проходит сквозь щит (можно крепить),
+  // "block" — щит упирается (трубка вышла бы короче 150 мм или мешает конец трубы).
+  function pipeStatus(x, y, groups) {
+    const fl = isFloor(), fLevel = floorLevel();
+    let st = "none";
+    for (const g of groups) {
+      if (g.x !== x) continue;
+      const lv = g.levels, low = lv[0], high = lv[lv.length - 1];
+      if (lv.includes(y)) { st = "through"; continue; }
+      const bottom = fl && low === fLevel ? low - MM.thickness / 2 - MM.foot : low - MM.cap - 15;
+      const top = high + MM.cap + 15;
+      if (y + 30 < bottom || y - MM.gap > top) continue;
+      let ok = false;
+      for (let i = 1; i < lv.length; i++)
+        if (y > lv[i - 1] && y < lv[i] &&
+            y - lv[i - 1] >= MM.minPipe && lv[i] - y >= MM.minPipe) ok = true;
+      if (!ok) return "block";
+      st = "through";
+    }
+    return st;
+  }
+
+  // Можно ли прикрепить щит уровня y к существующей трубе x (для клика и синего «+»)
+  function mergeOk(x, y) {
+    const lv = columns().get(x) || [];
+    if (lv.includes(y)) return true;
+    const lower = lv.filter(v => v < y).pop(), upper = lv.find(v => v > y);
+    if (lower !== undefined && y - lower < MM.minPipe) return false;
+    if (upper !== undefined && upper - y < MM.minPipe) return false;
+    if (lower !== undefined && upper !== undefined) return !isBroken(x, lower, upper);
+    const near = lower !== undefined ? lower : upper;
+    if (near !== undefined) {
+      const a = Math.min(near, y), c = Math.max(near, y);
+      if (boards.some(o => o.y > a && o.y < c && x > o.x1 - MM.gap && x < o.x2 + MM.gap)) return false;
+    }
+    const caps = [];
+    if (upper === undefined) caps.push(y + MM.cap);
+    if (lower === undefined && !(isFloor() && y <= floorLevel())) caps.push(y - MM.cap);
+    for (const cy of caps)
+      if (boards.some(o => Math.abs(o.y - cy) < 45 && x > o.x1 - MM.gap && x < o.x2 + MM.gap)) return false;
+    return true;
+  }
+
+  // Приведение модели в порядок
+  function normalize() {
+    for (const b of boards) {
+      b.sup = [...new Set(b.sup.map(r10))].sort((a, c) => a - c);
+      b.x1 = r10(b.x1); b.x2 = r10(b.x2);
+    }
+    boards = boards.filter(b => b.sup.length >= 2);
+
+    const byY = new Map();
+    for (const b of boards) {
+      if (!byY.has(b.y)) byY.set(b.y, []);
+      byY.get(b.y).push(b);
+    }
+    const merged = [];
+    for (const row of byY.values()) {
+      row.sort((a, c) => a.x1 - c.x1);
+      let cur = null;
+      for (const b of row) {
+        if (cur && b.x1 <= cur.x2) {
+          cur.x2 = Math.max(cur.x2, b.x2);
+          cur.sup = [...new Set([...cur.sup, ...b.sup])].sort((a, c) => a - c);
+        } else { cur = b; merged.push(b); }
+      }
+    }
+    boards = merged;
+
+    for (let guard = 0; guard < 20; guard++) {
+      let changed = false;
+      const cols = columns();
+      for (const [x, lv] of cols) {
+        for (let i = 1; i < lv.length; i++) {
+          const y1 = lv[i - 1], y2 = lv[i];
+          if (isBroken(x, y1, y2)) continue;
+          for (const b of boards) {
+            if (b.y > y1 && b.y < y2 && x > b.x1 + MM.pipeR && x < b.x2 - MM.pipeR &&
+                !b.sup.includes(x)) {
+              b.sup.push(x);
+              b.sup.sort((a, c) => a - c);
+              changed = true;
+            }
+          }
+        }
+      }
+      if (!changed) break;
+    }
+
+    const valid = new Set();
+    for (const [x, lv] of columns())
+      for (let i = 1; i < lv.length; i++)
+        if (lv[i] - lv[i - 1] > 2 * MM.cap) valid.add(bkey(x, lv[i - 1], lv[i]));
+    breaks = new Set([...breaks].filter(k => valid.has(k)));
+  }
+
+  function detach(x, levels) {
+    const lv = columns().get(x) || [];
+    const rem = lv.filter(y => !levels.includes(y));
+    for (let i = 1; i < rem.length; i++)
+      if (levels.some(y => y > rem[i - 1] && y < rem[i]))
+        breaks.add(bkey(x, rem[i - 1], rem[i]));
+  }
+
+  function attachKeys(x, levels) {
+    const lv = columns().get(x) || [];
+    const keys = [];
+    for (let i = 1; i < lv.length; i++)
+      if (levels.includes(lv[i - 1]) !== levels.includes(lv[i]))
+        keys.push(bkey(x, lv[i - 1], lv[i]));
+    return keys;
+  }
+
+  // ---------- Удлинение щита ----------
+  // Не ставить новую опору ровно на чужую трубу другого уровня
+  function dodge(x, cur, dir, avoid) {
+    for (const f of avoid) {
+      if (Math.abs(x - f) < MM.gap) {
+        const a = f - dir * MM.gap;
+        x = (a - cur) * dir >= MM.minSpan ? a : f + dir * MM.gap;
+      }
+    }
+    return r10(x);
+  }
+
+  // Точки опор от a до c (не включая a), пролёты не больше 1500 мм
+  function divide(a, c, avoid = []) {
+    const gap = Math.abs(c - a);
+    if (!gap) return [];
+    const dir = Math.sign(c - a), n = Math.ceil(gap / MM.maxSpan), out = [];
+    for (let k = 1; k < n; k++) out.push(dodge(r10(a + (c - a) * k / n), a, dir, avoid));
+    out.push(c);
+    return out;
+  }
+
+  // Всё, что нужно знать о пути щита в направлении dir
+  function extContext(b, dir) {
+    const base = dir > 0 ? b.sup[b.sup.length - 1] : b.sup[0];
+    const E0 = dir > 0 ? b.x2 : b.x1;
+    const nb = neighborBoard(b, dir);
+    const nLimit = nb ? (dir > 0 ? nb.x1 : nb.x2) : dir * Infinity;
+    const nFirst = nb ? (dir > 0 ? nb.sup[0] : nb.sup[nb.sup.length - 1]) : null;
+    const cols = columns(), groups = groupsOf(cols);
+    const foreign = [];
+    for (const x of cols.keys()) {
+      if ((x - base) * dir <= 0 || b.sup.includes(x)) continue;
+      if (nb && (x - nLimit) * dir >= 0) continue;
+      foreign.push({ x, st: pipeStatus(x, b.y, groups) });
+    }
+    foreign.sort((p, q) => (p.x - q.x) * dir);
+    const blk = foreign.find(f => f.st === "block") || null;
+    let maxE = blk ? blk.x - dir * MM.pipeR : nLimit;
+    if ((maxE - E0) * dir < 0) maxE = E0;
+    const throughs = foreign
+      .filter(f => f.st === "through" && (!blk || (f.x - blk.x) * dir < 0)).map(f => f.x);
+    const free = foreign.filter(f => f.st === "none").map(f => f.x);
+    return { base, nb, nLimit, nFirst, foreign, blk, maxE, throughs, free };
+  }
+
+  // Опоры при растягивании щита до края E
+  function planExtension(dir, E, c, ov) {
+    const out = [];
+    let cur = c.base;
+    for (const t of c.throughs) {
+      if ((E - t) * dir < MM.attach) break;
+      out.push(...divide(cur, t, c.free));
+      cur = t;
+    }
+    if (c.nb && (E - c.nLimit) * dir >= 0) {
+      out.push(...divide(cur, c.nFirst, c.free));
+      return { extra: out, merged: true };
+    }
+    for (let guard = 0; guard < 60; guard++) {
+      const over = (E - cur) * dir;
+      if (over <= MM.maxOverhang) break;
+      const x = dodge(cur + dir * r10(clamp(over - ov, MM.minSpan, MM.maxSpan)), cur, dir, c.free);
+      out.push(x);
+      cur = x;
+    }
+    return { extra: out, merged: false };
+  }
+
+  // ---------- Действия ----------
+  function createInitial(len) {
+    const ov = OV();
+    boards = [{ id: nextId++, y: 0, x1: -ov, x2: len + ov, sup: [0, len] }];
+    breaks.clear();
+    normalize();
+    rebuild();
+  }
+
+  function setEdge(b, dir, E) { if (dir > 0) b.x2 = E; else b.x1 = E; }
+
+  function clickExtend(id, dir) {
+    const b = byId(id);
+    if (!b) return;
+    const ov = OV();
+    const len = readNum("length", 500, MM.minSpan, MM.maxLen);
+    const c = extContext(b, dir);
+    const curEdge = dir > 0 ? b.x2 : b.x1;
+    if ((c.maxE - curEdge) * dir <= 0) {
+      toast(c.blk ? "Дальше щит упирается в трубу" : "Недостаточно места для новой секции");
+      return;
+    }
+
+    let end = c.base + dir * len, best = null;
+    for (const f of c.foreign) {
+      if (f.st === "block") break;
+      const dist = Math.abs(f.x - end);
+      if (dist >= MM.snap || (f.x - c.base) * dir < MM.minSpan) continue;
+      if (f.st === "none" && !mergeOk(f.x, b.y)) continue;
+      if (best === null || dist < Math.abs(best - end)) best = f.x;
+    }
+    end = best !== null ? best : dodge(end, c.base, dir, c.free);
+    const E = end + dir * ov;
+
+    if (c.nb && !c.blk && (E - c.nLimit) * dir >= 0) {
+      const plan = planExtension(dir, c.nLimit, c, ov);
+      b.sup = uniqSort([...b.sup, ...plan.extra]);
+      setEdge(b, dir, c.nLimit);
+      normalize(); rebuild();
+      toast("Щит соединён с соседним");
+      return;
+    }
+    if ((E - c.maxE) * dir > 0) {
+      const plan = planExtension(dir, c.maxE, c, ov);
+      b.sup = uniqSort([...b.sup, ...plan.extra]);
+      setEdge(b, dir, c.maxE);
+      normalize(); rebuild();
+      toast("Щит упёрся в трубу — дальше удлинить нельзя");
+      return;
+    }
+
+    const add = [];
+    let cur = c.base;
+    for (const t of c.throughs) {
+      if ((end - t) * dir <= 0) break;
+      add.push(...divide(cur, t, c.free));
+      cur = t;
+    }
+    add.push(...divide(cur, end, c.free));
+    b.sup = uniqSort([...b.sup, ...add]);
+    setEdge(b, dir, (E - curEdge) * dir < 0 ? curEdge : E);
+    normalize();
+    rebuild();
+  }
+
+  function addLevel(id, a, c, sign) {
+    const b = byId(id);
+    if (!b || blocked(b.y, a, c, sign)) return;
+    const ny = b.y + sign * stepH();
+    if (isFloor() && ny < floorLevel()) return;
+    if (!mergeOk(a, ny) || !mergeOk(c, ny)) {
+      toast("Нельзя: трубка между полками будет короче 150 мм или упрётся в другую полку");
+      return;
+    }
+    const ov = OV(), x1 = a - ov, x2 = c + ov;
+    const cols = columns(), groups = groupsOf(cols);
+    for (const x of cols.keys()) {
+      if (x === a || x === c) continue;
+      if (x > x1 - MM.pipeR && x < x2 + MM.pipeR && pipeStatus(x, ny, groups) === "block") {
+        toast("Нельзя: новая полка упрётся в трубу");
+        return;
+      }
+    }
+    boards.push({ id: nextId++, y: ny, x1, x2, sup: [a, c] });
+    normalize();
+    rebuild();
+  }
+
+  function removeSpan(id, a, c) {
+    const b = byId(id);
+    if (!b) return;
+    const ov = OV(), s = b.sup;
+    const i = s.indexOf(a);
+    if (i < 0 || s[i + 1] !== c) return;
+    if (s.length === 2) {
+      for (const x of s) detach(x, [b.y]);
+      boards = boards.filter(o => o !== b);
+    } else if (i === 0) {
+      detach(a, [b.y]);
+      b.sup = s.slice(1);
+      b.x1 = b.sup[0] - ov;
+    } else if (i === s.length - 2) {
+      detach(c, [b.y]);
+      b.sup = s.slice(0, -1);
+      b.x2 = b.sup[b.sup.length - 1] + ov;
+    } else {
+      let lx2 = a + ov, rx1 = c - ov;
+      if (lx2 >= rx1) { const mid = r10((a + c) / 2); lx2 = mid - 10; rx1 = mid + 10; }
+      const right = { id: nextId++, y: b.y, x1: rx1, x2: b.x2, sup: s.slice(i + 1) };
+      b.sup = s.slice(0, i + 1);
+      b.x2 = lx2;
+      boards.push(right);
+    }
+    normalize();
+    rebuild();
+    if (!boards.length) toast("Все полки удалены. Нажмите «Сбросить всё» или измените длину первого пролёта");
+  }
+
+  function deleteBlockReason(x, levels) {
+    for (const b of groupBoards(x, levels)) {
+      const o = b.sup.filter(s => s !== x);
+      if (o.length < 2) return "Нельзя удалить: у щита должно остаться минимум 2 опоры";
+      for (let i = 1; i < o.length; i++)
+        if (o[i] - o[i - 1] > MM.maxSpan) return "Нельзя удалить: пролёт станет больше 1500 мм";
+      if (x < o[0] && o[0] - b.x1 > MM.maxOverhang)
+        return "Нельзя удалить: свес станет больше 500 мм";
+      if (x > o[o.length - 1] && b.x2 - o[o.length - 1] > MM.maxOverhang)
+        return "Нельзя удалить: свес станет больше 500 мм";
+    }
+    return "";
+  }
+
+  function deleteGroup(x, levels) {
+    const reason = deleteBlockReason(x, levels);
+    if (reason) { toast(reason); return; }
+    detach(x, levels);
+    for (const b of groupBoards(x, levels)) b.sup = b.sup.filter(s => s !== x);
+    normalize();
+    rebuild();
+  }
+
+  function applyFirstSpan() {
+    const len = readNum("first", 500, MM.minSpan, MM.maxSpan);
+    $("first").value = len;
+    if (!boards.length) { createInitial(len); fitCamera(); return; }
+    const fs = firstSpan();
+    if (!fs) return;
+    const delta = len - (fs.s1 - fs.s0);
+    if (!delta) return;
+    for (const b of boards) {
+      const minS = b.sup[0], maxS = b.sup[b.sup.length - 1];
+      if (minS >= fs.s1) b.x1 += delta;
+      if (maxS >= fs.s1) b.x2 += delta;
+      b.sup = b.sup.map(x => x >= fs.s1 ? x + delta : x);
+    }
+    breaks = new Set([...breaks].map(k => {
+      const [x, y1, y2] = k.split("|").map(Number);
+      return bkey(x >= fs.s1 ? x + delta : x, y1, y2);
+    }));
+    normalize();
+    rebuild();
+  }
+
+  function applyOverhang() {
+    const ov = OV();
+    $("overhang").value = ov;
+    for (const b of boards) {
+      b.x1 = b.sup[0] - ov;
+      b.x2 = b.sup[b.sup.length - 1] + ov;
+    }
+    normalize();
+    rebuild();
+  }
+
+  // ---------- Отметки на стене ----------
+  const markById = id => marks.find(m => m.id === id);
+  const snapY = v => isFloor() ? floorY() + r10(v - floorY()) : r10(v);
+  const minMarkY = () => isFloor() ? floorY() : -Infinity;
+
+  function markText(m) {
+    let t = `${fmtNum(m.w)} × ${fmtNum(m.h)} мм`;
+    if (isFloor()) t += ` · от пола ${fmtNum(m.y - floorY())} мм`;
+    return t;
+  }
+
+  const _ray = new THREE.Raycaster(), _ndc = new THREE.Vector2(), _hit = new THREE.Vector3();
+  function wallPoint(cx, cy) {
+    _ndc.set(cx / innerWidth * 2 - 1, -(cy / innerHeight) * 2 + 1);
+    _ray.setFromCamera(_ndc, camera);
+    const plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), -wallZ());
+    return _ray.ray.intersectPlane(plane, _hit) ? _hit.clone() : null;
+  }
+
+  function removeMark(id) {
+    marks = marks.filter(m => m.id !== id);
+    rebuild();
+    renderMarkList();
+  }
+
+  function addMarkFromForm() {
+    const w = readNum("mark-w", 1230, MM.markMin, 10000);
+    const h = readNum("mark-h", 710, MM.markMin, 10000);
+    $("mark-w").value = w; $("mark-h").value = h;
+    let cx = 250, cy = 300;
+    if (boards.length) {
+      cx = (Math.min(...boards.map(b => b.x1)) + Math.max(...boards.map(b => b.x2))) / 2;
+      cy = (Math.min(...boards.map(b => b.y)) + Math.max(...boards.map(b => b.y))) / 2;
+    }
+    const off = marks.length * 100;
+    const x = r10(cx - w / 2) + off;
+    let y;
+    if (isFloor()) {
+      const f = readNum("mark-floor", 800, 0, 10000);
+      $("mark-floor").value = f;
+      y = floorY() + f;
+    } else y = r10(cy - h / 2) + off;
+    marks.push({ id: nextMarkId++, x, y, w, h });
+    rebuild();
+    renderMarkList();
+    if (compactMQ.matches) closeSheets();
+    if (!uiVisible) setUiVisible(true);
+    fitCamera();
+    toast("Отметка добавлена. Потяните «✥», чтобы сдвинуть");
+  }
+
+  function renderMarkList() {
+    const box = $("mark-list");
+    box.replaceChildren();
+    const fl = isFloor();
+    $("mark-floor-row").style.display = fl ? "" : "none";
+    $("mark-clear").style.display = marks.length ? "" : "none";
+    marks.forEach((m, i) => {
+      const item = document.createElement("div");
+      item.className = "mark-item";
+      const head = document.createElement("div");
+      head.className = "mark-item-head";
+      const title = document.createElement("span");
+      title.textContent = `Отметка ${i + 1}`;
+      const del = document.createElement("button");
+      del.type = "button";
+      del.className = "mark-item-del";
+      del.textContent = "✕";
+      del.setAttribute("aria-label", "Удалить отметку");
+      del.addEventListener("click", () => removeMark(m.id));
+      head.append(title, del);
+
+      const fields = document.createElement("div");
+      fields.className = "mark-fields";
+      const field = (text, get, set, min) => {
+        const lab = document.createElement("label");
+        const sp = document.createElement("span");
+        sp.textContent = text;
+        const inp = document.createElement("input");
+        inp.type = "number"; inp.min = min; inp.step = 10; inp.inputMode = "numeric";
+        inp.value = get();
+        inp.addEventListener("change", () => {
+          const v = Number(inp.value);
+          if (inp.value !== "" && Number.isFinite(v)) { set(clamp(r10(v), min, 20000)); rebuild(); }
+          inp.value = get();
+        });
+        lab.append(sp, inp);
+        return lab;
+      };
+      fields.append(
+        field("Ширина, мм", () => m.w, v => { m.w = v; }, MM.markMin),
+        field("Высота, мм", () => m.h, v => { m.h = v; }, MM.markMin));
+      if (fl) fields.append(field("От пола, мм", () => m.y - floorY(), v => { m.y = floorY() + v; }, 0));
+      item.append(head, fields);
+      box.appendChild(item);
+    });
+  }
+
+  function finishDraw(cancel) {
+    const d = draw;
+    draw = null;
+    preview.visible = false;
+    hideDragLabel();
+    requestRender();
+    if (cancel || !d) return;
+    const w = Math.abs(d.x1 - d.x0), h = Math.abs(d.y1 - d.y0);
+    if (w < MM.markMin || h < MM.markMin) {
+      if (w > 10 || h > 10) toast("Отметка слишком маленькая — минимум 50 × 50 мм");
+      return;
+    }
+    marks.push({ id: nextMarkId++, x: Math.min(d.x0, d.x1), y: Math.min(d.y0, d.y1), w, h });
+    rebuild();
+    renderMarkList();
+  }
+
+  function setMarkMode(on) {
+    if (on && !uiVisible) setUiVisible(true);
+    markMode = on;
+    controls.enableRotate = !on;
+    document.body.classList.toggle("mark-mode", on);
+    $("mark").classList.toggle("active", on);
+    $("mark-draw").classList.toggle("active", on);
+    $("mark-draw").textContent = on ? "Закончить разметку" : "▭ Нарисовать на стене";
+    if (!on) finishDraw(true);
+    else { closeSheets(); fitCamera(true); }
+  }
+
+  // ---------- Жесты (нажатие / перетаскивание) ----------
+  function screenAxis(p) {
+    camera.updateMatrixWorld();
+    const a = proj(p), b = proj(p.clone().add(V(100, 0, 0)));
+    const vx = b.x - a.x, vy = b.y - a.y, len = Math.hypot(vx, vy);
+    if (len < .5) return { ux: 1, uy: 0, ppm: .3 };
+    return { ux: vx / len, uy: vy / len, ppm: Math.max(.03, len / 100) };
+  }
+
+  function beginGesture(e, el, h) {
+    if (gesture || draw || (e.pointerType === "mouse" && e.button !== 0)) return;
+    e.preventDefault();
+    e.stopPropagation();
+    try { el.setPointerCapture(e.pointerId); } catch (_) { /* не критично */ }
+    gesture = { id: e.pointerId, el, h, sx: e.clientX, sy: e.clientY, dragging: false, type: e.pointerType };
+    closeSheets();
+  }
+
+  document.addEventListener("pointermove", e => {
+    if (!gesture || e.pointerId !== gesture.id) return;
+    const dx = e.clientX - gesture.sx, dy = e.clientY - gesture.sy;
+    if (!gesture.dragging) {
+      if (Math.hypot(dx, dy) < (gesture.type === "mouse" ? 4 : 8)) return;
+      gesture.dragging = true;
+      controls.enabled = false;
+      if (gesture.h.start) gesture.h.start();
+    }
+    e.preventDefault();
+    if (gesture.h.move) gesture.h.move(dx, dy, e);
+  }, { passive: false });
+
+  function endGesture(e, cancelled) {
+    if (!gesture || e.pointerId !== gesture.id) return;
+    const g = gesture;
+    gesture = null;
+    controls.enabled = true;
+    hideDragLabel();
+    try { g.el.releasePointerCapture(g.id); } catch (_) { /* не критично */ }
+    if (g.dragging) { if (g.h.end) g.h.end(cancelled); }
+    else if (!cancelled && g.h.click) g.h.click();
+    if (g.el.isConnected && !overlayButtons.some(b => b.el === g.el)) g.el.remove();
+  }
+  document.addEventListener("pointerup", e => endGesture(e, false));
+  document.addEventListener("pointercancel", e => endGesture(e, true));
+
+  // Рисование отметки на стене
+  renderer.domElement.addEventListener("pointerdown", e => {
+    if (e.isPrimary) activePts.clear();
+    activePts.add(e.pointerId);
+    if (!markMode || gesture) return;
+    if (activePts.size > 1) { finishDraw(true); return; }
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    const p = wallPoint(e.clientX, e.clientY);
+    if (!p) return;
+    const x = r10(p.x), y = Math.max(snapY(p.y), minMarkY());
+    draw = { id: e.pointerId, type: e.pointerType, x0: x, y0: y, x1: x, y1: y };
+  });
+  document.addEventListener("pointermove", e => {
+    if (!draw || e.pointerId !== draw.id) return;
+    e.preventDefault();
+    const p = wallPoint(e.clientX, e.clientY);
+    if (!p) return;
+    draw.x1 = r10(p.x);
+    draw.y1 = Math.max(snapY(p.y), minMarkY());
+    const x = Math.min(draw.x0, draw.x1), y = Math.min(draw.y0, draw.y1);
+    const w = Math.abs(draw.x1 - draw.x0), h = Math.abs(draw.y1 - draw.y0);
+    preview.visible = w > 0 && h > 0;
+    preview.position.set(x, y, wallZ() + 1.2);
+    preview.scale.set(Math.max(w, 1), Math.max(h, 1), 1);
+    if (w || h) showDragLabel(markText({ x, y, w, h }), e.clientX, e.clientY);
+    requestRender();
+  }, { passive: false });
+  document.addEventListener("pointerup", e => {
+    activePts.delete(e.pointerId);
+    if (draw && e.pointerId === draw.id) finishDraw(false);
+  });
+  document.addEventListener("pointercancel", e => {
+    activePts.delete(e.pointerId);
+    if (draw && e.pointerId === draw.id) finishDraw(true);
+  });
+
+  function greenGesture(id, dir) {
+    let st = null;
+    return {
+      click: () => clickExtend(id, dir),
+      start() {
+        const b = byId(id);
+        if (!b) return;
+        const ov = OV();
+        const c = extContext(b, dir);
+        const E0 = dir > 0 ? b.x2 : b.x1;
+        let minE = c.base + dir * ov;
+        if ((E0 - minE) * dir < 0) minE = E0;
+        st = {
+          b, c, E0, minE, ov, E: E0, merged: false,
+          baseSups: b.sup.slice(),
+          axis: screenAxis(V(E0, b.y, frontZ()))
+        };
+      },
+      move(dx, dy, e) {
+        if (!st) return;
+        const c = st.c;
+        let E = r10(st.E0 + (dx * st.axis.ux + dy * st.axis.uy) / st.axis.ppm);
+        if ((E - st.minE) * dir < 0) E = st.minE;
+        if ((E - c.maxE) * dir > 0) E = c.maxE;
+        if ((E - c.base) * dir > 20000) E = c.base + dir * 20000;
+        if (E !== st.E) {
+          st.E = E;
+          const plan = planExtension(dir, E, c, st.ov);
+          st.merged = plan.merged;
+          st.b.sup = uniqSort([...st.baseSups, ...plan.extra]);
+          setEdge(st.b, dir, E);
+          rebuild();
+        }
+        const s = st.b.sup;
+        const last = dir > 0 ? s[s.length - 1] : s[0];
+        const len = st.b.x2 - st.b.x1;
+        let text;
+        if (st.merged) text = `Соединение с соседней полкой · щит ${fmtNum(len)} мм`;
+        else {
+          text = `Свес ${Math.abs(st.E - last)} мм · щит ${fmtNum(len)} мм`;
+          if (c.throughs.includes(last)) text += " · крепление к трубе";
+          if (c.blk && st.E === c.maxE) text += " · упор в трубу";
+        }
+        showDragLabel(text, e.clientX, e.clientY);
+      },
+      end() {
+        if (!st) return;
+        const b = st.b, c = st.c, merged = st.merged;
+        if (!merged) {
+          const last = dir > 0 ? b.sup[b.sup.length - 1] : b.sup[0];
+          const need = last + dir * st.ov;
+          let E = dir > 0 ? b.x2 : b.x1;
+          if ((E - need) * dir < 0) {
+            E = need;
+            if ((E - c.maxE) * dir > 0) E = c.maxE;
+            setEdge(b, dir, E);
+          }
+        }
+        st = null;
+        normalize();
+        rebuild();
+        if (merged) toast("Щит соединён с соседним");
+      }
+    };
+  }
+
+  function supportGesture(x0, levels) {
+    let st = null;
+    return {
+      start() {
+        const bs = groupBoards(x0, levels);
+        if (!bs.length) return;
+        const ov = OV();
+        let lo = -Infinity, hi = Infinity;
+        for (const b of bs) {
+          const o = b.sup.filter(s => s !== x0);
+          const left = o.filter(s => s < x0).pop();
+          const right = o.find(s => s > x0);
+          if (left !== undefined) {
+            lo = Math.max(lo, left + MM.minSpan); hi = Math.min(hi, left + MM.maxSpan);
+          } else {
+            lo = Math.max(lo, b.x1 + ov); hi = Math.min(hi, b.x1 + MM.maxOverhang);
+          }
+          if (right !== undefined) {
+            hi = Math.min(hi, right - MM.minSpan); lo = Math.max(lo, right - MM.maxSpan);
+          } else {
+            hi = Math.min(hi, b.x2 - ov); lo = Math.max(lo, b.x2 - MM.maxOverhang);
+          }
+        }
+        lo = Math.min(Math.ceil(lo / 10) * 10, x0);
+        hi = Math.max(Math.floor(hi / 10) * 10, x0);
+        detach(x0, levels);
+        st = {
+          bs, lo, hi, cur: x0,
+          baseBreaks: new Set(breaks),
+          axis: screenAxis(V(x0, levels[0], frontZ()))
+        };
+      },
+      move(dx, dy, e) {
+        if (!st) return;
+        const x = clamp(r10(x0 + (dx * st.axis.ux + dy * st.axis.uy) / st.axis.ppm), st.lo, st.hi);
+        if (x !== st.cur) {
+          for (const b of st.bs) b.sup = b.sup.map(s => s === st.cur ? x : s).sort((a, c) => a - c);
+          st.cur = x;
+          breaks = new Set([...st.baseBreaks, ...attachKeys(x, levels)]);
+          rebuild();
+        }
+        const b = st.bs[0], i = b.sup.indexOf(st.cur);
+        const left = i > 0 ? st.cur - b.sup[i - 1] : st.cur - b.x1;
+        const right = i < b.sup.length - 1 ? b.sup[i + 1] - st.cur : b.x2 - st.cur;
+        showDragLabel(`← ${left} мм  |  ${right} мм →`, e.clientX, e.clientY);
+      },
+      end() {
+        if (!st) return;
+        st = null;
+        normalize();
+        rebuild();
+      }
+    };
+  }
+
+  function markCornerGesture(id, k) {
+    let st = null;
+    return {
+      start() {
+        const m = markById(id);
+        if (!m) return;
+        st = { m, fx: (k === 0 || k === 3) ? m.x + m.w : m.x, fy: k < 2 ? m.y + m.h : m.y };
+      },
+      move(dx, dy, e) {
+        if (!st) return;
+        const p = wallPoint(e.clientX, e.clientY);
+        if (!p) return;
+        const right = k === 1 || k === 2, top = k >= 2;
+        let px = r10(p.x), py = snapY(p.y);
+        px = right ? Math.max(px, st.fx + MM.markMin) : Math.min(px, st.fx - MM.markMin);
+        if (top) py = Math.max(py, st.fy + MM.markMin);
+        else py = Math.min(Math.max(py, minMarkY()), st.fy - MM.markMin);
+        const m = st.m;
+        m.x = Math.min(px, st.fx); m.w = Math.abs(px - st.fx);
+        m.y = Math.min(py, st.fy); m.h = Math.abs(py - st.fy);
+        rebuild();
+        showDragLabel(markText(m), e.clientX, e.clientY);
+      },
+      end() { st = null; rebuild(); renderMarkList(); }
+    };
+  }
+
+  function markMoveGesture(id) {
+    let st = null;
+    return {
+      start() {
+        const m = markById(id);
+        if (!m || !gesture) return;
+        const p0 = wallPoint(gesture.sx, gesture.sy);
+        if (!p0) return;
+        st = { m, x0: m.x, y0: m.y, p0 };
+      },
+      move(dx, dy, e) {
+        if (!st) return;
+        const p = wallPoint(e.clientX, e.clientY);
+        if (!p) return;
+        st.m.x = r10(st.x0 + p.x - st.p0.x);
+        st.m.y = Math.max(snapY(st.y0 + p.y - st.p0.y), minMarkY());
+        rebuild();
+        showDragLabel(markText(st.m), e.clientX, e.clientY);
+      },
+      end() { st = null; rebuild(); renderMarkList(); }
+    };
+  }
+
+  // ---------- 3D-построение ----------
+  function add(geo, mat, x, y, z, sx, sy, sz, rx = 0) {
+    const m = new THREE.Mesh(geo, mat);
+    m.position.set(x, y, z);
+    m.scale.set(sx, sy, sz);
+    if (rx) m.rotation.x = rx;
+    m.castShadow = true;
+    m.receiveShadow = true;
+    model.add(m);
+    return m;
+  }
+
+  function clearModel() {
+    while (model.children.length) {
+      const ch = model.children[model.children.length - 1];
+      if (ch.userData.ownGeo) ch.geometry.dispose();
+      model.remove(ch);
+    }
+  }
+
+  function pipe(x, y1, y2) {
+    if (y2 <= y1) return;
+    add(G.cyl, pipeMat, x, (y1 + y2) / 2, 0, MM.pipeR, y2 - y1, MM.pipeR);
+  }
+
+  function wallMount(x, y) {
+    const wz = wallZ(), len = -wz;
+    add(G.sphere, fitMat, x, y, 0, 15, 15, 15);
+    add(G.cyl, pipeMat, x, y, -len / 2, MM.pipeR, len, MM.pipeR, Math.PI / 2);
+    add(G.cyl, pipeMat, x, y, wz + 2.5, 35, 5, 35, Math.PI / 2);
+  }
+
+  // Ножка напольного стеллажа под нижней полкой
+  function floorFoot(x, y) {
+    const yc = y - MM.thickness / 2 - MM.foot / 2;
+    if (!deep()) {
+      add(G.cyl, fitMat, x, yc, 0, 14, MM.foot, 14);   // латунная втулка
+      return;
+    }
+    add(G.cyl, fitMat, x, yc, 0, 15, MM.foot, 15);       // тройник у трубы
+    add(G.cyl, fitMat, x, yc, -14, 11, 12, 11, Math.PI / 2);
+    add(G.cyl, pipeMat, x, yc, -100, MM.pipeR, 170, MM.pipeR, Math.PI / 2);
+    add(G.cyl, fitMat, x, yc, -186, 11, 12, 11, Math.PI / 2);
+    add(G.cyl, fitMat, x, yc, -200, 15, MM.foot, 15);    // тройник-опора у стены
+  }
+
+  // ---------- Оверлей ----------
+  const btnLayer = $("buttons"), dimLayer = $("dimension-layer"), svg = $("dimension-svg");
+  const SVGNS = "http://www.w3.org/2000/svg";
+  const _v = new THREE.Vector3();
+
+  function proj(p) {
+    _v.copy(p).project(camera);
+    return { x: (_v.x * .5 + .5) * innerWidth, y: (-_v.y * .5 + .5) * innerHeight, z: _v.z };
+  }
+  function at(p, dx, dy) {
+    return () => { const s = proj(p); s.x += dx; s.y += dy; return s; };
+  }
+
+  function computeLayout() {
+    const cs = getComputedStyle(document.documentElement);
+    const c = parseFloat(cs.getPropertyValue("--c")) || 28;
+    const s = parseFloat(cs.getPropertyValue("--cs")) || 22;
+    const small = smallMQ.matches;
+    const lblH = small ? 13 : 16;
+    const lbl = lblH / 2 + 8;
+    const sup = lbl + lblH / 2 + 4 + s / 2;
+    const del = sup + s + 4;
+    const rem = c / 2 + 6;
+    L = {
+      c, s, small, lblH, lbl, sup, del, rem,
+      upMin: rem + c + 6,
+      downMin: del + s / 2 + 4 + c / 2,
+      side: c / 2 + 6,
+      charW: small ? 5.6 : 6.6
+    };
+  }
+
+  function clearOverlay() {
+    for (const ch of [...btnLayer.children]) if (!gesture || ch !== gesture.el) ch.remove();
+    if (gesture && gesture.el) gesture.el.style.opacity = "0";
+    svg.replaceChildren();
+    dimLayer.querySelectorAll(".dimension-label").forEach(n => n.remove());
+    overlayButtons = []; dims = []; leaders = [];
+  }
+
+  function addButton(o) {
+    const el = document.createElement("button");
+    el.type = "button";
+    el.className = "control " + o.cls + (o.small ? " small" : "");
+    el.textContent = o.text;
+    el.title = o.title || "";
+    el.setAttribute("aria-label", o.title || o.text);
+    if (o.gesture) el.addEventListener("pointerdown", e => beginGesture(e, el, o.gesture));
+    else el.addEventListener("click", e => {
+      e.preventDefault(); e.stopPropagation();
+      if (o.click) o.click();
+    });
+    btnLayer.appendChild(el);
+    overlayButtons.push({ el, pos: o.pos });
+    return el;
+  }
+
+  function addDim(a, b, text, cls, opt = {}) {
+    const mk = () => {
+      const n = document.createElementNS(SVGNS, "line");
+      n.setAttribute("class", "dim-line " + cls);
+      svg.appendChild(n);
+      return n;
+    };
+    const line = mk(), t1 = mk(), t2 = mk();
+    const label = document.createElement("div");
+    label.className = "dimension-label " + cls;
+    label.textContent = text;
+    dimLayer.appendChild(label);
+    dims.push({
+      a, b, line, t1, t2, label,
+      dx: opt.dx || 0, dy: opt.dy || 0, always: !!opt.always, tick: opt.tick || 5,
+      need: opt.vertical ? L.lblH + 4 : text.length * L.charW + 10
+    });
+  }
+
+  function addLeader(a, b, cls = "") {
+    const line = document.createElementNS(SVGNS, "line");
+    line.setAttribute("class", "leader " + cls);
+    svg.appendChild(line);
+    leaders.push({ a, b, line });
+  }
+
+  function setLine(n, x1, y1, x2, y2) {
+    n.setAttribute("x1", x1); n.setAttribute("y1", y1);
+    n.setAttribute("x2", x2); n.setAttribute("y2", y2);
+  }
+
+  const inFrustum = p => p.z > -1 && p.z < 1;
+
+  function updateOverlay() {
+    const show = uiVisible;
+    for (const b of overlayButtons) {
+      const p = show ? b.pos() : null;
+      const ok = p && inFrustum(p) && p.x > -40 && p.x < innerWidth + 40 &&
+        p.y > -40 && p.y < innerHeight + 40;
+      b.el.style.display = ok ? "" : "none";
+      if (ok) b.el.style.transform = `translate(${p.x}px,${p.y}px) translate(-50%,-50%)`;
+    }
+    for (const d of dims) {
+      let ok = show, a, b;
+      if (ok) { a = proj(d.a); b = proj(d.b); ok = inFrustum(a) && inFrustum(b); }
+      if (ok) {
+        a.x += d.dx; a.y += d.dy; b.x += d.dx; b.y += d.dy;
+        if (!d.always && Math.hypot(b.x - a.x, b.y - a.y) < d.need) ok = false;
+      }
+      const disp = ok ? "" : "none";
+      d.line.style.display = disp; d.t1.style.display = disp; d.t2.style.display = disp;
+      d.label.style.display = ok ? "block" : "none";
+      if (!ok) continue;
+      setLine(d.line, a.x, a.y, b.x, b.y);
+      const dx = b.x - a.x, dy = b.y - a.y, m = Math.max(1, Math.hypot(dx, dy));
+      const nx = -dy / m * d.tick, ny = dx / m * d.tick;
+      setLine(d.t1, a.x - nx, a.y - ny, a.x + nx, a.y + ny);
+      setLine(d.t2, b.x - nx, b.y - ny, b.x + nx, b.y + ny);
+      d.label.style.transform =
+        `translate(${(a.x + b.x) / 2}px,${(a.y + b.y) / 2}px) translate(-50%,-50%)`;
+    }
+    for (const l of leaders) {
+      let ok = show, a, b;
+      if (ok) { a = proj(l.a); b = proj(l.b); ok = inFrustum(a) && inFrustum(b); }
+      l.line.style.display = ok ? "" : "none";
+      if (ok) setLine(l.line, a.x, a.y, b.x, b.y);
+    }
+  }
+
+  // ---------- Перестройка сцены ----------
+  function rebuild() {
+    clearModel();
+    clearOverlay();
+
+    const d = depth(), wz = woodZ(), fz = frontZ(), T = MM.thickness, step = stepH();
+    const fl = isFloor(), fLevel = floorLevel(), fY = floorY();
+    const mm = v => L.small ? fmtNum(v) : fmtNum(v) + " мм";
+    let area = 0, tubes = 0, W = 0, H = 0;
+    let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+
+    // Щиты и цепочка размеров под каждым щитом
+    for (const b of boards) {
+      const len = b.x2 - b.x1;
+      area += len * d / 1e6;
+      add(G.box, woodMat, (b.x1 + b.x2) / 2, b.y, wz, len, T, d);
+      minX = Math.min(minX, b.x1); maxX = Math.max(maxX, b.x2);
+      minY = Math.min(minY, b.y); maxY = Math.max(maxY, b.y);
+      const pts = [b.x1, ...b.sup, b.x2];
+      for (let i = 1; i < pts.length; i++) {
+        const p = pts[i - 1], q = pts[i];
+        if (q - p <= 0) continue;
+        const isOv = i === 1 || i === pts.length - 1;
+        addDim(V(p, b.y, fz), V(q, b.y, fz), mm(q - p), isOv ? "overhang" : "span",
+          { dy: L.lbl, tick: 4 });
+      }
+    }
+
+    // Трубы: кнопки разреза
+    const cols = columns();
+    for (const [x, lv] of cols) {
+      for (let i = 1; i < lv.length; i++) {
+        const y1 = lv[i - 1], y2 = lv[i];
+        if (y2 - y1 <= 2 * MM.cap) continue;
+        const key = bkey(x, y1, y2);
+        const broken = breaks.has(key);
+        addButton({
+          text: broken ? "↔" : "✂", cls: "pipe" + (broken ? " broken" : ""), small: true,
+          title: broken ? "Соединить трубу" : "Разрезать трубу",
+          pos: at(V(x, (y1 + y2) / 2, 0), -(L.s / 2 + 6), 0),
+          click: () => {
+            if (breaks.has(key)) breaks.delete(key); else breaks.add(key);
+            normalize(); rebuild();
+          }
+        });
+      }
+    }
+
+    for (const g of groupsOf(cols)) {
+      const { x, levels } = g;
+      const low = levels[0], high = levels[levels.length - 1];
+      const onFloor = fl && low === fLevel;
+      if (!onFloor) { pipe(x, low - MM.cap, low); wallMount(x, low - MM.cap); tubes += 2; }
+      pipe(x, high, high + MM.cap); wallMount(x, high + MM.cap); tubes += 2;
+      for (let i = 1; i < levels.length; i++) { pipe(x, levels[i - 1], levels[i]); tubes++; }
+      for (const y of levels) {
+        add(G.cyl, fitMat, x, y + 14, 0, 14, 9, 14);
+        if (onFloor && y === low) {
+          floorFoot(x, y);
+          if (deep()) tubes++;
+          continue;
+        }
+        if (deep()) {
+          add(G.cyl, fitMat, x, y - 22, 0, 15, 24, 15);
+          add(G.cyl, pipeMat, x, y - 22, -100, MM.pipeR, 200, MM.pipeR, Math.PI / 2);
+          add(G.box, fitMat, x, y - 22, -200, 25, 25, 25);
+          tubes++;
+        } else {
+          add(G.cyl, fitMat, x, y - 19, 0, 13, 18, 13);
+        }
+      }
+      addButton({
+        text: "⇔", cls: "support", small: true, title: "Сдвинуть опору",
+        pos: at(V(x, low, fz), 0, L.sup), gesture: supportGesture(x, levels)
+      });
+      const reason = deleteBlockReason(x, levels);
+      addButton({
+        text: "×", cls: "del-support" + (reason ? " disabled" : ""), small: true,
+        title: reason || "Удалить опору",
+        pos: at(V(x, low, fz), 0, L.del),
+        click: () => reason ? toast(reason) : deleteGroup(x, levels)
+      });
+    }
+
+    // Стена, пол и свет
+    const has = boards.length > 0;
+    let ax1 = has ? minX : -250, ax2 = has ? maxX : 750;
+    let ay1 = has ? minY : 0, ay2 = has ? maxY : 0;
+    for (const m of marks) {
+      ax1 = Math.min(ax1, m.x); ax2 = Math.max(ax2, m.x + m.w);
+      ay1 = Math.min(ay1, m.y); ay2 = Math.max(ay2, m.y + m.h);
+    }
+    const wx1 = ax1 - 1500, wx2 = ax2 + 1500;
+    const wy1 = fl ? fY : ay1 - 1300, wy2 = ay2 + 1300;
+    const wall = add(G.plane, wallMat, (wx1 + wx2) / 2, (wy1 + wy2) / 2, wallZ() - .5,
+      wx2 - wx1, wy2 - wy1, 1);
+    wall.castShadow = false;
+    if (fl) {
+      const fd = 2600;
+      const floor = add(G.plane, floorMat, (wx1 + wx2) / 2, fY, wallZ() + fd / 2,
+        wx2 - wx1, fd, 1, -Math.PI / 2);
+      floor.castShadow = false;
+    }
+    const cx = (ax1 + ax2) / 2, cy = (ay1 + ay2) / 2;
+    light.position.set(cx + 450, cy + 900, 900);
+    light.target.position.set(cx, cy, 0);
+    const ext = Math.max(ax2 - ax1, ay2 - ay1, 1000) / 2 + 700;
+    const sc = light.shadow.camera;
+    sc.left = -ext; sc.right = ext; sc.top = ext; sc.bottom = -ext;
+    sc.near = 10; sc.far = 5000;
+    sc.updateProjectionMatrix();
+
+    // Кнопки щитов
+    for (const b of boards) {
+      const s = b.sup;
+      for (let i = 0; i < s.length - 1; i++) {
+        const a = s[i], c = s[i + 1], mid = (a + c) / 2;
+        addButton({
+          text: "−", cls: "remove", title: "Удалить пролёт",
+          pos: at(V(mid, b.y + T / 2, fz), 0, -L.rem),
+          click: () => removeSpan(b.id, a, c)
+        });
+        for (const sign of [1, -1]) {
+          if (blocked(b.y, a, c, sign)) continue;
+          if (sign < 0 && fl && b.y - step < fLevel) continue;
+          const base = V(mid, b.y + sign * T / 2, fz);
+          const tgt = V(mid, b.y + sign * step * .5, fz);
+          addButton({
+            text: "+", cls: "vertical",
+            title: sign > 0 ? "Добавить полку сверху" : "Добавить полку снизу",
+            pos: () => {
+              const p = proj(base), t = proj(tgt);
+              const y = sign > 0 ? Math.min(t.y, p.y - L.upMin) : Math.max(t.y, p.y + L.downMin);
+              return { x: p.x, y, z: p.z };
+            },
+            click: () => addLevel(b.id, a, c, sign)
+          });
+        }
+      }
+      for (const dir of [-1, 1]) {
+        const edge = dir > 0 ? b.x2 : b.x1;
+        if ((neighborLimit(b, dir) - edge) * dir <= 0) continue;
+        addButton({
+          text: "+", cls: "horizontal",
+          title: "Нажмите — добавить секцию; потяните — изменить длину щита",
+          pos: at(V(edge, b.y, fz), dir * L.side, 0),
+          gesture: greenGesture(b.id, dir)
+        });
+      }
+    }
+
+    // Общие размеры
+    if (has) {
+      const levels = [...new Set(boards.map(b => b.y))].sort((a, c) => a - c);
+      const chainX = minX - 160, totX = minX - 320;
+      if (levels.length > 1) {
+        for (let i = 1; i < levels.length; i++)
+          addDim(V(chainX, levels[i - 1] + T / 2, fz), V(chainX, levels[i] + T / 2, fz),
+            mm(levels[i] - levels[i - 1]), "level", { vertical: true });
+        for (const y of levels) {
+          const lx = Math.min(...boards.filter(b => b.y === y).map(b => b.x1));
+          addLeader(V(chainX, y + T / 2, fz), V(lx, y + T / 2, fz));
+        }
+      }
+      const yBot = fl ? fY : minY - MM.cap, yTop = maxY + MM.cap;
+      H = yTop - yBot;
+      W = maxX - minX;
+      addDim(V(totX, yBot, fz), V(totX, yTop, fz), (L.small ? "В " : "Высота ") + mm(H), "total",
+        { vertical: true, always: true, tick: 6 });
+      addLeader(V(totX, yBot, fz), V(minX, yBot, fz), "total");
+      addLeader(V(totX, yTop, fz), V(minX, yTop, fz), "total");
+
+      const wy = yBot - 220;
+      addDim(V(minX, wy, fz), V(maxX, wy, fz), (L.small ? "Ш " : "Ширина ") + mm(W), "total",
+        { always: true, tick: 6 });
+      const leftB = boards.reduce((p, c) => c.x1 < p.x1 ? c : p);
+      const rightB = boards.reduce((p, c) => c.x2 > p.x2 ? c : p);
+      addLeader(V(minX, leftB.y, fz), V(minX, wy, fz), "total");
+      addLeader(V(maxX, rightB.y, fz), V(maxX, wy, fz), "total");
+
+      const top = boards.filter(b => b.y === maxY).sort((p, q) => q.x2 - p.x2)[0];
+      addDim(V(top.x2 + 40, top.y + T / 2, wz - d / 2), V(top.x2 + 40, top.y + T / 2, wz + d / 2),
+        mm(d), "");
+    }
+
+    // Отметки на стене
+    const mz = wallZ() + 1;
+    for (const m of marks) {
+      const fill = new THREE.Mesh(G.plane, markFillMat);
+      fill.position.set(m.x + m.w / 2, m.y + m.h / 2, wallZ() + .6);
+      fill.scale.set(m.w, m.h, 1);
+      fill.renderOrder = 2;
+      model.add(fill);
+      const geo = new THREE.BufferGeometry().setFromPoints([
+        V(m.x, m.y, mz), V(m.x + m.w, m.y, mz), V(m.x + m.w, m.y + m.h, mz),
+        V(m.x, m.y + m.h, mz), V(m.x, m.y, mz)
+      ]);
+      const ln = new THREE.Line(geo, markLineMat);
+      ln.computeLineDistances();
+      ln.userData.ownGeo = true;
+      ln.renderOrder = 3;
+      model.add(ln);
+
+      addDim(V(m.x, m.y + m.h, mz), V(m.x + m.w, m.y + m.h, mz), mm(m.w), "mark",
+        { dy: -L.lbl, always: true });
+      addDim(V(m.x + m.w, m.y, mz), V(m.x + m.w, m.y + m.h, mz), mm(m.h), "mark",
+        { dx: L.lbl + 4, vertical: true, always: true });
+      if (fl && m.y - fY > 0)
+        addDim(V(m.x, fY, mz), V(m.x, m.y, mz), (L.small ? "" : "от пола ") + mm(m.y - fY), "markfloor",
+          { dx: -(L.lbl + 4), vertical: true, always: true });
+
+      const corners = [[m.x, m.y], [m.x + m.w, m.y], [m.x + m.w, m.y + m.h], [m.x, m.y + m.h]];
+      corners.forEach(([px, py], k) => addButton({
+        text: "", cls: "mark-h " + (k % 2 ? "nwse" : "nesw"), small: true,
+        title: "Изменить размер отметки",
+        pos: at(V(px, py, mz), 0, 0), gesture: markCornerGesture(m.id, k)
+      }));
+      addButton({
+        text: "✥", cls: "mark-move", small: true, title: "Сдвинуть отметку",
+        pos: at(V(m.x + m.w / 2, m.y + m.h / 2, mz), 0, 0), gesture: markMoveGesture(m.id)
+      });
+      addButton({
+        text: "×", cls: "mark-del", small: true, title: "Удалить отметку",
+        pos: at(V(m.x + m.w, m.y + m.h, mz), L.s / 2 + 10, -(L.s / 2 + 10)),
+        click: () => removeMark(m.id)
+      });
+    }
+
+    // Стоимость
+    const woodPrice = area * WOOD_RATE, pipePrice = tubes * PIPE_RATE;
+    $("area").textContent = area.toLocaleString("ru-RU",
+      { minimumFractionDigits: 2, maximumFractionDigits: 3 }) + " м²";
+    $("wood-price").textContent = money(woodPrice);
+    $("pipe-price").textContent = money(pipePrice);
+    $("pipe-count").textContent = String(tubes);
+    $("total").textContent = money(woodPrice + pipePrice);
+    $("bar-total").textContent = money(woodPrice + pipePrice);
+    $("size").textContent = has ? `${fmtNum(W)} × ${fmtNum(H)} мм` : "—";
+
+    if (document.activeElement !== $("first")) {
+      const fs = firstSpan();
+      if (fs) $("first").value = fs.s1 - fs.s0;
+    }
+    if (!$("mark-list").contains(document.activeElement)) renderMarkList();
+    requestRender();
+  }
+
+  // ---------- Камера ----------
+  function fitCamera(front = false) {
+    let minX = -300, maxX = 800, minY = -200, maxY = 400;
+    if (boards.length) {
+      minX = Math.min(...boards.map(b => b.x1)) - 380;
+      maxX = Math.max(...boards.map(b => b.x2)) + 80;
+      minY = (isFloor() ? floorY() : Math.min(...boards.map(b => b.y)) - MM.cap) - 280;
+      maxY = Math.max(...boards.map(b => b.y)) + MM.cap + 80;
+    }
+    for (const m of marks) {
+      minX = Math.min(minX, m.x - 120); maxX = Math.max(maxX, m.x + m.w + 120);
+      minY = Math.min(minY, m.y - 120); maxY = Math.max(maxY, m.y + m.h + 80);
+    }
+    const cx = (minX + maxX) / 2, cy = (minY + maxY) / 2;
+    const w = maxX - minX, h = maxY - minY;
+    let availW = innerWidth, availH = innerHeight;
+    if (compactMQ.matches) availH -= 70;
+    else if (uiVisible) availW -= 660;
+    availW = Math.max(availW, 200);
+    availH = Math.max(availH, 200);
+    const tan = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
+    const distH = (h / 2) / (tan * (availH / innerHeight));
+    const distW = (w / 2) / (tan * camera.aspect * (availW / innerWidth));
+    const dist = Math.max(distH, distW) * 1.12 + 200;
+    const dir = front ? V(0, 0, 1) : V(.32, .22, 1).normalize();
+    controls.target.set(cx, cy, 0);
+    camera.position.set(cx + dir.x * dist, cy + dir.y * dist, dir.z * dist);
+    controls.update();
+    requestRender();
+  }
+
+  // ---------- Подсказки ----------
+  function showDragLabel(text, x, y) {
+    const el = $("drag-label");
+    el.textContent = text;
+    const type = gesture ? gesture.type : (draw ? draw.type : "mouse");
+    const touch = type !== "mouse";
+    el.style.left = `${clamp(x, 110, innerWidth - 110)}px`;
+    el.style.top = `${Math.max(20, y - (touch ? 70 : 38))}px`;
+    el.style.display = "block";
+  }
+  function hideDragLabel() { $("drag-label").style.display = "none"; }
+
+  let toastTimer = 0;
+  function toast(msg) {
+    const t = $("toast");
+    t.textContent = msg;
+    t.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove("show"), 2800);
+  }
+
+  // ---------- Панели ----------
+  function syncBar() {
+    $("open-settings").classList.toggle("active", $("settings").classList.contains("open"));
+    $("open-estimate").classList.toggle("active", $("estimate").classList.contains("open"));
+  }
+  function openSheet(name) {
+    const target = $(name), other = $(name === "settings" ? "estimate" : "settings");
+    const willOpen = !target.classList.contains("open");
+    other.classList.remove("open");
+    target.classList.toggle("open", willOpen);
+    syncBar();
+  }
+  function closeSheets() {
+    $("settings").classList.remove("open");
+    $("estimate").classList.remove("open");
+    syncBar();
+  }
+
+  function onLayoutChange() {
+    document.body.classList.toggle("compact", compactMQ.matches);
+    computeLayout();
+    if (!compactMQ.matches) closeSheets();
+    rebuild();
+  }
+
+  function setUiVisible(v) {
+    uiVisible = v;
+    document.body.classList.toggle("ui-hidden", !uiVisible);
+    $("toggle").textContent = uiVisible ? "◉" : "○";
+    $("toggle").title = uiVisible ? "Скрыть размеры и управление" : "Показать размеры и управление";
+    if (!uiVisible) { closeSheets(); if (markMode) setMarkMode(false); }
+    requestRender();
+  }
+
+  // ---------- События интерфейса ----------
+  $("open-settings").addEventListener("click", () => openSheet("settings"));
+  $("open-estimate").addEventListener("click", () => openSheet("estimate"));
+  document.querySelectorAll("[data-close]").forEach(b => b.addEventListener("click", closeSheets));
+  renderer.domElement.addEventListener("pointerdown", closeSheets);
+  btnLayer.addEventListener("contextmenu", e => e.preventDefault());
+
+  document.querySelectorAll(".stepper button").forEach(btn => btn.addEventListener("click", () => {
+    const inp = $(btn.dataset.for);
+    const step = Number(btn.dataset.step);
+    const cur = Number(inp.value) || 0;
+    inp.value = clamp(cur + step, Number(inp.min), Number(inp.max));
+    inp.dispatchEvent(new Event("change"));
+  }));
+
+  document.querySelectorAll('input[name="mount"]').forEach(r => r.addEventListener("change", () => {
+    rebuild();
+    renderMarkList();
+    fitCamera(markMode);
+  }));
+  $("deep").addEventListener("change", rebuild);
+  $("height").addEventListener("change", rebuild);
+  $("first").addEventListener("change", applyFirstSpan);
+  $("overhang").addEventListener("change", applyOverhang);
+  $("length").addEventListener("change", () => {
+    $("length").value = readNum("length", 500, MM.minSpan, MM.maxLen);
+  });
+  $("reset").addEventListener("click", () => {
+    createInitial(readNum("first", 500, MM.minSpan, MM.maxSpan));
+    fitCamera();
+  });
+  $("toggle").addEventListener("click", () => setUiVisible(!uiVisible));
+  $("fit").addEventListener("click", () => fitCamera(markMode));
+  $("mark").addEventListener("click", () => setMarkMode(!markMode));
+  $("mark-draw").addEventListener("click", () => setMarkMode(!markMode));
+  $("mark-done").addEventListener("click", () => setMarkMode(false));
+  $("mark-add").addEventListener("click", addMarkFromForm);
+  $("mark-preset").addEventListener("change", () => {
+    const v = $("mark-preset").value;
+    if (!v) return;
+    const [w, h] = v.split("x").map(Number);
+    $("mark-w").value = w; $("mark-h").value = h;
+  });
+  ["mark-w", "mark-h"].forEach(id => $(id).addEventListener("input", () => { $("mark-preset").value = ""; }));
+  $("mark-clear").addEventListener("click", () => {
+    if (!marks.length || !confirm("Удалить все отметки на стене?")) return;
+    marks = [];
+    rebuild();
+    renderMarkList();
+  });
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape" && markMode) setMarkMode(false);
+  });
+
+  let resizeRaf = 0;
+  addEventListener("resize", () => {
+    cancelAnimationFrame(resizeRaf);
+    resizeRaf = requestAnimationFrame(() => {
+      camera.aspect = innerWidth / innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(innerWidth, innerHeight);
+      computeLayout();
+      rebuild();
+    });
+  });
+
+  function animate() {
+    requestAnimationFrame(animate);
+    const moved = controls.update();
+    if (moved || needsRender) {
+      needsRender = false;
+      renderer.render(scene, camera);
+      updateOverlay();
+    }
+  }
+
+  // ---------- Старт ----------
+  document.body.classList.toggle("compact", compactMQ.matches);
+  computeLayout();
+  createInitial(500);
+  renderMarkList();
+  fitCamera();
+  animate();
+})();
+</script>
+</body>
+</html>
