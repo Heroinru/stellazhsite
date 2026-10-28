@@ -85,8 +85,6 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
 .hero h1 em{font-style:italic;color:var(--brass)}
 .hero p{margin:22px 0 28px}
 .hero-actions{display:flex;flex-wrap:wrap;gap:12px}
-.hero-meta{margin-top:40px;display:grid;grid-template-columns:repeat(2,1fr);gap:14px 20px;font-size:13px;color:var(--ink-2)}
-.hero-meta b{display:block;font-family:var(--serif);font-size:24px;color:var(--ink);font-weight:400;line-height:1}
 .hero-tag{position:absolute;top:24px;right:var(--gutter);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-2);writing-mode:vertical-rl;opacity:.7}
 
 /* marquee */
@@ -95,13 +93,6 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
 .marquee span{font-family:var(--serif);font-size:16px;padding:0 28px;white-space:nowrap;display:flex;align-items:center;gap:28px}
 .marquee span::after{content:"";width:6px;height:6px;border-radius:50%;background:var(--brass)}
 @keyframes mq{to{transform:translateX(-50%)}}
-
-/* features */
-.feat{display:grid;gap:0;border-top:1px solid var(--line)}
-.feat li{display:grid;grid-template-columns:40px 1fr;gap:14px;padding:22px 0;border-bottom:1px solid var(--line);align-items:start}
-.feat .k{font-family:var(--serif);color:var(--brass);font-size:14px;padding-top:4px}
-.feat b{display:block;font-family:var(--serif);font-size:22px;font-weight:400;margin-bottom:4px}
-.feat p{color:var(--ink-2);font-size:15px}
 
 /* collection */
 .filters{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;scrollbar-width:none;margin-bottom:22px}
@@ -129,20 +120,8 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
 .coll-cta .serif{font-size:clamp(26px,6vw,40px)}
 
 /* ph fallback */
-.ph{background:linear-gradient(135deg,#e6dfd1,#d5cbb8);display:grid;place-items:center;color:var(--mute);font-size:12px;letter-spacing:.1em;text-transform:uppercase;text-align:center;padding:20px}
+.ph{background:linear-gradient(135deg,#e6dfd1,#d5cbb8);display:grid;place-items:center;align-content:center;color:var(--mute);font-size:12px;letter-spacing:.1em;text-transform:uppercase;text-align:center;padding:20px}
 .ph::before{content:"";width:44px;height:44px;border:1px solid var(--brass);border-radius:50%;margin-bottom:10px}
-
-/* architecture */
-.arch{background:var(--ink);color:var(--paper)}
-.arch .eyebrow{color:var(--brass-2)}.arch .eyebrow::before{background:var(--brass-2)}
-.arch .lead{color:rgba(255,255,255,.7)}
-.diagram{margin:30px 0 10px;border:1px solid rgba(255,255,255,.12);border-radius:var(--radius);padding:20px;background:rgba(255,255,255,.03)}
-.diagram svg{width:100%;height:auto}
-.diagram small{display:block;color:rgba(255,255,255,.45);font-size:12px;margin-top:10px}
-.arch-list{display:grid;gap:0;margin-top:30px}
-.arch-list li{padding:22px 0;border-top:1px solid rgba(255,255,255,.14);display:grid;gap:8px}
-.arch-list b{font-family:var(--serif);font-size:24px;font-weight:400}
-.arch-list p{color:rgba(255,255,255,.65);font-size:15px}
 
 /* materials */
 .mat{display:grid;gap:28px}
@@ -176,6 +155,20 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
 .int .cap{position:absolute;left:0;right:0;bottom:0;padding:22px 18px;background:linear-gradient(0deg,rgba(28,26,23,.85),transparent);color:var(--paper)}
 .int .cap small{display:block;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--brass-2);margin-bottom:6px}
 .int .cap b{font-family:var(--serif);font-size:26px;font-weight:400}
+
+/* about */
+.about{border-top:1px solid var(--line)}
+.about-grid{display:grid;gap:28px}
+.about-main{aspect-ratio:4/5;border-radius:var(--radius);overflow:hidden;position:relative;background:var(--paper-2)}
+.about-main img{width:100%;height:100%;object-fit:cover}
+.about-text{display:grid;gap:16px;align-content:start}
+.about-text h3{font-family:var(--serif);font-weight:400;font-size:clamp(28px,5vw,42px);line-height:1.05}
+.about-text p{color:var(--ink-2);font-size:15px;max-width:56ch}
+.about-facts{display:grid;grid-template-columns:repeat(2,1fr);gap:0 20px;margin-top:10px;border-top:1px solid var(--line)}
+.about-facts li{padding:18px 0;border-bottom:1px solid var(--line);font-size:13px;color:var(--ink-2)}
+.about-facts b{display:block;font-family:var(--serif);font-size:30px;font-weight:400;color:var(--ink);line-height:1;margin-bottom:6px}
+.about-gallery{display:grid;gap:14px;margin-top:clamp(28px,5vw,56px)}
+.about-gallery .ph,.about-gallery img{aspect-ratio:4/3;border-radius:var(--radius);width:100%;object-fit:cover}
 
 /* process */
 .proc{display:grid;gap:0;counter-reset:s}
@@ -236,11 +229,11 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
 /* tablet */
 @media (min-width:640px){
   :root{--gutter:32px}
-  .hero-meta{grid-template-columns:repeat(4,1fr)}
-  .feat{grid-template-columns:1fr 1fr;column-gap:40px}
   .card{flex-basis:46%}
   .mat{grid-template-columns:1fr 1fr;gap:32px}
   .int{grid-template-columns:1fr 1fr}
+  .about-gallery{grid-template-columns:repeat(3,1fr)}
+  .about-facts{grid-template-columns:repeat(3,1fr)}
   .proc{grid-template-columns:1fr 1fr;column-gap:40px}
   .proc li::after{display:none}
   .form{grid-template-columns:1fr 1fr}
@@ -254,18 +247,14 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
   .nav,.hdr-cta{display:flex}
   .burger,.menu,.mbar{display:none}
   .hero{grid-template-columns:1.2fr .8fr;align-items:end;min-height:calc(100vh - 64px)}
-  .hero-meta{grid-column:1/-1;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line);padding-top:24px}
   .sec-head{grid-template-columns:1fr 1fr;align-items:end}
   .sec-head .lead{justify-self:end;padding-bottom:10px}
   .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;overflow:visible;margin-inline:0;padding-inline:0}
   .card{flex-basis:auto}
-  .feat{grid-template-columns:repeat(4,1fr);column-gap:32px}
-  .feat li{grid-template-columns:1fr;border-bottom:0;border-top:1px solid var(--line)}
-  .arch-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:start}
-  .arch-grid .diagram{position:sticky;top:90px;margin:0}
   .mat{gap:60px}
   .mat-item:nth-child(2){margin-top:120px}
   .ctor-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
+  .about-grid{grid-template-columns:1fr 1fr;gap:60px;align-items:center}
   .proc{grid-template-columns:repeat(4,1fr)}
   .faq-grid{display:grid;grid-template-columns:1fr 1.4fr;gap:60px}
   .faq-grid .sec-head{display:block;position:sticky;top:90px;margin:0}
@@ -285,34 +274,22 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
   transform:translateY(calc(-100% + var(--nudge,.2em)));
 }
 .hero .on-shelf em{font-style:italic;color:var(--brass)}
-/* лёгкая тень под буквами */
 .hero .on-shelf::after{content:"";position:absolute;left:3%;right:3%;bottom:var(--nudge,.2em);height:.1em;
   background:radial-gradient(ellipse at center,rgba(28,26,23,.28),transparent 70%);filter:blur(3px);z-index:-1}
 
-/* ДЕСКТОП/ПЛАНШЕТ: подставьте свои проценты */
 .s1{--x:20%;--y:15%;--fs:5.6cqw}
 .s2{--x:20%;--y:45.5%;--fs:5.6cqw}
 
-/* ТЕЛЕФОН (вертикальная картинка) */
 @media (max-width:639px){
   .s1{--x:7%;--y:34%;--fs:9cqw}
   .s2{--x:7%;--y:58%;--fs:9cqw}
 }
 
-.hero-info{display:grid;gap:20px;padding-top:32px}
-.hero-info .lead{margin:0}
-.hero-meta{margin-top:12px}
 @media (min-width:960px){
   .hero{display:block;min-height:0}
-  .hero-info{grid-template-columns:1fr auto;align-items:end;column-gap:60px}
-  .hero-info .eyebrow,.hero-info .lead{grid-column:1}
-  .hero-info .hero-actions{grid-column:2;grid-row:1 / 3}
-  .hero-meta{grid-column:1 / -1}
 }
 
-/* ===== HERO: кнопки на полке + полоса под стеллажом ===== */
-
-/* кнопки на 4-й полке */
+/* ===== HERO: кнопки на полке ===== */
 .shelf-btns{
   position:absolute;
   left:var(--x);top:var(--y);
@@ -331,23 +308,9 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
   .shelf-btns{--x:7%;--y:84%}
 }
 
-/* место под полосу с цифрами на первом экране */
 :root{--strip:96px}
 @media (max-width:639px){:root{--strip:150px}}
 .frame{width:min(100%, calc((100svh - 64px - var(--strip)) * var(--ratio)))}
-
-/* полоса с цифрами */
-.hero-strip .hero-meta{
-  margin:0;padding:18px 0;border-top:0;
-  display:grid;grid-template-columns:repeat(2,1fr);gap:14px 20px;
-}
-@media (min-width:640px){
-  .hero-strip .hero-meta{grid-template-columns:repeat(4,1fr)}
-}
-
-/* описание под полосой */
-.hero-info{display:block;padding-top:28px}
-.hero-info .lead{margin-top:14px}
 </style>
 
 </head>
@@ -359,9 +322,9 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
     <a href="#top" class="logo" aria-label="ПОЛКИ — на главную"><i></i>ПОЛКИ</a>
     <nav class="nav" aria-label="Основная навигация">
       <a href="#collection">Модели</a>
-      <a href="#architecture">Конструкция</a>
-      <a href="#materials">Материалы</a>
       <a href="#constructor">Конструктор</a>
+      <a href="#materials">Материалы</a>
+      <a href="#about">О мастерской</a>
       <a href="#process">Как заказать</a>
       <a href="#faq">Вопросы</a>
     </nav>
@@ -372,9 +335,9 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
 
 <div class="menu" id="menu" aria-hidden="true">
   <a class="big" href="#collection" style="transition-delay:.05s">Модели <small>01</small></a>
-  <a class="big" href="#architecture" style="transition-delay:.1s">Конструкция <small>02</small></a>
+  <a class="big" href="constructor.html" style="transition-delay:.1s">Конструктор <small>3D</small></a>
   <a class="big" href="#materials" style="transition-delay:.15s">Материалы <small>03</small></a>
-  <a class="big" href="constructor.html" style="transition-delay:.2s">Конструктор <small>3D</small></a>
+  <a class="big" href="#about" style="transition-delay:.2s">О мастерской <small>05</small></a>
   <a class="big" href="#process" style="transition-delay:.25s">Как заказать <small>06</small></a>
   <a class="big" href="#faq" style="transition-delay:.3s">Вопросы <small>07</small></a>
   <div class="foot">
@@ -385,7 +348,7 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
 </div>
 
 <main>
-<!-- HERO -->
+<!-- 1. HERO: стеллаж с надписью и кнопками -->
 <section class="hero">
   <div class="stage">
     <div class="frame">
@@ -404,42 +367,16 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
     </div>
   </div>
 
+  <!-- 2. Бегущая строка -->
   <div class="marquee" aria-hidden="true">
-  <div class="track">
-    <span>Стеллажи на заказ</span><span>Дерево</span><span>Металл</span><span>Латунь</span><span>По вашим размерам</span><span>Настенные и напольные</span>
-    <span>Стеллажи на заказ</span><span>Дерево</span><span>Металл</span><span>Латунь</span><span>По вашим размерам</span><span>Настенные и напольные</span>
-  </div>
-</div>
-<div class="wrap hero-strip">
-    <ul class="hero-meta">
-      <li><b>2</b>глубины полок: 200 и 400 мм</li>
-      <li><b>2</b>варианта: настенный и напольный</li>
-      <li><b>6</b>готовых моделей</li>
-      <li><b>3D</b>конструктор</li>
-    </ul>
-  </div>
-
-  <div class="wrap hero-info">
-    <p class="eyebrow">Стеллажи и полки на заказ</p>
-    <p class="lead">Настенные полки и напольные стеллажи из дерева, металла и латуни. Выберите готовую модель или закажите стеллаж по своим размерам.</p>
+    <div class="track">
+      <span>Стеллажи на заказ</span><span>Дерево</span><span>Металл</span><span>Латунь</span><span>По вашим размерам</span><span>Настенные и напольные</span>
+      <span>Стеллажи на заказ</span><span>Дерево</span><span>Металл</span><span>Латунь</span><span>По вашим размерам</span><span>Настенные и напольные</span>
+    </div>
   </div>
 </section>
 
-
-
-<!-- FEATURES -->
-<section class="sec" style="padding-top:56px;padding-bottom:40px">
-  <div class="wrap">
-    <ul class="feat rv">
-      <li><span class="k">I</span><div><b>Под ваши размеры</b><p>Сделаем стеллаж под конкретную стену: от узкой ниши до всей стены в гостиной.</p></div></li>
-      <li><span class="k">II</span><div><b>Две глубины полок</b><p>200 мм — для декора и мелких предметов. 400 мм — для книг и хранения.</p></div></li>
-      <li><span class="k">III</span><div><b>Два варианта крепления</b><p>Настенный стеллаж или напольный с креплением к стене сверху.</p></div></li>
-      <li><span class="k">IV</span><div><b>3D-конструктор</b><p>Соберите стеллаж онлайн и посмотрите результат до заказа.</p></div></li>
-    </ul>
-  </div>
-</section>
-
-<!-- COLLECTION -->
+<!-- 3. МОДЕЛИ -->
 <section class="sec" id="collection">
   <div class="wrap">
     <div class="sec-head rv">
@@ -524,51 +461,34 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
   </div>
 </section>
 
-<!-- ARCHITECTURE -->
-<section class="sec arch" id="architecture">
+<!-- 4. 3D-КОНСТРУКТОР -->
+<section class="sec ctor" id="constructor">
   <div class="wrap">
-    <div class="arch-grid">
-      <div>
-        <div class="rv">
-          <p class="eyebrow">02 / Как устроен стеллаж</p>
-          <h2 class="serif h2" style="margin-top:16px">Простая конструкция.<br>Любые размеры.</h2>
+    <div class="ctor-grid">
+      <div class="rv">
+        <p class="eyebrow">02 / Конструктор</p>
+        <h2 class="serif h2" style="margin-top:16px">Соберите свой<br>стеллаж<br><span style="color:var(--brass);font-style:italic">онлайн.</span></h2>
+        <p class="lead" style="margin-top:20px">В конструкторе можно задать размеры, добавить полки и сразу увидеть стеллаж в 3D.</p>
+        <ol class="ctor-steps">
+          <li><span>01</span>Выберите вариант: настенный или напольный</li>
+          <li><span>02</span>Задайте ширину и добавьте нужное число полок</li>
+          <li><span>03</span>Отметьте место под телевизор или другие предметы</li>
+        </ol>
+        <div class="ctor-actions">
+          <a href="constructor.html" class="btn btn-dark">Открыть 3D-конструктор <span class="arr">→</span></a>
         </div>
-        <ul class="arch-list rv">
-          <li><b>Размеры под вашу стену</b><p>Узкая стена, место над столом или вся стена гостиной — делаем стеллаж по реальным размерам комнаты.</p></li>
-          <li><b>Открытая конструкция</b><p>Стойки и полки не закрывают стену. Книги и предметы хорошо видны и легко доступны.</p></li>
-          <li><b>Три материала</b><p>Деревянные полки, металлические стойки и латунные соединения. Без лишнего декора.</p></li>
-        </ul>
+        <p class="ctor-more">Не хотите собирать сами? <a href="#contact">Напишите нам — поможем.</a></p>
       </div>
-      <div class="diagram rv" aria-label="Схема стеллажа">
-        <svg viewBox="0 0 400 300" fill="none" stroke="#f3efe7" stroke-width="1.2">
-          <rect x="20" y="20" width="360" height="260" stroke-opacity=".12" stroke-dasharray="3 5"/>
-          <line x1="90" y1="30" x2="90" y2="270"/><line x1="200" y1="30" x2="200" y2="270"/><line x1="310" y1="30" x2="310" y2="270"/>
-          <g stroke="#d9b77c" stroke-width="7" stroke-linecap="round">
-            <line x1="60" y1="80" x2="340" y2="80"/><line x1="60" y1="140" x2="230" y2="140"/><line x1="170" y1="200" x2="340" y2="200"/><line x1="60" y1="250" x2="340" y2="250"/>
-          </g>
-          <g fill="#b8925a" stroke="none">
-            <circle cx="90" cy="80" r="5"/><circle cx="200" cy="80" r="5"/><circle cx="310" cy="80" r="5"/>
-            <circle cx="90" cy="140" r="5"/><circle cx="200" cy="140" r="5"/>
-            <circle cx="200" cy="200" r="5"/><circle cx="310" cy="200" r="5"/>
-            <circle cx="90" cy="250" r="5"/><circle cx="200" cy="250" r="5"/><circle cx="310" cy="250" r="5"/>
-          </g>
-          <g stroke-opacity=".5" stroke-width="1">
-            <line x1="60" y1="35" x2="340" y2="35"/><line x1="60" y1="30" x2="60" y2="40"/><line x1="340" y1="30" x2="340" y2="40"/>
-            <line x1="30" y1="80" x2="30" y2="250"/><line x1="25" y1="80" x2="35" y2="80"/><line x1="25" y1="250" x2="35" y2="250"/>
-          </g>
-          <g fill="#f3efe7" fill-opacity=".6" stroke="none" font-family="Georgia,serif" font-size="11">
-            <text x="200" y="27" text-anchor="middle">ширина — по вашей стене</text>
-            <text x="18" y="165" transform="rotate(-90 18 165)" text-anchor="middle">полки</text>
-            <text x="320" y="268" font-size="9" fill-opacity=".4">латунные соединения</text>
-          </g>
-        </svg>
-        <small>Схема показывает принцип конструкции. Это не монтажный чертёж.</small>
-      </div>
+      <a href="constructor.html" class="ctor-prev rv" aria-label="Открыть конструктор">
+        <img src="img/constructor-preview.png" alt="Онлайн-конструктор стеллажей" loading="lazy">
+        <span class="badge">3D</span>
+        <span class="lbl">Конструктор онлайн</span>
+      </a>
     </div>
   </div>
 </section>
 
-<!-- MATERIALS -->
+<!-- 5. МАТЕРИАЛЫ -->
 <section class="sec" id="materials">
   <div class="wrap">
     <div class="sec-head rv">
@@ -596,39 +516,12 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
   </div>
 </section>
 
-<!-- CONSTRUCTOR -->
-<section class="sec ctor" id="constructor">
-  <div class="wrap">
-    <div class="ctor-grid">
-      <div class="rv">
-        <p class="eyebrow">04 / Конструктор</p>
-        <h2 class="serif h2" style="margin-top:16px">Соберите свой<br>стеллаж<br><span style="color:var(--brass);font-style:italic">онлайн.</span></h2>
-        <p class="lead" style="margin-top:20px">В конструкторе можно задать размеры, добавить полки и сразу увидеть стеллаж в 3D.</p>
-        <ol class="ctor-steps">
-          <li><span>01</span>Выберите вариант: настенный или напольный</li>
-          <li><span>02</span>Задайте ширину и добавьте нужное число полок</li>
-          <li><span>03</span>Отметьте место под телевизор или другие предметы</li>
-        </ol>
-        <div class="ctor-actions">
-          <a href="constructor.html" class="btn btn-dark">Открыть 3D-конструктор <span class="arr">→</span></a>
-        </div>
-        <p class="ctor-more">Не хотите собирать сами? <a href="#contact">Напишите нам — поможем.</a></p>
-      </div>
-      <a href="constructor.html" class="ctor-prev rv" aria-label="Открыть конструктор">
-        <img src="img/constructor-preview.png" alt="Онлайн-конструктор стеллажей" loading="lazy">
-        <span class="badge">3D</span>
-        <span class="lbl">Конструктор онлайн</span>
-      </a>
-    </div>
-  </div>
-</section>
-
-<!-- INTERIORS -->
-<section class="sec" id="spaces">
+<!-- 6. ИНТЕРЬЕРЫ -->
+<section class="sec" id="spaces" style="padding-top:0">
   <div class="wrap">
     <div class="sec-head rv">
       <div>
-        <p class="eyebrow">05 / В интерьере</p>
+        <p class="eyebrow">04 / В интерьере</p>
         <h2 class="serif h2" style="margin-top:16px">Как это выглядит<br>в комнате.</h2>
       </div>
       <p class="lead">Два примера: стеллаж в гостиной и полки над рабочим столом.</p>
@@ -640,7 +533,43 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
   </div>
 </section>
 
-<!-- PROCESS -->
+<!-- 7. О МАСТЕРСКОЙ -->
+<section class="sec about" id="about">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <div>
+        <p class="eyebrow">05 / О мастерской</p>
+        <h2 class="serif h2" style="margin-top:16px">Кто делает<br>стеллажи.</h2>
+      </div>
+      <p class="lead">Короткое описание мастерской: кто вы, где работаете и почему делаете стеллажи именно так.</p>
+    </div>
+
+    <div class="about-grid">
+      <!-- Замените заглушку на: <img src="img/about-main.png" alt="Мастерская ПОЛКИ" loading="lazy"> -->
+      <div class="about-main ph rv">Фото мастерской</div>
+
+      <div class="about-text rv">
+        <h3>Заголовок о мастерской</h3>
+        <p>Текст о мастерской. Здесь можно рассказать историю, подход к работе, кто делает стеллажи и как устроено производство.</p>
+        <p>Второй абзац: материалы, контроль качества, работа с заказчиком, география доставки.</p>
+        <ul class="about-facts">
+          <li><b>00</b>лет работы</li>
+          <li><b>000</b>сделанных стеллажей</li>
+          <li><b>00</b>городов доставки</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="about-gallery rv">
+      <!-- Замените заглушки на: <img src="img/about-1.png" alt="..." loading="lazy"> -->
+      <div class="ph">Фото процесса 1</div>
+      <div class="ph">Фото процесса 2</div>
+      <div class="ph">Фото процесса 3</div>
+    </div>
+  </div>
+</section>
+
+<!-- 8. КАК ЗАКАЗАТЬ -->
 <section class="sec" id="process" style="padding-top:0">
   <div class="wrap">
     <div class="sec-head rv">
@@ -658,7 +587,7 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
   </div>
 </section>
 
-<!-- FAQ -->
+<!-- 9. ВОПРОСЫ -->
 <section class="sec" id="faq" style="border-top:1px solid var(--line)">
   <div class="wrap">
     <div class="faq-grid">
@@ -680,7 +609,7 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
   </div>
 </section>
 
-<!-- CONTACT -->
+<!-- 10. ЗАЯВКА -->
 <section class="sec contact" id="contact">
   <div class="wrap">
     <div class="contact-grid">
@@ -731,7 +660,6 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
 (function(){
   const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 
-  // header + progress + mobile bar
   const hdr=$('.hdr'),prog=$('#progress'),mbar=$('#mbar');
   const onScroll=()=>{
     const y=scrollY,h=document.documentElement.scrollHeight-innerHeight;
@@ -741,20 +669,16 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
   };
   addEventListener('scroll',onScroll,{passive:true});onScroll();
 
-  // mobile menu
   const burger=$('#burger'),menu=$('#menu');
   const setMenu=o=>{burger.classList.toggle('on',o);menu.classList.toggle('on',o);burger.setAttribute('aria-expanded',o);menu.setAttribute('aria-hidden',!o);document.body.style.overflow=o?'hidden':''};
   burger.addEventListener('click',()=>setMenu(!menu.classList.contains('on')));
   menu.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>setMenu(false)));
 
-  // reveal
   const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.12,rootMargin:'0px 0px -6% 0px'});
   $$('.rv').forEach(el=>io.observe(el));
 
-  // image fallback
   $$('img').forEach(img=>{img.addEventListener('error',()=>{const p=document.createElement('div');p.className='ph';p.style.cssText='position:absolute;inset:0;';p.textContent=img.alt||'Изображение';const par=img.parentElement;if(getComputedStyle(par).position==='static')par.style.position='relative';img.replaceWith(p)})});
 
-  // filters
   const cards=$$('.card'),cnt=$('#cnt');
   $$('.chip').forEach(c=>c.addEventListener('click',()=>{
     $$('.chip').forEach(x=>x.classList.remove('on'));c.classList.add('on');
@@ -763,14 +687,11 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
     cnt.textContent=n;$('#grid').scrollTo({left:0,behavior:'smooth'});
   }));
 
-  // card "Заказать" -> preselect model
   $$('[data-model]').forEach(a=>a.addEventListener('click',()=>{$('#f-model').value=a.dataset.model}));
 
-  // faq: one open at a time
   const ds=$$('.faq details');
   ds.forEach(d=>d.addEventListener('toggle',()=>{if(d.open)ds.forEach(o=>{if(o!==d)o.open=false})}));
 
-  // request composer
   const build=()=>[
     'Заявка на стеллаж',
     'Модель: '+$('#f-model').value,
