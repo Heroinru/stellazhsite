@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>ПОЛКИ — стеллажи и полки из дерева, металла и латуни</title>
-<meta name="description" content="Настенные полки и напольные стеллажи из дерева, металла и латуни. Выберите готовую композицию или создайте свой стеллаж в онлайн-конструкторе.">
+<title>ПОЛКИ — стеллажи и полки на заказ из дерева, металла и латуни</title>
+<meta name="description" content="Делаем настенные полки и напольные стеллажи из дерева, металла и латуни. Шесть готовых моделей или стеллаж по вашим размерам. Онлайн 3D-конструктор.">
 <meta name="theme-color" content="#f3efe7">
 <style>
 :root{
@@ -90,9 +90,9 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
 .hero-tag{position:absolute;top:24px;right:var(--gutter);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-2);writing-mode:vertical-rl;opacity:.7}
 
 /* marquee */
-.marquee{border-top:1px solid var(--ink);border-bottom:1px solid var(--ink);overflow:hidden;background:var(--ink);color:var(--paper);padding:14px 0}
+.marquee{border-top:1px solid var(--ink);border-bottom:1px solid var(--ink);overflow:hidden;background:var(--ink);color:var(--paper);padding:7px 0}
 .marquee .track{display:flex;width:max-content;animation:mq 28s linear infinite}
-.marquee span{font-family:var(--serif);font-size:20px;padding:0 28px;white-space:nowrap;display:flex;align-items:center;gap:28px}
+.marquee span{font-family:var(--serif);font-size:16px;padding:0 28px;white-space:nowrap;display:flex;align-items:center;gap:28px}
 .marquee span::after{content:"";width:6px;height:6px;border-radius:50%;background:var(--brass)}
 @keyframes mq{to{transform:translateX(-50%)}}
 
@@ -273,7 +273,83 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
   .contact-grid .form{margin-top:0}
 }
 @media (min-width:1280px){.card h4{font-size:34px}}
+
+/* ===== HERO: текст на полках ===== */
+.hero{display:block;min-height:0;padding:0 0 48px;overflow:visible}
+.stage{position:relative;container-type:inline-size;background:#EBE5D9}
+.stage img{width:100%;height:auto;display:block}
+.shelf-text{margin:0;font-size:inherit}
+.hero .on-shelf{
+  position:absolute;left:var(--x);top:var(--y);
+  font-size:var(--fs);line-height:1;white-space:nowrap;letter-spacing:-.02em;
+  transform:translateY(calc(-100% + var(--nudge,.2em)));
+}
+.hero .on-shelf em{font-style:italic;color:var(--brass)}
+/* лёгкая тень под буквами */
+.hero .on-shelf::after{content:"";position:absolute;left:3%;right:3%;bottom:var(--nudge,.2em);height:.1em;
+  background:radial-gradient(ellipse at center,rgba(28,26,23,.28),transparent 70%);filter:blur(3px);z-index:-1}
+
+/* ДЕСКТОП/ПЛАНШЕТ: подставьте свои проценты */
+.s1{--x:20%;--y:15%;--fs:5.6cqw}
+.s2{--x:20%;--y:45.5%;--fs:5.6cqw}
+
+/* ТЕЛЕФОН (вертикальная картинка) */
+@media (max-width:639px){
+  .s1{--x:7%;--y:34%;--fs:9cqw}
+  .s2{--x:7%;--y:58%;--fs:9cqw}
+}
+
+.hero-info{display:grid;gap:20px;padding-top:32px}
+.hero-info .lead{margin:0}
+.hero-meta{margin-top:12px}
+@media (min-width:960px){
+  .hero{display:block;min-height:0}
+  .hero-info{grid-template-columns:1fr auto;align-items:end;column-gap:60px}
+  .hero-info .eyebrow,.hero-info .lead{grid-column:1}
+  .hero-info .hero-actions{grid-column:2;grid-row:1 / 3}
+  .hero-meta{grid-column:1 / -1}
+}
+
+/* ===== HERO: кнопки на полке + полоса под стеллажом ===== */
+
+/* кнопки на 4-й полке */
+.shelf-btns{
+  position:absolute;
+  left:var(--x);top:var(--y);
+  transform:translateY(-100%);
+  display:flex;gap:clamp(8px,1cqw,14px);
+  --x:20%;--y:70%;
+}
+.shelf-btns .btn{
+  min-height:clamp(38px,3.6cqw,56px);
+  padding:0 clamp(14px,2cqw,30px);
+  font-size:clamp(13px,1.15cqw,16px);
+  white-space:nowrap;
+}
+.shelf-btns .btn-ghost{background:rgba(243,239,231,.7)}
+@media (max-width:639px){
+  .shelf-btns{--x:7%;--y:84%}
+}
+
+/* место под полосу с цифрами на первом экране */
+:root{--strip:96px}
+@media (max-width:639px){:root{--strip:150px}}
+.frame{width:min(100%, calc((100svh - 64px - var(--strip)) * var(--ratio)))}
+
+/* полоса с цифрами */
+.hero-strip .hero-meta{
+  margin:0;padding:18px 0;border-top:0;
+  display:grid;grid-template-columns:repeat(2,1fr);gap:14px 20px;
+}
+@media (min-width:640px){
+  .hero-strip .hero-meta{grid-template-columns:repeat(4,1fr)}
+}
+
+/* описание под полосой */
+.hero-info{display:block;padding-top:28px}
+.hero-info .lead{margin-top:14px}
 </style>
+
 </head>
 <body>
 <div id="progress"></div>
@@ -282,8 +358,8 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
   <div class="wrap">
     <a href="#top" class="logo" aria-label="ПОЛКИ — на главную"><i></i>ПОЛКИ</a>
     <nav class="nav" aria-label="Основная навигация">
-      <a href="#collection">Коллекция</a>
-      <a href="#architecture">Система</a>
+      <a href="#collection">Модели</a>
+      <a href="#architecture">Конструкция</a>
       <a href="#materials">Материалы</a>
       <a href="#constructor">Конструктор</a>
       <a href="#process">Как заказать</a>
@@ -295,8 +371,8 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
 </header>
 
 <div class="menu" id="menu" aria-hidden="true">
-  <a class="big" href="#collection" style="transition-delay:.05s">Коллекция <small>01</small></a>
-  <a class="big" href="#architecture" style="transition-delay:.1s">Система <small>02</small></a>
+  <a class="big" href="#collection" style="transition-delay:.05s">Модели <small>01</small></a>
+  <a class="big" href="#architecture" style="transition-delay:.1s">Конструкция <small>02</small></a>
   <a class="big" href="#materials" style="transition-delay:.15s">Материалы <small>03</small></a>
   <a class="big" href="constructor.html" style="transition-delay:.2s">Конструктор <small>3D</small></a>
   <a class="big" href="#process" style="transition-delay:.25s">Как заказать <small>06</small></a>
@@ -311,44 +387,54 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
 <main>
 <!-- HERO -->
 <section class="hero">
-  <div class="hero-bg"><img src="img/hero-shelving.png" alt="Стеллаж из дерева и латуни в мягком дневном свете" fetchpriority="high"></div>
-  <span class="hero-tag">Мебельный щит · латунные соединения</span>
-  <div class="wrap" style="display:contents">
-    <div style="padding-inline:var(--gutter)">
-      <p class="eyebrow">Полки и стеллажи под ваш интерьер</p>
-      <h1 class="serif" style="margin-top:18px">У каждой вещи<br><em>своё место.</em></h1>
-      <p class="lead">Дерево, металл и латунь. Готовые композиции и стеллажи по вашим размерам — для вещей, которые хочется оставить на виду.</p>
-      <div class="hero-actions">
+  <div class="stage">
+    <div class="frame">
+      <picture>
+        <source media="(max-width:639px)" srcset="img/hero-shelving-mobile.png">
+        <img src="img/hero-shelving.png" alt="Настенный стеллаж из дуба, металла и латуни" fetchpriority="high">
+      </picture>
+      <h1 class="serif shelf-text">
+        <span class="on-shelf s1">Делаем стеллажи</span>
+        <span class="on-shelf s2"><em>под ваши размеры</em></span>
+      </h1>
+      <div class="shelf-btns">
         <a href="#collection" class="btn btn-dark">Выбрать модель <span class="arr">→</span></a>
         <a href="constructor.html" class="btn btn-ghost">Собрать свою</a>
       </div>
     </div>
-    <div style="padding-inline:var(--gutter)">
-      <ul class="hero-meta">
-        <li><b>2</b>глубины: 200 и 400 мм</li>
-        <li><b>2</b>исполнения: настенное и напольное</li>
-        <li><b>6</b>готовых композиций</li>
-        <li><b>3D</b>онлайн-конструктор</li>
-      </ul>
-    </div>
+  </div>
+
+  <div class="marquee" aria-hidden="true">
+  <div class="track">
+    <span>Стеллажи на заказ</span><span>Дерево</span><span>Металл</span><span>Латунь</span><span>По вашим размерам</span><span>Настенные и напольные</span>
+    <span>Стеллажи на заказ</span><span>Дерево</span><span>Металл</span><span>Латунь</span><span>По вашим размерам</span><span>Настенные и напольные</span>
+  </div>
+</div>
+<div class="wrap hero-strip">
+    <ul class="hero-meta">
+      <li><b>2</b>глубины полок: 200 и 400 мм</li>
+      <li><b>2</b>варианта: настенный и напольный</li>
+      <li><b>6</b>готовых моделей</li>
+      <li><b>3D</b>конструктор</li>
+    </ul>
+  </div>
+
+  <div class="wrap hero-info">
+    <p class="eyebrow">Стеллажи и полки на заказ</p>
+    <p class="lead">Настенные полки и напольные стеллажи из дерева, металла и латуни. Выберите готовую модель или закажите стеллаж по своим размерам.</p>
   </div>
 </section>
 
-<div class="marquee" aria-hidden="true">
-  <div class="track">
-    <span>Меньше лишнего. Больше вашего.</span><span>Дерево</span><span>Металл</span><span>Латунь</span><span>По вашим размерам</span><span>Настенное и напольное</span>
-    <span>Меньше лишнего. Больше вашего.</span><span>Дерево</span><span>Металл</span><span>Латунь</span><span>По вашим размерам</span><span>Настенное и напольное</span>
-  </div>
-</div>
+
 
 <!-- FEATURES -->
 <section class="sec" style="padding-top:56px;padding-bottom:40px">
   <div class="wrap">
     <ul class="feat rv">
-      <li><span class="k">I</span><div><b>По вашим размерам</b><p>Композиция под конкретную стену — от узкой ниши до целой гостиной.</p></div></li>
-      <li><span class="k">II</span><div><b>Две глубины</b><p>Полки 200 мм для предметов и 400 мм — для книг и глубокого хранения.</p></div></li>
-      <li><span class="k">III</span><div><b>Два исполнения</b><p>Настенное или напольное с верхним креплением к стене.</p></div></li>
-      <li><span class="k">IV</span><div><b>Онлайн-конструктор</b><p>Попробуйте свои идеи в 3D до разговора с нами.</p></div></li>
+      <li><span class="k">I</span><div><b>Под ваши размеры</b><p>Сделаем стеллаж под конкретную стену: от узкой ниши до всей стены в гостиной.</p></div></li>
+      <li><span class="k">II</span><div><b>Две глубины полок</b><p>200 мм — для декора и мелких предметов. 400 мм — для книг и хранения.</p></div></li>
+      <li><span class="k">III</span><div><b>Два варианта крепления</b><p>Настенный стеллаж или напольный с креплением к стене сверху.</p></div></li>
+      <li><span class="k">IV</span><div><b>3D-конструктор</b><p>Соберите стеллаж онлайн и посмотрите результат до заказа.</p></div></li>
     </ul>
   </div>
 </section>
@@ -358,10 +444,10 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
   <div class="wrap">
     <div class="sec-head rv">
       <div>
-        <p class="eyebrow">01 / Коллекция</p>
-        <h2 class="serif h2" style="margin-top:16px">Найдите свою<br>композицию.</h2>
+        <p class="eyebrow">01 / Модели</p>
+        <h2 class="serif h2" style="margin-top:16px">Готовые<br>модели.</h2>
       </div>
-      <p class="lead">Лаконичная полка или целая система хранения. Выберите основу — размеры и детали обсудим под ваш интерьер.</p>
+      <p class="lead">Шесть моделей: от одной полки до большого стеллажа. Размеры и отделку меняем под ваш интерьер.</p>
     </div>
 
     <div class="filters" role="tablist" aria-label="Фильтр моделей">
@@ -374,12 +460,12 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
 
     <div class="grid" id="grid">
       <article class="card rv" data-t="wall">
-        <div class="fig"><img src="img/model-linea.png" alt="Настенная композиция с тремя полками" loading="lazy"><span class="tag">Настенный стеллаж</span></div>
+        <div class="fig"><img src="img/model-linea.png" alt="Настенный стеллаж с тремя полками" loading="lazy"><span class="tag">Настенный стеллаж</span></div>
         <div class="body">
           <h4>Линия</h4>
           <div class="spec"><span>Дерево + латунь</span></div>
           <div class="spec"><span>Ширина <b>1200</b> мм</span><span>Глубина <b>200</b> мм</span></div>
-          <div class="foot"><span>Стоимость по запросу</span><a href="#contact" data-model="Линия">Подробнее →</a></div>
+          <div class="foot"><span>Цена по запросу</span><a href="#contact" data-model="Линия">Заказать →</a></div>
         </div>
       </article>
       <article class="card rv" data-t="wall">
@@ -388,7 +474,7 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
           <h4>Контур</h4>
           <div class="spec"><span>Дерево + латунь</span></div>
           <div class="spec"><span>Ширина <b>2200</b> мм</span><span>Глубина <b>200</b> мм</span></div>
-          <div class="foot"><span>Стоимость по запросу</span><a href="#contact" data-model="Контур">Подробнее →</a></div>
+          <div class="foot"><span>Цена по запросу</span><a href="#contact" data-model="Контур">Заказать →</a></div>
         </div>
       </article>
       <article class="card rv" data-t="floor">
@@ -397,7 +483,7 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
           <h4>Вертикаль</h4>
           <div class="spec"><span>Дерево + латунь</span></div>
           <div class="spec"><span>Ширина <b>700</b> мм</span><span>Глубина <b>200</b> мм</span></div>
-          <div class="foot"><span>Стоимость по запросу</span><a href="#contact" data-model="Вертикаль">Подробнее →</a></div>
+          <div class="foot"><span>Цена по запросу</span><a href="#contact" data-model="Вертикаль">Заказать →</a></div>
         </div>
       </article>
       <article class="card rv" data-t="shelf wall">
@@ -406,7 +492,7 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
           <h4>Горизонт</h4>
           <div class="spec"><span>Дерево + латунь</span></div>
           <div class="spec"><span>Ширина <b>1500</b> мм</span><span>Глубина <b>200</b> мм</span></div>
-          <div class="foot"><span>Стоимость по запросу</span><a href="#contact" data-model="Горизонт">Подробнее →</a></div>
+          <div class="foot"><span>Цена по запросу</span><a href="#contact" data-model="Горизонт">Заказать →</a></div>
         </div>
       </article>
       <article class="card rv" data-t="wall floor">
@@ -415,24 +501,24 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
           <h4>Библиотека</h4>
           <div class="spec"><span>Дерево + латунь</span></div>
           <div class="spec"><span>Ширина <b>1800</b> мм</span><span>Глубина <b>400</b> мм</span></div>
-          <div class="foot"><span>Стоимость по запросу</span><a href="#contact" data-model="Библиотека">Подробнее →</a></div>
+          <div class="foot"><span>Цена по запросу</span><a href="#contact" data-model="Библиотека">Заказать →</a></div>
         </div>
       </article>
       <article class="card rv" data-t="shelf wall">
-        <div class="fig"><img src="img/model-duo.png" alt="Две полки на общей паре стоек" loading="lazy"><span class="tag">Два яруса</span></div>
+        <div class="fig"><img src="img/model-duo.png" alt="Две полки на общих стойках" loading="lazy"><span class="tag">Две полки</span></div>
         <div class="body">
           <h4>Дуэт</h4>
           <div class="spec"><span>Дерево + латунь</span></div>
           <div class="spec"><span>Ширина <b>900</b> мм</span><span>Глубина <b>200</b> мм</span></div>
-          <div class="foot"><span>Стоимость по запросу</span><a href="#contact" data-model="Дуэт">Подробнее →</a></div>
+          <div class="foot"><span>Цена по запросу</span><a href="#contact" data-model="Дуэт">Заказать →</a></div>
         </div>
       </article>
     </div>
 
-    <p class="note">Показаны примеры композиций. Итоговые размеры, отделку, стоимость и возможность изготовления выбранного варианта согласуем до заказа.</p>
+    <p class="note">Это примеры. Точные размеры, отделку и цену согласуем с вами до заказа.</p>
 
     <div class="coll-cta rv">
-      <p class="serif">Нужна другая композиция?<br>Она может быть вашей.</p>
+      <p class="serif">Нет подходящей модели?<br>Соберите свою в конструкторе.</p>
       <a href="constructor.html" class="btn btn-brass">Открыть конструктор <span class="arr">→</span></a>
     </div>
   </div>
@@ -444,13 +530,13 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
     <div class="arch-grid">
       <div>
         <div class="rv">
-          <p class="eyebrow">02 / Архитектура предмета</p>
-          <h2 class="serif h2" style="margin-top:16px">Простая система.<br>Ваш собственный ритм.</h2>
+          <p class="eyebrow">02 / Как устроен стеллаж</p>
+          <h2 class="serif h2" style="margin-top:16px">Простая конструкция.<br>Любые размеры.</h2>
         </div>
         <ul class="arch-list rv">
-          <li><b>Место для вашего пространства</b><p>Узкая стена, рабочий уголок или большая гостиная: композиция начинается с реальных размеров комнаты.</p></li>
-          <li><b>Открытая конструкция</b><p>Стойки и полки оставляют стену видимой. Книги, керамика и любимые предметы становятся частью интерьера.</p></li>
-          <li><b>Детали с характером</b><p>Деревянные плоскости, строгие металлические линии и тёплые латунные соединения — без лишнего декора.</p></li>
+          <li><b>Размеры под вашу стену</b><p>Узкая стена, место над столом или вся стена гостиной — делаем стеллаж по реальным размерам комнаты.</p></li>
+          <li><b>Открытая конструкция</b><p>Стойки и полки не закрывают стену. Книги и предметы хорошо видны и легко доступны.</p></li>
+          <li><b>Три материала</b><p>Деревянные полки, металлические стойки и латунные соединения. Без лишнего декора.</p></li>
         </ul>
       </div>
       <div class="diagram rv" aria-label="Схема стеллажа">
@@ -472,11 +558,11 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
           </g>
           <g fill="#f3efe7" fill-opacity=".6" stroke="none" font-family="Georgia,serif" font-size="11">
             <text x="200" y="27" text-anchor="middle">ширина — по вашей стене</text>
-            <text x="18" y="165" transform="rotate(-90 18 165)" text-anchor="middle">ярусы</text>
+            <text x="18" y="165" transform="rotate(-90 18 165)" text-anchor="middle">полки</text>
             <text x="320" y="268" font-size="9" fill-opacity=".4">латунные соединения</text>
           </g>
         </svg>
-        <small>Схема — иллюстрация принципа, не монтажный чертёж.</small>
+        <small>Схема показывает принцип конструкции. Это не монтажный чертёж.</small>
       </div>
     </div>
   </div>
@@ -488,23 +574,23 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
     <div class="sec-head rv">
       <div>
         <p class="eyebrow">03 / Материалы</p>
-        <h2 class="serif h2" style="margin-top:16px">Красота —<br>в деталях.</h2>
+        <h2 class="serif h2" style="margin-top:16px">Из чего<br>делаем.</h2>
       </div>
-      <p class="lead">Материалы не прячутся за декором. Они и есть основа формы: рисунок древесины, металл и латунь.</p>
+      <p class="lead">Три материала: дерево, металл и латунь. Все они на виду — ничего не закрыто декором.</p>
     </div>
     <div class="mat">
       <div class="mat-item rv">
-        <div class="fig"><img src="img/detail-wood.png" alt="Живая фактура дерева и обработка торца" loading="lazy"></div>
-        <span class="idx">01 / Деревянный мебельный щит · естественный рисунок</span>
-        <h3>Тёплое дерево.<br>Точная геометрия.</h3>
-        <p>У каждой деревянной полки собственный рисунок. Оттенок и отделку согласуем так, чтобы стеллаж сочетался с вашим полом, мебелью и светом.</p>
-        <p class="fine">Оттенки на экране условны. Доступные варианты уточняются при заказе.</p>
+        <div class="fig"><img src="img/detail-wood.png" alt="Фактура дерева и обработка торца полки" loading="lazy"></div>
+        <span class="idx">01 / Деревянный мебельный щит</span>
+        <h3>Дерево.<br>Полки.</h3>
+        <p>Полки делаем из мебельного щита. У каждой полки свой рисунок древесины. Оттенок и покрытие подберём под ваш пол и мебель.</p>
+        <p class="fine">Цвета на экране могут отличаться от реальных. Доступные варианты уточним при заказе.</p>
       </div>
       <div class="mat-item rv">
-        <div class="fig"><img src="img/detail-brass.png" alt="Латунный фитинг и крепление полки крупным планом" loading="lazy"></div>
-        <span class="idx">02 / Латунные соединения · функция становится деталью</span>
-        <h3>Видимый узел.<br>Честная конструкция.</h3>
-        <p>Латунные контргайки, муфты и уголки остаются видимыми. Это функциональные элементы, которые формируют характер системы.</p>
+        <div class="fig"><img src="img/detail-brass.png" alt="Латунное соединение и крепление полки крупным планом" loading="lazy"></div>
+        <span class="idx">02 / Латунные соединения</span>
+        <h3>Латунь.<br>Соединения.</h3>
+        <p>Полки крепятся к стойкам латунными гайками, муфтами и уголками. Мы их не прячем: это и крепёж, и деталь дизайна.</p>
       </div>
     </div>
   </div>
@@ -515,23 +601,23 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
   <div class="wrap">
     <div class="ctor-grid">
       <div class="rv">
-        <p class="eyebrow">04 / Ваш дизайн</p>
-        <h2 class="serif h2" style="margin-top:16px">Не выбирайте<br>из чужих идей.<br><span style="color:var(--brass);font-style:italic">Создайте свою.</span></h2>
-        <p class="lead" style="margin-top:20px">Соберите стеллаж в онлайн-конструкторе: меняйте длину, добавляйте полки и находите композицию под своё пространство.</p>
+        <p class="eyebrow">04 / Конструктор</p>
+        <h2 class="serif h2" style="margin-top:16px">Соберите свой<br>стеллаж<br><span style="color:var(--brass);font-style:italic">онлайн.</span></h2>
+        <p class="lead" style="margin-top:20px">В конструкторе можно задать размеры, добавить полки и сразу увидеть стеллаж в 3D.</p>
         <ol class="ctor-steps">
-          <li><span>01</span>Выберите настенное или напольное исполнение</li>
-          <li><span>02</span>Задайте размеры и добавьте нужные ярусы</li>
-          <li><span>03</span>Разметьте место под телевизор или другие предметы</li>
+          <li><span>01</span>Выберите вариант: настенный или напольный</li>
+          <li><span>02</span>Задайте ширину и добавьте нужное число полок</li>
+          <li><span>03</span>Отметьте место под телевизор или другие предметы</li>
         </ol>
         <div class="ctor-actions">
-          <a href="constructor.html" class="btn btn-dark">Перейти в 3D-конструктор <span class="arr">→</span></a>
+          <a href="constructor.html" class="btn btn-dark">Открыть 3D-конструктор <span class="arr">→</span></a>
         </div>
-        <p class="ctor-more">Не хотите проектировать самостоятельно? <a href="#contact">Обсудим вашу задачу.</a></p>
+        <p class="ctor-more">Не хотите собирать сами? <a href="#contact">Напишите нам — поможем.</a></p>
       </div>
       <a href="constructor.html" class="ctor-prev rv" aria-label="Открыть конструктор">
-        <img src="img/constructor-preview.png" alt="Превью онлайн-конструктора стеллажей" loading="lazy">
+        <img src="img/constructor-preview.png" alt="Онлайн-конструктор стеллажей" loading="lazy">
         <span class="badge">3D</span>
-        <span class="lbl">Пространство для ваших идей</span>
+        <span class="lbl">Конструктор онлайн</span>
       </a>
     </div>
   </div>
@@ -542,14 +628,14 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
   <div class="wrap">
     <div class="sec-head rv">
       <div>
-        <p class="eyebrow">05 / В пространстве</p>
-        <h2 class="serif h2" style="margin-top:16px">Не просто хранить.<br>Жить среди своего.</h2>
+        <p class="eyebrow">05 / В интерьере</p>
+        <h2 class="serif h2" style="margin-top:16px">Как это выглядит<br>в комнате.</h2>
       </div>
-      <p class="lead">Книги с заметками, находки из поездок, любимая керамика. Стеллаж — не только про порядок. Он про то, что важно вам.</p>
+      <p class="lead">Два примера: стеллаж в гостиной и полки над рабочим столом.</p>
     </div>
     <div class="int">
-      <a href="#contact" class="rv"><img src="img/interior-living.png" alt="Интерьер гостиной со стеллажом" loading="lazy"><span class="cap"><small>Для вещей с историей</small><b>Идея для гостиной</b></span></a>
-      <a href="#contact" class="rv"><img src="img/interior-workspace.png" alt="Домашний кабинет и полки над столом" loading="lazy"><span class="cap"><small>Для своего ритма</small><b>Идея для рабочего места</b></span></a>
+      <a href="#contact" class="rv"><img src="img/interior-living.png" alt="Стеллаж в гостиной" loading="lazy"><span class="cap"><small>Гостиная</small><b>Стеллаж для книг и декора</b></span></a>
+      <a href="#contact" class="rv"><img src="img/interior-workspace.png" alt="Полки над рабочим столом" loading="lazy"><span class="cap"><small>Рабочее место</small><b>Полки над столом</b></span></a>
     </div>
   </div>
 </section>
@@ -559,15 +645,15 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
   <div class="wrap">
     <div class="sec-head rv">
       <div>
-        <p class="eyebrow">06 / От идеи к предмету</p>
-        <h2 class="serif h2" style="margin-top:16px">Понятный путь<br>к вашему стеллажу.</h2>
+        <p class="eyebrow">06 / Как заказать</p>
+        <h2 class="serif h2" style="margin-top:16px">Четыре шага<br>до стеллажа.</h2>
       </div>
     </div>
     <ol class="proc rv">
-      <li><small>Выбор</small><b>Найдите свою форму</b><p>Выберите композицию из коллекции или попробуйте собственный вариант в конструкторе.</p></li>
-      <li><small>Согласование</small><b>Уточним каждую деталь</b><p>Обсудим размеры, отделку, стену, стоимость и сроки изготовления до подтверждения заказа.</p></li>
-      <li><small>Изготовление</small><b>Подготовим вашу систему</b><p>Изготовим щиты и скомплектуем трубы и соединения под согласованную конфигурацию.</p></li>
-      <li><small>Ваш интерьер</small><b>Останется расставить своё</b><p>Способ доставки, комплектацию и условия монтажа согласуем для конкретного заказа.</p></li>
+      <li><small>Выбор</small><b>Выберите модель</b><p>Выберите модель из коллекции или соберите свою в конструкторе.</p></li>
+      <li><small>Согласование</small><b>Согласуем детали</b><p>Обсудим размеры, отделку, тип стены, цену и сроки. После этого подтверждаем заказ.</p></li>
+      <li><small>Изготовление</small><b>Изготовим стеллаж</b><p>Сделаем полки и подберём стойки и соединения под согласованные размеры.</p></li>
+      <li><small>Доставка</small><b>Доставим стеллаж</b><p>Способ доставки, комплектацию и монтаж согласуем отдельно для каждого заказа.</p></li>
     </ol>
   </div>
 </section>
@@ -577,18 +663,18 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
   <div class="wrap">
     <div class="faq-grid">
       <div class="sec-head rv">
-        <p class="eyebrow">07 / Важно знать</p>
-        <h2 class="serif h2" style="margin-top:16px">Вопросы<br>по существу.</h2>
-        <p class="lead" style="margin-top:18px">Не нашли ответа? Опишите свою задачу — разберём её до заказа.</p>
+        <p class="eyebrow">07 / Вопросы</p>
+        <h2 class="serif h2" style="margin-top:16px">Частые<br>вопросы.</h2>
+        <p class="lead" style="margin-top:18px">Не нашли ответ? Напишите нам — ответим до заказа.</p>
         <a href="#contact" class="btn btn-ghost faq-ask">Задать вопрос</a>
       </div>
       <div class="faq rv">
-        <details><summary>Можно ли изменить размеры готовой модели?<i></i></summary><div class="a">Да, стандартная композиция может стать отправной точкой. Возможность изменения ширины, числа ярусов и расстояний между полками проверяется с учётом пролётов, креплений и выбранных деталей.</div></details>
-        <details><summary>Напольный стеллаж нужно крепить к стене?<i></i></summary><div class="a">Да. Напольное исполнение опирается на пол, но верхние крепления остаются настенными. Это не отдельно стоящая мебель для размещения посреди комнаты.</div></details>
-        <details><summary>Какая глубина у полок?<i></i></summary><div class="a">В конструкторе предусмотрены варианты глубиной 200 и 400 мм. В глубоком исполнении применяются дополнительные поперечные опоры. Назначение и допустимое размещение вещей согласуем для вашей конструкции.</div></details>
-        <details><summary>Подойдёт ли моя стена?<i></i></summary><div class="a">Это зависит от материала стены, основания и предполагаемой нагрузки. До заказа сообщите, из чего сделана стена. Для гипсокартона и других полых конструкций необходима отдельная проверка основания и подходящего крепежа.</div></details>
-        <details><summary>Сколько веса выдерживает полка?<i></i></summary><div class="a">Единого числа для всех композиций нет: важны длина пролёта, материал и толщина щита, число опор, крепления и основание стены. Допустимую нагрузку подтверждаем для конкретного исполнения — универсальную грузоподъёмность не обещаем.</div></details>
-        <details><summary>Как узнать стоимость и сроки?<i></i></summary><div class="a">Выберите модель и подготовьте заявку с нужными размерами. Окончательная стоимость и сроки согласуются после проверки конструкции, отделки и условий доставки. Оплата на этой версии сайта пока не подключена.</div></details>
+        <details><summary>Можно ли изменить размеры готовой модели?<i></i></summary><div class="a">Да. Можно изменить ширину, число полок и расстояние между ними. Мы проверим, подходит ли новый размер по длине пролётов и креплениям.</div></details>
+        <details><summary>Напольный стеллаж нужно крепить к стене?<i></i></summary><div class="a">Да. Напольный стеллаж стоит на полу, но сверху крепится к стене. Поставить его посреди комнаты нельзя.</div></details>
+        <details><summary>Какая глубина у полок?<i></i></summary><div class="a">200 или 400 мм. У полок глубиной 400 мм есть дополнительные поперечные опоры. Что и как ставить на полки, согласуем для вашей конструкции.</div></details>
+        <details><summary>Подойдёт ли моя стена?<i></i></summary><div class="a">Зависит от материала стены и нагрузки. Напишите нам, из чего сделана стена. Для гипсокартона и пустотелых стен нужна отдельная проверка и специальный крепёж.</div></details>
+        <details><summary>Сколько веса выдерживает полка?<i></i></summary><div class="a">У каждой модели по-разному. Нагрузка зависит от длины полки, толщины щита, числа опор и типа стены. Точную цифру назовём для вашей конструкции.</div></details>
+        <details><summary>Как узнать цену и сроки?<i></i></summary><div class="a">Выберите модель и отправьте заявку с размерами. Цену и сроки назовём после проверки конструкции, отделки и условий доставки. Онлайн-оплаты на сайте пока нет.</div></details>
       </div>
     </div>
   </div>
@@ -599,15 +685,15 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
   <div class="wrap">
     <div class="contact-grid">
       <div class="rv">
-        <p class="eyebrow">08 / Начнём с вашей идеи</p>
-        <h2 class="serif h2" style="margin-top:16px">Что вы хотите<br>оставить на виду?</h2>
-        <p class="lead" style="margin-top:18px">Расскажите о месте, размерах и вещах, для которых нужен стеллаж. Можно начать с одной полки — или сразу продумать целую стену.</p>
+        <p class="eyebrow">08 / Заявка</p>
+        <h2 class="serif h2" style="margin-top:16px">Напишите нам.<br>Рассчитаем стеллаж.</h2>
+        <p class="lead" style="margin-top:18px">Укажите место, размеры и что будет стоять на полках. Можно заказать одну полку или стеллаж на всю стену.</p>
       </div>
       <form class="form rv" id="form" novalidate>
         <div class="field"><label for="f-model">Модель</label>
           <select id="f-model"><option>Своя композиция</option><option>Линия</option><option>Контур</option><option>Вертикаль</option><option>Горизонт</option><option>Библиотека</option><option>Дуэт</option></select></div>
-        <div class="field"><label for="f-type">Исполнение</label>
-          <select id="f-type"><option>Настенное</option><option>Напольное</option><option>Пока не знаю</option></select></div>
+        <div class="field"><label for="f-type">Вариант</label>
+          <select id="f-type"><option>Настенный</option><option>Напольный</option><option>Пока не знаю</option></select></div>
         <div class="field"><label for="f-w">Ширина, мм</label><input id="f-w" type="number" inputmode="numeric" placeholder="1200"></div>
         <div class="field"><label for="f-d">Глубина</label>
           <select id="f-d"><option>200 мм</option><option>400 мм</option></select></div>
@@ -618,7 +704,7 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
           <a id="tg" href="https://t.me/USERNAME" target="_blank" rel="noopener" class="btn btn-brass">Написать в Telegram ↗</a>
           <button type="button" id="copy" class="btn btn-ghost" style="border-color:rgba(255,255,255,.4);color:var(--paper)">Скопировать заявку</button>
         </div>
-        <p class="hint full">Заявка подготавливается на вашем устройстве. Автоматическая отправка и онлайн-оплата пока не подключены.</p>
+        <p class="hint full">Текст заявки формируется на вашем устройстве. Автоматической отправки и онлайн-оплаты пока нет.</p>
       </form>
     </div>
   </div>
@@ -629,8 +715,8 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
   <div class="wrap">
     <div class="big" aria-hidden="true">ПОЛКИ</div>
     <div class="row">
-      <span>Стеллажи и полки из дерева, металла и латуни</span>
-      <span style="display:flex;gap:20px"><a href="#collection">Коллекция</a><a href="constructor.html">Конструктор</a><a href="#faq">Вопросы</a><a href="#top">Наверх ↑</a></span>
+      <span>Стеллажи и полки на заказ из дерева, металла и латуни</span>
+      <span style="display:flex;gap:20px"><a href="#collection">Модели</a><a href="constructor.html">Конструктор</a><a href="#faq">Вопросы</a><a href="#top">Наверх ↑</a></span>
     </div>
   </div>
 </footer>
@@ -677,7 +763,7 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
     cnt.textContent=n;$('#grid').scrollTo({left:0,behavior:'smooth'});
   }));
 
-  // card "Подробнее" -> preselect model
+  // card "Заказать" -> preselect model
   $$('[data-model]').forEach(a=>a.addEventListener('click',()=>{$('#f-model').value=a.dataset.model}));
 
   // faq: one open at a time
@@ -688,11 +774,11 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
   const build=()=>[
     'Заявка на стеллаж',
     'Модель: '+$('#f-model').value,
-    'Исполнение: '+$('#f-type').value,
+    'Вариант: '+$('#f-type').value,
     'Ширина: '+($('#f-w').value||'—')+' мм',
     'Глубина: '+$('#f-d').value,
     'Стена: '+($('#f-wall').value||'—'),
-    'Содержимое: '+($('#f-msg').value||'—')
+    'На полках: '+($('#f-msg').value||'—')
   ].join('\n');
   const toast=$('#toast');let tt;
   const say=m=>{toast.textContent=m;toast.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>toast.classList.remove('on'),2200)};
