@@ -284,8 +284,8 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
 .s2{--x:20%;--y:45.5%;--fs:5.6cqw}
 
 @media (max-width:639px){
-  .s1{--x:16%;--y:30%;--fs:8.5cqw}
-  .s2{--x:16%;--y:63%;--fs:9cqw}
+  .s1{--x:13%;--y:30%;--fs:9cqw}
+  .s2{--x:13%;--y:63%;--fs:9cqw}
 }
 
 @media (min-width:960px){
@@ -317,9 +317,34 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
 @media (max-width:639px){:root{--strip:150px}}
 .frame{width:min(100%, calc((100svh - 64px - var(--strip)) * var(--ratio)))}
 
-  @media (max-width:639px){
-  .shelf-btns .btn-ghost{display:none}
+/* ===== HERO: тени от надписей на полках ===== */
+
+/* тень от букв на стене */
+.hero .on-shelf{
+  text-shadow:
+    0.07em 0.08em 0.09em rgba(28,26,23,.20),
+    0.08em 0.10em 0.22em rgba(28,26,23,.12);
 }
+
+/* тень у основания букв, на полке */
+.hero .on-shelf::after{
+  height:.20em;
+  left:2%;right:2%;
+  background:radial-gradient(ellipse at center,rgba(28,26,23,.40),transparent 70%);
+  filter:blur(4px);
+}
+
+
+
+/* ===== HERO: тень от кнопок на стену ===== */
+.shelf-btns .btn,
+.shelf-btns .btn:hover{
+  box-shadow:
+    0 1px 1px rgba(28,26,23,.60),
+    8px -6px 14px -4px rgba(28,26,23,.42),
+    16px -10px 26px -8px rgba(28,26,23,.34);
+}
+
 </style>
 
 </head>
