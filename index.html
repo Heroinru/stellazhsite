@@ -316,6 +316,10 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
 :root{--strip:96px}
 @media (max-width:639px){:root{--strip:150px}}
 .frame{width:min(100%, calc((100svh - 64px - var(--strip)) * var(--ratio)))}
+
+  @media (max-width:639px){
+  .shelf-btns .btn-ghost{display:none}
+}
 </style>
 
 </head>
