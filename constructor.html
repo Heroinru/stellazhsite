@@ -78,6 +78,7 @@
   }
   .stepper button:active { background: #dde4e7; }
   .muted { color: #66757b; font-size: 12px; line-height: 1.45; }
+  .hint { margin: 6px 0 0; }
   .reset {
     width: 100%; margin-top: 16px; padding: 11px; border: 0; border-radius: 8px;
     background: #37474f; color: #fff; font: inherit; cursor: pointer; touch-action: manipulation;
@@ -109,6 +110,15 @@
   .mark-fields label { margin: 0; font-size: 11px; color: #66757b; }
   .mark-fields label span { display: block; margin-bottom: 3px; }
   .mark-fields input[type="number"] { padding: 7px; text-align: center; }
+
+  .bom { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 4px; }
+  .bom th { text-align: left; font-size: 12px; color: #66757b; font-weight: 600; padding: 6px 0 4px; border-bottom: 1px solid #dde3e6; }
+  .bom th.q, .bom td.q { text-align: right; white-space: nowrap; }
+  .bom td { padding: 6px 0; border-bottom: 1px solid #eef1f2; vertical-align: top; }
+  .bom td.q { font-weight: 700; padding-left: 8px; }
+  .bom tr.group td { padding-top: 12px; font-weight: 700; color: #37474f; border-bottom: 1px solid #dde3e6; }
+  .bom .custom { display: inline-block; margin-left: 4px; padding: 0 5px; border-radius: 4px; background: #fbe3e1; color: #b8322a; font-size: 11px; font-weight: 600; }
+  .bom td.empty { color: #66757b; text-align: center; }
 
   .help { margin-top: 14px; }
   .help summary { cursor: pointer; font-weight: 600; color: #37474f; padding: 4px 0; }
@@ -215,6 +225,12 @@
   }
   #mobile-bar { display: none; }
 
+  #no3d {
+    position: fixed; inset: 0; z-index: 100; display: none; align-items: center; justify-content: center;
+    padding: 24px; background: #dedede; text-align: center; font-size: 15px; line-height: 1.5;
+  }
+  #no3d div { max-width: 420px; padding: 18px 20px; border-radius: 14px; background: #fff; box-shadow: 0 8px 28px #0002; }
+
   @media (max-width: 900px), (max-height: 520px) {
     .panel {
       position: fixed; z-index: 35;
@@ -268,6 +284,7 @@
 <div id="drag-label"></div>
 <div id="toast"></div>
 <div id="mark-hint"><span>Проведите по стене, чтобы нарисовать прямоугольник</span><button id="mark-done" type="button">Готово</button></div>
+<div id="no3d"><div><b>Не удалось загрузить 3D-библиотеку.</b><br>Откройте файл в обычном браузере с подключением к интернету.</div></div>
 
 <div id="settings" class="panel">
   <div class="panel-head">
@@ -304,13 +321,15 @@
     <button type="button" data-for="overhang" data-step="10" aria-label="Увеличить">+</button>
   </div>
 
-  <label for="height">Шаг по высоте, мм</label>
+  <label for="height">Длина трубы между полками, мм</label>
   <select id="height">
     <option>150</option><option>200</option><option selected>300</option>
     <option>400</option><option>500</option>
   </select>
+  <p class="muted hint" id="height-hint"></p>
 
   <button id="reset" class="reset" type="button">Сбросить всё</button>
+<button id="copy-model" class="btn-secondary" type="button">Скопировать код модели</button>
 
   <div class="section">
     <div class="section-title">Отметки на стене</div>
@@ -347,7 +366,7 @@
     <ul class="muted">
       <li>Зелёный «+»: нажмите — добавится секция; потяните — щит удлиняется. При свесе больше 500 мм появляется опора. Если дотянуть щит до соседней полки на том же уровне, он соединяется с ней и крепится к её опоре.</li>
       <li>Щит останавливается у чужой трубы, если трубка между полками получилась бы короче 150 мм.</li>
-      <li>Синий «+» — полка сверху или снизу пролёта.</li>
+      <li>Синий «+» — полка сверху или снизу пролёта. Расстояние между полками зависит от выбранной длины трубы.</li>
       <li>Красный «−» — удалить пролёт.</li>
       <li>Оранжевый «⇔» — сдвинуть опору, «×» — удалить опору.</li>
       <li>Жёлтая «✂» — разрезать трубу, фиолетовая «↔» — соединить.</li>
@@ -370,6 +389,13 @@
   <div class="total"><span>Итого</span><span id="total">0 ₽</span></div>
   <p class="muted">Щит — 30 000 ₽/м²; каждая отдельная трубка — 1 000 ₽.
     Фурнитура, крепёж, обработка и монтаж не включены.</p>
+
+  <div class="section">
+    <div class="section-title">Комплектация</div>
+    <table class="bom" id="bom"></table>
+    <button id="bom-csv" class="btn-secondary" type="button">⬇ Скачать CSV</button>
+    <p class="muted hint" id="bom-note"></p>
+  </div>
 </div>
 
 <button id="toggle" class="fab" type="button" title="Скрыть размеры и управление" aria-label="Скрыть размеры и управление">◉</button>
@@ -386,14 +412,71 @@
   "use strict";
 
   const $ = id => document.getElementById(id);
+
+  if (typeof THREE === "undefined" || !THREE.OrbitControls) {
+    $("no3d").style.display = "flex";
+    return;
+  }
+
   const MM = {
     minSpan: 200, maxSpan: 1500, maxOverhang: 500,
     thickness: 20, cap: 80, pipeR: 10, attach: 10, maxLen: 6000,
-    minPipe: 150,   // минимальная трубка между полками
+    minPipe: 150,   // минимальная длина трубы между полками
+    pipeAdj: 40,    // труба между полками длиннее расстояния между ними на столько мм (заходит в полки)
     snap: 200,      // притяжение новой опоры к трубе другого яруса (клик)
     foot: 25,       // высота латунной втулки / тройника
     gap: 40,        // минимальный зазор новой опоры до чужой трубы
     markMin: 50     // минимальный размер отметки на стене
+  };
+  // Комплектация
+  const PART = {
+    endPipe: 110,                     // труба от муфты/тройника до поворотного уголка
+    wallPipe: () => deep() ? 300 : 150, // труба от поворотного уголка до фланца
+    crossPipe: 300                    // поперечная труба глубокой полки
+  };
+  const STD_PIPES = [110, 150, 200, 300, 400, 500];
+// Готовые модели. Ссылка: constructor.html?model=название
+    // Готовые модели. Ссылка: constructor.html?model=название
+  const PRESETS = {
+    "liniya": {"mount":"wall","deep":false,"pipe":300,"overhang":200,"boards":[
+      {"y":0,"x1":-500,"x2":700,"sup":[-300,500]},
+      {"y":260,"x1":-500,"x2":700,"sup":[-300,500]},
+      {"y":520,"x1":-500,"x2":700,"sup":[-300,500]}
+    ],"breaks":[]},
+
+    "kontur": {"mount":"wall","deep":false,"pipe":300,"overhang":100,"boards":[
+      {"y":0,"x1":-1300,"x2":900,"sup":[-1200,-900,500,800]},
+      {"y":460,"x1":-1300,"x2":-800,"sup":[-1200,-900]},
+      {"y":460,"x1":400,"x2":900,"sup":[500,800]},
+      {"y":260,"x1":-1000,"x2":600,"sup":[-900,500]},
+      {"y":920,"x1":-1300,"x2":900,"sup":[-1200,-900,500,800]},
+      {"y":1180,"x1":-1300,"x2":900,"sup":[-1200,-900,500,800]},
+      {"y":1440,"x1":-1000,"x2":600,"sup":[-900,500]}
+    ],"breaks":[]},
+
+    "vertikal": {"mount":"floor","deep":false,"pipe":300,"overhang":100,"boards":[
+      {"y":0,"x1":-300,"x2":400,"sup":[-200,300]},
+      {"y":260,"x1":-300,"x2":400,"sup":[-200,300]},
+      {"y":520,"x1":-300,"x2":400,"sup":[-200,300]}
+    ],"breaks":[]},
+
+    "horizon": {"mount":"wall","deep":false,"pipe":300,"overhang":100,"boards":[
+      {"y":0,"x1":-900,"x2":600,"sup":[-800,500]}
+    ],"breaks":[]},
+
+    "library": {"mount":"floor","deep":true,"pipe":300,"overhang":100,"boards":[
+      {"y":0,"x1":-600,"x2":1200,"sup":[-500,100,500,1100]},
+      {"y":460,"x1":-600,"x2":1200,"sup":[-500,100,500,1100]},
+      {"y":720,"x1":-600,"x2":1200,"sup":[-500,100,500,1100]},
+      {"y":980,"x1":-600,"x2":1200,"sup":[-500,100,500,1100]},
+      {"y":1340,"x1":-600,"x2":1200,"sup":[-500,100,500,1100]},
+      {"y":1600,"x1":-600,"x2":1400,"sup":[-500,100,500,1100]}
+    ],"breaks":[]},
+
+    "duat": {"mount":"wall","deep":true,"pipe":300,"overhang":100,"boards":[
+      {"y":0,"x1":-200,"x2":700,"sup":[-100,600]},
+      {"y":260,"x1":-200,"x2":700,"sup":[-100,600]}
+    ],"breaks":[]}
   };
   const WOOD_RATE = 30000;
   const PIPE_RATE = 1000;
@@ -404,6 +487,7 @@
   const V = (x, y, z) => new THREE.Vector3(x, y, z);
   const bkey = (x, y1, y2) => `${x}|${y1}|${y2}`;
   const uniqSort = a => [...new Set(a)].sort((p, q) => p - q);
+  const minGap = () => MM.minPipe - MM.pipeAdj;   // минимальное расстояние между полками
 
   // ---------- Состояние ----------
   let boards = [];          // { id, y, x1, x2, sup: [x...] }
@@ -419,6 +503,7 @@
   let gesture = null;
   let overlayButtons = [], dims = [], leaders = [];
   let L = {};
+  let lastBOM = null;
 
   function watch(query, fn) {
     const m = matchMedia(query);
@@ -450,8 +535,8 @@
   controls.touches = { ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY_PAN };
   controls.addEventListener("change", requestRender);
 
-  scene.add(new THREE.AmbientLight(0xffffff, .7));
-  const light = new THREE.DirectionalLight(0xffffff, .75);
+  scene.add(new THREE.AmbientLight(0xffffff, .6));
+  const light = new THREE.DirectionalLight(0xffffff, .65);
   light.castShadow = true;
   const shadowSize = compactMQ.matches ? 1024 : 2048;
   light.shadow.mapSize.set(shadowSize, shadowSize);
@@ -462,7 +547,7 @@
   const woodMat = new THREE.MeshStandardMaterial({ color: "#a6753e", roughness: .82 });
   const pipeMat = new THREE.MeshStandardMaterial({ color: "#202528", metalness: .25, roughness: .65 });
   const fitMat = new THREE.MeshStandardMaterial({ color: "#bf9d5b", metalness: .7, roughness: .3 });
-  const wallMat = new THREE.MeshStandardMaterial({ color: "#ececec" });
+  const wallMat = new THREE.MeshStandardMaterial({ color: "#EBE5D9" });
   const floorMat = new THREE.MeshStandardMaterial({ color: "#cfc9c0", roughness: .9 });
   const markFillMat = new THREE.MeshBasicMaterial({
     color: "#2c6fb5", transparent: true, opacity: .14, depthWrite: false,
@@ -508,9 +593,15 @@
   const wallZ = () => deep() ? -300 : -150;
   const woodZ = () => wallZ() + depth() / 2;     // задний край щита вплотную к стене
   const frontZ = () => woodZ() + depth() / 2;
-  const stepH = () => Number($("height").value);
+  const pipeLen = () => Number($("height").value);
+  const stepH = () => pipeLen() - MM.pipeAdj;    // расстояние между полками
   const floorLevel = () => boards.length ? Math.min(...boards.map(b => b.y)) : 0;
   const floorY = () => floorLevel() - MM.thickness / 2 - MM.foot;
+
+  function updateHeightHint() {
+    $("height-hint").textContent =
+      `Расстояние между полками: ${fmtNum(stepH())} мм (труба на ${MM.pipeAdj} мм длиннее — заходит в полки).`;
+  }
 
   function readNum(id, def, min, max) {
     const raw = $(id).value;
@@ -601,7 +692,7 @@
       let ok = false;
       for (let i = 1; i < lv.length; i++)
         if (y > lv[i - 1] && y < lv[i] &&
-            y - lv[i - 1] >= MM.minPipe && lv[i] - y >= MM.minPipe) ok = true;
+            y - lv[i - 1] >= minGap() && lv[i] - y >= minGap()) ok = true;
       if (!ok) return "block";
       st = "through";
     }
@@ -613,8 +704,8 @@
     const lv = columns().get(x) || [];
     if (lv.includes(y)) return true;
     const lower = lv.filter(v => v < y).pop(), upper = lv.find(v => v > y);
-    if (lower !== undefined && y - lower < MM.minPipe) return false;
-    if (upper !== undefined && upper - y < MM.minPipe) return false;
+    if (lower !== undefined && y - lower < minGap()) return false;
+    if (upper !== undefined && upper - y < minGap()) return false;
     if (lower !== undefined && upper !== undefined) return !isBroken(x, lower, upper);
     const near = lower !== undefined ? lower : upper;
     if (near !== undefined) {
@@ -775,6 +866,48 @@
     breaks.clear();
     normalize();
     rebuild();
+  }
+
+  // Записать текущий стеллаж
+  function exportState() {
+    return {
+      mount: isFloor() ? "floor" : "wall",
+      deep: deep(),
+      pipe: pipeLen(),
+      overhang: OV(),
+      boards: boards.map(b => ({ y: b.y, x1: b.x1, x2: b.x2, sup: b.sup.slice() })),
+      breaks: [...breaks]
+    };
+  }
+
+  // Собрать стеллаж из записи
+  function loadState(s) {
+    const radio = document.querySelector(`input[name="mount"][value="${s.mount}"]`);
+    if (radio) radio.checked = true;
+    $("deep").checked = !!s.deep;
+    $("height").value = String(s.pipe);
+    $("overhang").value = s.overhang;
+    updateHeightHint();
+    nextId = 1;
+    boards = s.boards.map(b => ({ id: nextId++, y: b.y, x1: b.x1, x2: b.x2, sup: b.sup.slice() }));
+    breaks = new Set(s.breaks || []);
+    normalize();
+    rebuild();
+  }
+
+  function copyModelCode() {
+    if (!boards.length) { toast("Сначала соберите стеллаж"); return; }
+    const name = prompt("Название модели латиницей, без пробелов (например liniya):", "liniya");
+    if (!name) return;
+    const key = name.trim().toLowerCase().replace(/[^a-z0-9_-]/g, "");
+    if (!key) { toast("Используйте только латинские буквы и цифры"); return; }
+    const line = `    "${key}": ${JSON.stringify(exportState())},`;
+    const fallback = () => prompt("Скопируйте эту строку (Ctrl+C):", line);
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(line)
+        .then(() => toast(`Код модели «${key}» скопирован`))
+        .catch(fallback);
+    } else fallback();
   }
 
   function setEdge(b, dir, E) { if (dir > 0) b.x2 = E; else b.x1 = E; }
@@ -940,6 +1073,122 @@
     }
     normalize();
     rebuild();
+  }
+
+  // ---------- Комплектация ----------
+  function computeBOM() {
+    const fl = isFloor(), dp = deep(), fLevel = floorLevel();
+    const wallPipe = PART.wallPipe();
+    const pipes = new Map();
+    const parts = { flange: 0, elbowTurn: 0, elbowSup: 0, nut: 0, coupling: 0, tee: 0 };
+    const addPipe = (len, n = 1) => pipes.set(len, (pipes.get(len) || 0) + n);
+    // Конец стойки к стене: труба 110 + уголок поворотный + труба 150/300 + фланец
+    const wallEnd = () => { addPipe(PART.endPipe); parts.elbowTurn++; addPipe(wallPipe); parts.flange++; };
+
+    for (const g of groupsOf(columns())) {
+      const lv = g.levels, low = lv[0];
+      const onFloor = fl && low === fLevel;
+      wallEnd();                    // верхний конец
+      if (!onFloor) wallEnd();      // нижний конец, если стойка не стоит на полу
+      for (let i = 1; i < lv.length; i++) addPipe(lv[i] - lv[i - 1] + MM.pipeAdj);
+      for (const y of lv) {
+        parts.nut++;                // контргайка над полкой
+        if (!dp) { parts.coupling++; continue; }      // муфта под полкой (у пола — ножка)
+        if (onFloor && y === low) { parts.tee += 2; addPipe(PART.crossPipe); continue; }
+        parts.tee++; addPipe(PART.crossPipe); parts.elbowSup++;
+      }
+    }
+
+    const rows = [];
+    if (parts.flange) rows.push({ name: "Фланец настенный", qty: parts.flange });
+    for (const len of [...pipes.keys()].sort((a, c) => a - c))
+      rows.push({ name: `Труба ${fmtNum(len)} мм`, qty: pipes.get(len), custom: !STD_PIPES.includes(len) });
+    if (parts.elbowTurn) rows.push({ name: "Уголок латунный поворотный", qty: parts.elbowTurn });
+    if (parts.elbowSup) rows.push({ name: "Уголок латунный опорный", qty: parts.elbowSup });
+    if (parts.nut) rows.push({ name: "Контргайка латунная", qty: parts.nut });
+    if (parts.coupling) rows.push({ name: "Муфта латунная", qty: parts.coupling });
+    if (parts.tee) rows.push({ name: "Тройник латунный резьбовой", qty: parts.tee });
+
+    const sh = new Map();
+    for (const b of boards) {
+      const len = b.x2 - b.x1;
+      sh.set(len, (sh.get(len) || 0) + 1);
+    }
+    const shelves = [...sh.keys()].sort((a, c) => c - a).map(len => ({
+      name: `Щит ${fmtNum(len)} × ${depth()} × ${MM.thickness} мм`, qty: sh.get(len)
+    }));
+    return { rows, shelves };
+  }
+
+  function renderBOM() {
+    const bom = computeBOM();
+    lastBOM = bom;
+    const t = $("bom");
+    t.replaceChildren();
+    const tr = (cells, cls) => {
+      const r = document.createElement("tr");
+      if (cls) r.className = cls;
+      cells.forEach(c => r.appendChild(c));
+      t.appendChild(r);
+      return r;
+    };
+    const cell = (tag, text, cls) => {
+      const c = document.createElement(tag);
+      if (cls) c.className = cls;
+      c.textContent = text;
+      return c;
+    };
+    tr([cell("th", "Деталь"), cell("th", "Кол-во", "q")]);
+    if (!bom.rows.length && !bom.shelves.length) {
+      const c = cell("td", "Нет деталей", "empty");
+      c.colSpan = 2;
+      tr([c]);
+      $("bom-csv").disabled = true;
+      return;
+    }
+    $("bom-csv").disabled = false;
+    const group = text => { const c = cell("td", text); c.colSpan = 2; tr([c], "group"); };
+    group("Трубы и фурнитура");
+    for (const r of bom.rows) {
+      const name = cell("td", r.name);
+      if (r.custom) name.appendChild(cell("span", "на заказ", "custom"));
+      tr([name, cell("td", r.qty + " шт", "q")]);
+    }
+    group("Мебельный щит");
+    for (const r of bom.shelves) tr([cell("td", r.name), cell("td", r.qty + " шт", "q")]);
+    $("bom-note").textContent =
+      `Длина трубы между полками = расстояние между полками + ${MM.pipeAdj} мм.`;
+  }
+
+  function downloadCSV() {
+    const bom = lastBOM;
+    if (!bom || (!bom.rows.length && !bom.shelves.length)) return;
+    const esc = v => {
+      const s = String(v);
+      return /[;"\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    };
+    const lines = [
+      ["Комплектация стеллажа"],
+      ["Тип", isFloor() ? "Напольный" : "Настенный"],
+      ["Глубина полок, мм", depth()],
+      ["Габариты (Ш × В)", $("size").textContent],
+      [],
+      ["Деталь", "Количество, шт", "Примечание"],
+      ...bom.rows.map(r => [r.name, r.qty, r.custom ? "на заказ" : ""]),
+      [],
+      ["Мебельный щит", "Количество, шт", ""],
+      ...bom.shelves.map(r => [r.name, r.qty, ""])
+    ];
+    const text = "\uFEFF" + lines.map(l => l.map(esc).join(";")).join("\r\n");
+    const blob = new Blob([text], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "komplektaciya.csv";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1500);
   }
 
   // ---------- Отметки на стене ----------
@@ -1357,7 +1606,7 @@
   function floorFoot(x, y) {
     const yc = y - MM.thickness / 2 - MM.foot / 2;
     if (!deep()) {
-      add(G.cyl, fitMat, x, yc, 0, 14, MM.foot, 14);   // латунная втулка
+      add(G.cyl, fitMat, x, yc, 0, 14, MM.foot, 14);   // латунная муфта-ножка
       return;
     }
     add(G.cyl, fitMat, x, yc, 0, 15, MM.foot, 15);       // тройник у трубы
@@ -1732,6 +1981,9 @@
     $("bar-total").textContent = money(woodPrice + pipePrice);
     $("size").textContent = has ? `${fmtNum(W)} × ${fmtNum(H)} мм` : "—";
 
+    // Комплектация
+    renderBOM();
+
     if (document.activeElement !== $("first")) {
       const fs = firstSpan();
       if (fs) $("first").value = fs.s1 - fs.s0;
@@ -1847,7 +2099,7 @@
     fitCamera(markMode);
   }));
   $("deep").addEventListener("change", rebuild);
-  $("height").addEventListener("change", rebuild);
+  $("height").addEventListener("change", () => { updateHeightHint(); rebuild(); });
   $("first").addEventListener("change", applyFirstSpan);
   $("overhang").addEventListener("change", applyOverhang);
   $("length").addEventListener("change", () => {
@@ -1857,6 +2109,8 @@
     createInitial(readNum("first", 500, MM.minSpan, MM.maxSpan));
     fitCamera();
   });
+  $("bom-csv").addEventListener("click", downloadCSV);
+  $("copy-model").addEventListener("click", copyModelCode);
   $("toggle").addEventListener("click", () => setUiVisible(!uiVisible));
   $("fit").addEventListener("click", () => fitCamera(markMode));
   $("mark").addEventListener("click", () => setMarkMode(!markMode));
@@ -1905,7 +2159,10 @@
   // ---------- Старт ----------
   document.body.classList.toggle("compact", compactMQ.matches);
   computeLayout();
-  createInitial(500);
+  updateHeightHint();
+    const presetId = new URLSearchParams(location.search).get("model");
+  if (presetId && PRESETS[presetId]) loadState(PRESETS[presetId]);
+  else createInitial(500);
   renderMarkList();
   fitCamera();
   animate();
