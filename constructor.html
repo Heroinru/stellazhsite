@@ -329,7 +329,7 @@
   <p class="muted hint" id="height-hint"></p>
 
   <button id="reset" class="reset" type="button">Сбросить всё</button>
-<button id="copy-model" class="btn-secondary" type="button">Скопировать код модели</button>
+  <button id="copy-model" class="btn-secondary" type="button">Скопировать код модели</button>
 
   <div class="section">
     <div class="section-title">Отметки на стене</div>
@@ -365,8 +365,9 @@
     <summary>Как пользоваться</summary>
     <ul class="muted">
       <li>Зелёный «+»: нажмите — добавится секция; потяните — щит удлиняется. При свесе больше 500 мм появляется опора. Если дотянуть щит до соседней полки на том же уровне, он соединяется с ней и крепится к её опоре.</li>
+      <li>Если щит доходит до трубы полки выше или ниже и трубка между ними выходит не короче 150 мм, щит крепится к этой трубе — получается общая стойка.</li>
       <li>Щит останавливается у чужой трубы, если трубка между полками получилась бы короче 150 мм.</li>
-      <li>Синий «+»: нажмите — полка сверху или снизу на выбранной длине трубы; потяните — выберите трубу 150, 200, 300, 400 или 500 мм. Верните палец к плюсу, чтобы отменить.</li>
+      <li>Синий «+»: нажмите — полка сверху или снизу на выбранной длине трубы; потяните вверх или вниз — выбор трубы 150–500 мм, верните к плюсу — отмена.</li>
       <li>Красный «−» — удалить пролёт.</li>
       <li>Оранжевый «⇔» — сдвинуть опору, «×» — удалить опору.</li>
       <li>Жёлтая «✂» — разрезать трубу, фиолетовая «↔» — соединить.</li>
@@ -435,9 +436,9 @@
     crossPipe: 300                    // поперечная труба глубокой полки
   };
   const STD_PIPES = [110, 150, 200, 300, 400, 500];
-  const LEVEL_PIPES = [150, 200, 300, 400, 500]; // длины труб при перетаскивании синего «+»
-// Готовые модели. Ссылка: constructor.html?model=название
-    // Готовые модели. Ссылка: constructor.html?model=название
+  const BLUE_PIPES = [150, 200, 300, 400, 500];   // длины труб при перетаскивании синего «+»
+
+  // Готовые модели. Ссылка: constructor.html?model=название
   const PRESETS = {
     "liniya": {"mount":"wall","deep":false,"pipe":300,"overhang":200,"boards":[
       {"y":0,"x1":-500,"x2":700,"sup":[-300,500]},
@@ -535,6 +536,60 @@
   controls.maxDistance = 15000;
   controls.touches = { ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY_PAN };
   controls.addEventListener("change", requestRender);
+  // ---------- Масштаб к курсору / к точке между пальцами ----------
+  controls.enableZoom = false;   // стандартный зум (всегда к центру) выключен
+
+  const _zRay = new THREE.Raycaster(), _zNdc = new THREE.Vector2();
+  const _zPlane = new THREE.Plane(), _zHit = new THREE.Vector3(), _zDir = new THREE.Vector3();
+
+  // Приблизить/отдалить камеру относительно точки экрана (clientX, clientY)
+  function zoomAt(clientX, clientY, scale) {
+    if (!controls.enabled || !Number.isFinite(scale) || scale <= 0) return;
+    const dist = camera.position.distanceTo(controls.target);
+    const next = clamp(dist * scale, controls.minDistance, controls.maxDistance);
+    scale = next / dist;
+    if (Math.abs(scale - 1) < 1e-4) return;
+    const rect = renderer.domElement.getBoundingClientRect();
+    _zNdc.set((clientX - rect.left) / rect.width * 2 - 1,
+              -((clientY - rect.top) / rect.height) * 2 + 1);
+    _zRay.setFromCamera(_zNdc, camera);
+    camera.getWorldDirection(_zDir);
+    _zPlane.setFromNormalAndCoplanarPoint(_zDir, controls.target);
+    if (!_zRay.ray.intersectPlane(_zPlane, _zHit)) return;
+    camera.position.sub(_zHit).multiplyScalar(scale).add(_zHit);
+    controls.target.sub(_zHit).multiplyScalar(scale).add(_zHit);
+    controls.update();
+    requestRender();
+  }
+
+  // Колесо мыши и щипок на тачпаде
+  renderer.domElement.addEventListener("wheel", e => {
+    e.preventDefault();
+    let dy = e.deltaY;
+    if (e.deltaMode === 1) dy *= 16; else if (e.deltaMode === 2) dy *= innerHeight;
+    const k = e.ctrlKey ? 0.01 : 0.0015;   // ctrlKey = щипок на тачпаде
+    zoomAt(e.clientX, e.clientY, Math.exp(clamp(dy, -100, 100) * k));
+  }, { passive: false });
+
+  // Щипок двумя пальцами на телефоне/планшете
+  let pinch = null;
+  const pinchInfo = t => ({
+    d: Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY),
+    x: (t[0].clientX + t[1].clientX) / 2,
+    y: (t[0].clientY + t[1].clientY) / 2
+  });
+  renderer.domElement.addEventListener("touchstart", e => {
+    pinch = e.touches.length === 2 ? pinchInfo(e.touches) : null;
+  }, { passive: true });
+  renderer.domElement.addEventListener("touchmove", e => {
+    if (e.touches.length !== 2) { pinch = null; return; }
+    const p = pinchInfo(e.touches);
+    if (pinch && p.d > 10 && pinch.d > 10) zoomAt(p.x, p.y, pinch.d / p.d);
+    pinch = p;
+  }, { passive: true });
+  renderer.domElement.addEventListener("touchend", e => {
+    pinch = e.touches.length === 2 ? pinchInfo(e.touches) : null;
+  }, { passive: true });
 
   scene.add(new THREE.AmbientLight(0xffffff, .6));
   const light = new THREE.DirectionalLight(0xffffff, .65);
@@ -678,8 +733,11 @@
   }
 
   // Как труба на оси x относится к щиту на уровне y:
-  // "none" — не мешает, "through" — проходит сквозь щит (можно крепить),
-  // "block" — щит упирается (трубка вышла бы короче 150 мм или мешает конец трубы).
+  // "none"    — не мешает, щит проходит мимо;
+  // "through" — проходит сквозь уровень щита (можно крепить);
+  // "extend"  — щит упирается в конец чужой стойки, но стойку можно продлить до щита
+  //             (трубка между полками выходит не короче 150 мм);
+  // "block"   — щит упирается (трубка вышла бы короче 150 мм или стойку продлить нельзя).
   function pipeStatus(x, y, groups) {
     const fl = isFloor(), fLevel = floorLevel();
     let st = "none";
@@ -694,8 +752,11 @@
       for (let i = 1; i < lv.length; i++)
         if (y > lv[i - 1] && y < lv[i] &&
             y - lv[i - 1] >= minGap() && lv[i] - y >= minGap()) ok = true;
-      if (!ok) return "block";
-      st = "through";
+      if (ok) { st = "through"; continue; }
+      const canExt = (y > high && y - high >= minGap()) ||
+        (y < low && low - y >= minGap() && !(fl && low === fLevel));
+      if (canExt && mergeOk(x, y)) { if (st === "none") st = "extend"; continue; }
+      return "block";
     }
     return st;
   }
@@ -791,20 +852,6 @@
     return keys;
   }
 
-  // Снимок состояния (для временного предпросмотра)
-  function snapshot() {
-    return {
-      boards: boards.map(b => ({ ...b, sup: b.sup.slice() })),
-      breaks: new Set(breaks),
-      nextId
-    };
-  }
-  function restore(s) {
-    boards = s.boards.map(b => ({ ...b, sup: b.sup.slice() }));
-    breaks = new Set(s.breaks);
-    nextId = s.nextId;
-  }
-
   // ---------- Удлинение щита ----------
   // Не ставить новую опору ровно на чужую трубу другого уровня
   function dodge(x, cur, dir, avoid) {
@@ -845,8 +892,10 @@
     const blk = foreign.find(f => f.st === "block") || null;
     let maxE = blk ? blk.x - dir * MM.pipeR : nLimit;
     if ((maxE - E0) * dir < 0) maxE = E0;
+    // Трубы, к которым щит крепится: сквозные и стойки, которые можно продлить
     const throughs = foreign
-      .filter(f => f.st === "through" && (!blk || (f.x - blk.x) * dir < 0)).map(f => f.x);
+      .filter(f => (f.st === "through" || f.st === "extend") && (!blk || (f.x - blk.x) * dir < 0))
+      .map(f => f.x);
     const free = foreign.filter(f => f.st === "none").map(f => f.x);
     return { base, nb, nLimit, nFirst, foreign, blk, maxE, throughs, free };
   }
@@ -981,29 +1030,30 @@
     rebuild();
   }
 
-  // Почему нельзя поставить полку пролёта a–c на уровень ny ("" — можно).
-  // strict — дополнительные проверки для перетаскивания (другая полка на этой высоте или слишком близко).
-  function levelReason(b, a, c, ny, strict) {
-    if (!mergeOk(a, ny) || !mergeOk(c, ny))
-      return "Нельзя: трубка между полками будет короче 150 мм или упрётся в другую полку";
+  // Проверка новой полки на уровне ny над/под пролётом a–c полки b.
+  // strict — дополнительная проверка для перетаскивания синего «+»:
+  // рядом по высоте (ближе 110 мм) не должно быть другой полки в пределах нового щита.
+  function levelCheck(b, a, c, ny, strict) {
     const ov = OV(), x1 = a - ov, x2 = c + ov;
+    if (isFloor() && ny < floorLevel()) return { ok: false, reason: "Ниже пола полку добавить нельзя" };
+    if (!mergeOk(a, ny) || !mergeOk(c, ny))
+      return { ok: false, reason: "Нельзя: трубка между полками будет короче 150 мм или упрётся в другую полку" };
+    if (strict && boards.some(o => o !== b && Math.abs(o.y - ny) < minGap() && o.x1 < x2 && o.x2 > x1))
+      return { ok: false, reason: "Нельзя: мешает другая полка" };
+    const sup = [a, c];
     const cols = columns(), groups = groupsOf(cols);
     for (const x of cols.keys()) {
       if (x === a || x === c) continue;
-      if (x > x1 - MM.pipeR && x < x2 + MM.pipeR && pipeStatus(x, ny, groups) === "block")
-        return "Нельзя: новая полка упрётся в трубу";
+      if (x <= x1 - MM.pipeR || x >= x2 + MM.pipeR) continue;
+      const s = pipeStatus(x, ny, groups);
+      if (s === "block") return { ok: false, reason: "Нельзя: новая полка упрётся в трубу" };
+      if (s === "extend") {
+        if (x <= x1 + MM.pipeR || x >= x2 - MM.pipeR)
+          return { ok: false, reason: "Нельзя: новая полка упрётся в трубу" };
+        sup.push(x);                // полка крепится к чужой стойке
+      }
     }
-    if (strict && boards.some(o => o !== b && o.x1 < x2 && o.x2 > x1 &&
-        Math.abs(o.y - ny) < minGap()))
-      return "Нельзя: на этой высоте уже стоит другая полка";
-    return "";
-  }
-
-  function pushLevel(a, c, ny) {
-    const ov = OV();
-    boards.push({ id: nextId++, y: ny, x1: a - ov, x2: c + ov, sup: [a, c] });
-    normalize();
-    rebuild();
+    return { ok: true, x1, x2, sup: uniqSort(sup) };
   }
 
   function addLevel(id, a, c, sign) {
@@ -1011,9 +1061,11 @@
     if (!b || blocked(b.y, a, c, sign)) return;
     const ny = b.y + sign * stepH();
     if (isFloor() && ny < floorLevel()) return;
-    const reason = levelReason(b, a, c, ny, false);
-    if (reason) { toast(reason); return; }
-    pushLevel(a, c, ny);
+    const r = levelCheck(b, a, c, ny, false);
+    if (!r.ok) { toast(r.reason); return; }
+    boards.push({ id: nextId++, y: ny, x1: r.x1, x2: r.x2, sup: r.sup });
+    normalize();
+    rebuild();
   }
 
   function removeSpan(id, a, c) {
@@ -1346,12 +1398,12 @@
   }
 
   // ---------- Жесты (нажатие / перетаскивание) ----------
-  // Направление и масштаб (пикселей на мм) на экране для смещения d (длина 100 мм) от точки p
-  function screenAxis(p, d = V(100, 0, 0)) {
+  // Направление и масштаб оси на экране: по умолчанию ось X, для синего «+» — ось Y
+  function screenAxis(p, dirVec = V(100, 0, 0)) {
     camera.updateMatrixWorld();
-    const a = proj(p), b = proj(p.clone().add(d));
+    const a = proj(p), b = proj(p.clone().add(dirVec));
     const vx = b.x - a.x, vy = b.y - a.y, len = Math.hypot(vx, vy);
-    if (len < .5) return { ux: 1, uy: 0, ppm: .3 };
+    if (len < .5) return dirVec.x ? { ux: 1, uy: 0, ppm: .3 } : { ux: 0, uy: -1, ppm: .3 };
     return { ux: vx / len, uy: vy / len, ppm: Math.max(.03, len / 100) };
   }
 
@@ -1493,64 +1545,68 @@
     };
   }
 
-  // Синий «+»: нажатие — полка на выбранной трубе; перетаскивание — выбор трубы 150…500 мм
-  function levelGesture(id, a, c, sign) {
+  // Синий «+»: нажатие — полка на выбранной трубе; перетаскивание — выбор трубы 150–500 мм
+  const cancelPx = () => L.c / 2 + 6;   // зона отмены вокруг плюса, px
+
+  function blueGesture(id, a, c, sign) {
     let st = null;
+
+    function applyTemp() {
+      boards = st.snap.map(o => ({ ...o, sup: o.sup.slice() }));
+      breaks = new Set(st.snapBreaks);
+      if (st.cur) {
+        const k = st.cur.chk;
+        boards.push({ id: st.tempId, y: st.cur.ny, x1: k.x1, x2: k.x2, sup: k.sup.slice() });
+      }
+      normalize();
+      rebuild();
+    }
+
     return {
       click: () => addLevel(id, a, c, sign),
       start() {
         const b = byId(id);
         if (!b) return;
-        const opts = [];
-        let firstReason = "";
-        for (const p of LEVEL_PIPES) {
-          const g = p - MM.pipeAdj, ny = b.y + sign * g;
-          if (isFloor() && ny < floorLevel()) {
-            if (!firstReason) firstReason = "Нельзя: полка окажется ниже пола";
-            continue;
-          }
-          const reason = levelReason(b, a, c, ny, true);
-          if (reason) { if (!firstReason) firstReason = reason; continue; }
-          opts.push({ p, g, ny });
-        }
-        const axis = screenAxis(V((a + c) / 2, b.y, frontZ()), V(0, sign * 100, 0));
-        // Первое положение — на двойном радиусе плюса: середина между плюсом и ним — край кнопки
-        const S = 2 * (L.c / 2 + 6) / axis.ppm;
-        st = { saved: snapshot(), opts, axis, S, cur: -1, firstReason };
+        const opts = BLUE_PIPES.map(p => {
+          const gap = p - MM.pipeAdj, ny = b.y + sign * gap;
+          return { pipe: p, gap, ny, off: p - BLUE_PIPES[0], chk: levelCheck(b, a, c, ny, true) };
+        });
+        st = {
+          opts, valid: opts.filter(o => o.chk.ok), cur: null,
+          snap: boards.map(o => ({ ...o, sup: o.sup.slice() })),
+          snapBreaks: new Set(breaks),
+          tempId: nextId++,
+          axis: screenAxis(V((a + c) / 2, b.y, frontZ()), V(0, 100, 0))
+        };
       },
       move(dx, dy, e) {
         if (!st) return;
-        if (!st.opts.length) {
-          showDragLabel("Нет места для новой полки", e.clientX, e.clientY);
-          return;
+        const px = (dx * st.axis.ux + dy * st.axis.uy) * sign;   // сдвиг от полки, px
+        let pick = null;
+        if (st.valid.length && px >= cancelPx()) {
+          const w = (px - cancelPx()) / st.axis.ppm;               // в мм за зоной отмены
+          for (const o of st.valid)
+            if (!pick || Math.abs(w - o.off) < Math.abs(w - pick.off)) pick = o;
         }
-        const d = (dx * st.axis.ux + dy * st.axis.uy) / st.axis.ppm;
-        const g0 = st.opts[0].g;
-        let k = -1, best = Math.abs(d);       // -1 — отмена (курсор у плюса)
-        st.opts.forEach((o, i) => {
-          const dist = Math.abs(d - (st.S + o.g - g0));
-          if (dist < best) { best = dist; k = i; }
-        });
-        if (k !== st.cur) {
-          st.cur = k;
-          restore(st.saved);
-          if (k >= 0) pushLevel(a, c, st.opts[k].ny);
-          else rebuild();
-        }
-        const text = k >= 0
-          ? `Труба ${fmtNum(st.opts[k].p)} мм · между полками ${fmtNum(st.opts[k].g)} мм`
-          : "Отпустите — полка не добавится";
+        if (pick !== st.cur) { st.cur = pick; applyTemp(); }
+        let text;
+        if (!st.valid.length) text = "Нет места для новой полки";
+        else if (!st.cur) text = "Отпустите — полка не добавится";
+        else text = `Труба ${st.cur.pipe} мм · между полками ${fmtNum(st.cur.gap)} мм`;
         showDragLabel(text, e.clientX, e.clientY);
       },
       end(cancelled) {
         if (!st) return;
-        const s = st;
-        st = null;
-        if (cancelled || s.cur < 0) {
-          restore(s.saved);
-          rebuild();
-          if (!cancelled && !s.opts.length && s.firstReason) toast(s.firstReason);
+        if (cancelled || !st.cur) {
+          const none = !st.valid.length, reason = st.opts[0].chk.reason;
+          st.cur = null;
+          applyTemp();               // вернуть всё как было
+          st = null;
+          if (!cancelled && none) toast(reason || "Нет места для новой полки");
+          return;
         }
+        st = null;                   // полка уже добавлена при перетаскивании
+        rebuild();
       }
     };
   }
@@ -1961,14 +2017,15 @@
           const tgt = V(mid, b.y + sign * step * .5, fz);
           addButton({
             text: "+", cls: "vertical",
-            title: (sign > 0 ? "Добавить полку сверху" : "Добавить полку снизу") +
-              ": нажмите — на выбранной трубе; потяните — выбрать трубу 150–500 мм",
+            title: sign > 0
+              ? "Нажмите — добавить полку сверху; потяните вверх — выбрать длину трубы"
+              : "Нажмите — добавить полку снизу; потяните вниз — выбрать длину трубы",
             pos: () => {
               const p = proj(base), t = proj(tgt);
               const y = sign > 0 ? Math.min(t.y, p.y - L.upMin) : Math.max(t.y, p.y + L.downMin);
               return { x: p.x, y, z: p.z };
             },
-            gesture: levelGesture(b.id, a, c, sign)
+            gesture: blueGesture(b.id, a, c, sign)
           });
         }
       }
@@ -2251,7 +2308,7 @@
   document.body.classList.toggle("compact", compactMQ.matches);
   computeLayout();
   updateHeightHint();
-    const presetId = new URLSearchParams(location.search).get("model");
+  const presetId = new URLSearchParams(location.search).get("model");
   if (presetId && PRESETS[presetId]) loadState(PRESETS[presetId]);
   else createInitial(500);
   renderMarkList();
