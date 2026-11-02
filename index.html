@@ -349,6 +349,36 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
   .shelf-btns .btn-ghost{display:none}
 }
 
+/* ===== HERO: анимация появления ===== */
+@keyframes shelfDrop{
+  0%  {opacity:0;translate:0 -60%}
+  60% {opacity:1;translate:0 4%}
+  80% {translate:0 -1.5%}
+  100%{opacity:1;translate:0 0}
+}
+@keyframes shadowIn{
+  from{opacity:0;scale:.4 1}
+  to  {opacity:1;scale:1 1}
+}
+
+/* надписи */
+.hero .on-shelf{animation:shelfDrop .5s ease-out both}
+.hero .s1{animation-delay:.2s}
+.hero .s2{animation-delay:.45s}
+
+/* тень под надписями появляется, когда буквы «встали» */
+.hero .on-shelf::after{animation:shadowIn .6s ease-out both}
+.hero .s1::after{animation-delay:.65s}
+.hero .s2::after{animation-delay:.9s}
+
+/* кнопки */
+.shelf-btns{animation:shelfDrop .9s ease-out .75s both}
+
+/* ждём загрузки картинки, чтобы буквы не падали на пустой фон */
+.hero:not(.ready) .on-shelf,
+.hero:not(.ready) .on-shelf::after,
+.hero:not(.ready) .shelf-btns{animation-play-state:paused}
+
 </style>
 
 </head>
@@ -739,6 +769,19 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
   const copy=async()=>{try{await navigator.clipboard.writeText(build());say('Заявка скопирована')}catch(e){say('Скопируйте текст вручную')}};
   $('#copy').addEventListener('click',copy);
   $('#tg').addEventListener('click',()=>{copy()});
+})();
+</script>
+
+<script>
+(function(){
+  const hero=document.querySelector('.hero');
+  const img=hero.querySelector('img');
+  const go=()=>hero.classList.add('ready');
+  if(img.complete){go()}else{
+    img.addEventListener('load',go);
+    img.addEventListener('error',go);
+    setTimeout(go,2500); /* запасной запуск, если картинка грузится долго */
+  }
 })();
 </script>
 </body>
