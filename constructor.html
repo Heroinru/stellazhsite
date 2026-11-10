@@ -47,6 +47,7 @@
   }
   label, .field-title { display: block; margin: 12px 0 6px; }
   .field-title { margin-top: 2px; }
+  .field-title.spaced { margin-top: 12px; }
   input, select { -webkit-user-select: auto; user-select: auto; }
   input[type="number"], select {
     width: 100%; padding: 9px; border: 1px solid #cbd2d6; border-radius: 8px;
@@ -66,6 +67,7 @@
     background: #f3f6f7; color: #37474f; font-weight: 600; text-align: center;
     touch-action: manipulation; transition: background .15s, color .15s;
   }
+  .seg.seg-tight span { padding: 6px 2px; font-size: 13px; }
   .seg label + label span { border-left: 1px solid #cbd2d6; }
   .seg input:checked + span { background: #37474f; color: #fff; }
   .seg input:focus-visible + span { outline: 2px solid #348dca; outline-offset: -2px; }
@@ -119,6 +121,15 @@
   .bom tr.group td { padding-top: 12px; font-weight: 700; color: #37474f; border-bottom: 1px solid #dde3e6; }
   .bom .custom { display: inline-block; margin-left: 4px; padding: 0 5px; border-radius: 4px; background: #fbe3e1; color: #b8322a; font-size: 11px; font-weight: 600; }
   .bom td.empty { color: #66757b; text-align: center; }
+
+  .pan-card { margin-top: 10px; padding: 10px 11px 11px; border: 1px solid #e0e6e8; border-radius: 10px; background: #f8fafb; }
+  .pan-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-weight: 700; font-size: 13px; }
+  .pan-head .q { color: #168050; white-space: nowrap; }
+  .pan-sub { margin: 3px 0 0; color: #66757b; font-size: 11.5px; line-height: 1.45; }
+  .pan-row { margin-top: 6px; font-size: 12px; line-height: 1.5; }
+  .pan-row b { font-weight: 700; }
+  .pan-schema { margin-top: 8px; background: #fff; border: 1px solid #e6ebed; border-radius: 8px; padding: 6px 4px; }
+  .pan-schema svg { display: block; width: 100%; height: auto; }
 
   .help { margin-top: 14px; }
   .help summary { cursor: pointer; font-weight: 600; color: #37474f; padding: 4px 0; }
@@ -182,10 +193,14 @@
   .dimension-label.level { font-size: 11px; color: #6a3fa0; }
   .dimension-label.total { color: #12683d; font-weight: 700; }
   .dimension-label.mark, .dimension-label.markfloor { font-size: 11px; color: #1d5a9a; padding: 1px 4px; }
+  .dimension-label.tag {
+    font-size: 11px; font-weight: 700; color: #fff; background: rgba(55,71,79,.92);
+    box-shadow: 0 1px 4px #0003;
+  }
   @media (max-width: 600px), (max-height: 500px) {
     .dimension-label { font-size: 10px; padding: 1px 3px; }
     .dimension-label.span, .dimension-label.overhang, .dimension-label.level,
-    .dimension-label.mark, .dimension-label.markfloor { font-size: 9.5px; }
+    .dimension-label.mark, .dimension-label.markfloor, .dimension-label.tag { font-size: 9.5px; }
   }
   .dim-line { stroke: #245971; stroke-width: 1.3; fill: none; }
   .dim-line.span { stroke: #7c929c; stroke-width: 1; }
@@ -211,6 +226,13 @@
     pointer-events: none; text-align: center;
   }
   #toast.show { transform: translate(-50%, 0); }
+  #toast .toast-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 8px; }
+  #toast .toast-actions button {
+    pointer-events: auto; border: 0; border-radius: 8px; padding: 8px 12px;
+    background: #fff; color: #37474f; font: inherit; font-weight: 700;
+    cursor: pointer; touch-action: manipulation;
+  }
+  #toast .toast-actions button:active { background: #dde4e7; }
 
   #mark-hint {
     position: fixed; z-index: 45; left: 50%; bottom: calc(18px + var(--safe-b));
@@ -298,7 +320,14 @@
     <label><input type="radio" name="mount" value="floor"><span>Напольный</span></label>
   </div>
 
-  <label class="check"><input id="deep" type="checkbox"> Глубокие полки — 400 мм</label>
+  <div class="field-title spaced">Глубина полок, мм</div>
+  <div class="seg seg-tight" role="radiogroup" aria-label="Глубина полок">
+    <label><input type="radio" name="depth" value="200" checked><span>200</span></label>
+    <label><input type="radio" name="depth" value="300"><span>300</span></label>
+    <label><input type="radio" name="depth" value="400"><span>400</span></label>
+    <label><input type="radio" name="depth" value="500"><span>500</span></label>
+    <label><input type="radio" name="depth" value="600"><span>600</span></label>
+  </div>
 
   <label for="first">Длина первого пролёта, мм</label>
   <div class="stepper">
@@ -365,10 +394,9 @@
     <summary>Как пользоваться</summary>
     <ul class="muted">
       <li>Зелёный «+»: нажмите — добавится секция; потяните — щит удлиняется. При свесе больше 500 мм появляется опора. Если дотянуть щит до соседней полки на том же уровне, он соединяется с ней и крепится к её опоре.</li>
-      <li>Если щит доходит до трубы полки выше или ниже и трубка между ними выходит не короче 150 мм, щит крепится к этой трубе — получается общая стойка.</li>
-      <li>Щит останавливается у чужой трубы, если трубка между полками получилась бы короче 150 мм.</li>
-      <li>Синий «+»: нажмите — полка сверху или снизу на выбранной длине трубы; потяните вверх или вниз — выбор трубы 150–500 мм, верните к плюсу — отмена.</li>
-      <li>Красный «−» — удалить пролёт.</li>
+      <li>Шаг полок равен длине трубы: 200 + 300 встают вместо одной 500. Если щит упёрся в трубу, подсказка покажет, на какой высоте нужна промежуточная полка, и предложит её добавить.</li>
+      <li>Синий «+»: нажмите — полка сверху или снизу на выбранной длине трубы; потяните вверх или вниз — выбор трубы 150–500 мм, верните к плюсу — отмена. Если на этой высоте уже есть полка, новая соединится с ней.</li>
+      <li>Красный «−» — удалить пролёт. Если труба между соседними полками получилась бы нестандартной, она разрезается, и у каждой части своё крепление к стене.</li>
       <li>Оранжевый «⇔» — сдвинуть опору, «×» — удалить опору.</li>
       <li>Жёлтая «✂» — разрезать трубу, фиолетовая «↔» — соединить.</li>
       <li>«▭» — разметка на стене: проведите по стене. Синие точки — размер, «✥» — сдвиг, «×» — удалить.</li>
@@ -397,6 +425,13 @@
     <button id="bom-csv" class="btn-secondary" type="button">⬇ Скачать CSV</button>
     <p class="muted hint" id="bom-note"></p>
   </div>
+
+  <div class="section">
+    <div class="section-title">Раскрой и присадка</div>
+    <p class="muted" id="pan-note"></p>
+    <div id="panels"></div>
+    <button id="pan-print" class="btn-secondary" type="button">⬇ Скачать схемы для печати</button>
+  </div>
 </div>
 
 <button id="toggle" class="fab" type="button" title="Скрыть размеры и управление" aria-label="Скрыть размеры и управление">◉</button>
@@ -409,34 +444,46 @@
 </div>
 
 <script>
-(() => {
+/* =======================================================================
+   МОДУЛЬ РАСЧЁТА — без обращений к странице.
+   Работает с обычным объектом состояния S:
+     { mount, depth, pipe, overhang, boards, breaks, nextId }
+   Этот модуль можно без изменений запускать на сервере:
+   проверять цену при оплате и отдавать комплектацию только владельцу.
+   ======================================================================= */
+const Calc = (() => {
   "use strict";
-
-  const $ = id => document.getElementById(id);
-
-  if (typeof THREE === "undefined" || !THREE.OrbitControls) {
-    $("no3d").style.display = "flex";
-    return;
-  }
 
   const MM = {
     minSpan: 200, maxSpan: 1500, maxOverhang: 500,
     thickness: 20, cap: 80, pipeR: 10, attach: 10, maxLen: 6000,
     minPipe: 150,   // минимальная длина трубы между полками
-    pipeAdj: 40,    // труба между полками длиннее расстояния между ними на столько мм (заходит в полки)
+    pipeAdj: 0,     // шаг полок = длина трубы; просвет = шаг − толщина щита
     snap: 200,      // притяжение новой опоры к трубе другого яруса (клик)
     foot: 25,       // высота латунной втулки / тройника
     gap: 40,        // минимальный зазор новой опоры до чужой трубы
     markMin: 50     // минимальный размер отметки на стене
   };
-  // Комплектация
-  const PART = {
-    endPipe: 110,                     // труба от муфты/тройника до поворотного уголка
-    wallPipe: () => deep() ? 300 : 150, // труба от поворотного уголка до фланца
-    crossPipe: 300                    // поперечная труба глубокой полки
+
+  // Глубина полки → труба от поворотного уголка до фланца (wall),
+  // поддерживающая труба (support, 0 — нет) и отступ центра отверстия
+  // от задней кромки щита (hole)
+  const DEPTHS = {
+    200: { wall: 150, support: 0,   hole: 130 },
+    300: { wall: 200, support: 0,   hole: 220 },
+    400: { wall: 300, support: 300, hole: 320 },
+    500: { wall: 400, support: 400, hole: 420 },
+    600: { wall: 500, support: 500, hole: 520 }
   };
+
+  const PART = { endPipe: 110 };                  // труба от муфты/тройника до поворотного уголка
   const STD_PIPES = [110, 150, 200, 300, 400, 500];
   const BLUE_PIPES = [150, 200, 300, 400, 500];   // длины труб при перетаскивании синего «+»
+  const MAX_STD = 500;                            // трубы длиннее — на заказ
+  const HOLE_DIA = 22;                            // диаметр отверстия в щите
+
+  // Ставки. markup — наценка на себестоимость, доли (0.15 = +15 %)
+  const RATES = { wood: 30000, pipe: 1000, markup: 0 };
 
   // Готовые модели. Ссылка: constructor.html?model=название
   const PRESETS = {
@@ -446,14 +493,14 @@
       {"y":520,"x1":-500,"x2":700,"sup":[-300,500]}
     ],"breaks":[]},
 
-    "kontur": {"mount":"wall","deep":false,"pipe":300,"overhang":100,"boards":[
+    "kontur": {"v":2,"mount":"wall","depth":200,"pipe":300,"overhang":100,"boards":[
       {"y":0,"x1":-1300,"x2":900,"sup":[-1200,-900,500,800]},
-      {"y":460,"x1":-1300,"x2":-800,"sup":[-1200,-900]},
-      {"y":460,"x1":400,"x2":900,"sup":[500,800]},
-      {"y":260,"x1":-1000,"x2":600,"sup":[-900,500]},
-      {"y":920,"x1":-1300,"x2":900,"sup":[-1200,-900,500,800]},
-      {"y":1180,"x1":-1300,"x2":900,"sup":[-1200,-900,500,800]},
-      {"y":1440,"x1":-1000,"x2":600,"sup":[-900,500]}
+      {"y":500,"x1":-1300,"x2":-800,"sup":[-1200,-900]},
+      {"y":500,"x1":400,"x2":900,"sup":[500,800]},
+      {"y":300,"x1":-1000,"x2":600,"sup":[-900,500]},
+      {"y":1000,"x1":-1300,"x2":900,"sup":[-1200,-900,500,800]},
+      {"y":1300,"x1":-1300,"x2":900,"sup":[-1200,-900,500,800]},
+      {"y":1600,"x1":-1000,"x2":600,"sup":[-900,500]}
     ],"breaks":[]},
 
     "vertikal": {"mount":"floor","deep":false,"pipe":300,"overhang":100,"boards":[
@@ -480,32 +527,746 @@
       {"y":260,"x1":-200,"x2":700,"sup":[-100,600]}
     ],"breaks":[]}
   };
-  const WOOD_RATE = 30000;
-  const PIPE_RATE = 1000;
+
+  // ---------- Мелкие помощники ----------
   const r10 = n => Math.round(n / 10) * 10;
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
   const fmtNum = n => new Intl.NumberFormat("ru-RU").format(Math.round(n));
   const money = n => fmtNum(n) + " ₽";
-  const V = (x, y, z) => new THREE.Vector3(x, y, z);
   const bkey = (x, y1, y2) => `${x}|${y1}|${y2}`;
   const uniqSort = a => [...new Set(a)].sort((p, q) => p - q);
-  const minGap = () => MM.minPipe - MM.pipeAdj;   // минимальное расстояние между полками
+  const minGap = () => MM.minPipe - MM.pipeAdj;      // минимальное расстояние между полками
+
+  // Труба между полками на расстоянии gap допустима:
+  // стандартная до 500 мм или длиннее 500 мм (на заказ)
+  const pipeOk = gap => {
+    const len = r10(gap + MM.pipeAdj);
+    return len > MAX_STD || BLUE_PIPES.includes(len);
+  };
 
   // ---------- Состояние ----------
-  let boards = [];          // { id, y, x1, x2, sup: [x...] }
-  let nextId = 1;
-  let breaks = new Set();   // разрезанные участки труб
+  function newState() {
+    return { mount: "wall", depth: 200, pipe: 300, overhang: 200,
+             boards: [], breaks: new Set(), nextId: 1 };
+  }
+  const snapshot = S => ({
+    boards: S.boards.map(b => ({ ...b, sup: b.sup.slice() })),
+    breaks: new Set(S.breaks)
+  });
+  function restore(S, snap) {
+    S.boards = snap.boards.map(b => ({ ...b, sup: b.sup.slice() }));
+    S.breaks = new Set(snap.breaks);
+  }
+
+  // ---------- Геометрия ----------
+  const depthOf = S => DEPTHS[S.depth] ? S.depth : 200;
+  const D = S => DEPTHS[depthOf(S)];
+  const isFloor = S => S.mount === "floor";
+  const deep = S => D(S).support > 0;               // есть поддерживающие трубы
+  const wallZ = S => -D(S).wall;                    // трубы отодвинуты от стены
+  const supportReach = S => D(S).wall - 100;        // вылет поддерживающей трубы в 3D
+  const woodZ = S => wallZ(S) + depthOf(S) / 2;     // задний край щита вплотную к стене
+  const frontZ = S => woodZ(S) + depthOf(S) / 2;
+  const holeBack = S => D(S).hole;                  // отступ отверстия от задней кромки
+  const stepH = S => S.pipe;                        // шаг полок = длина трубы
+  const clearH = S => S.pipe - MM.thickness;        // просвет между полками
+  const ov = S => S.overhang;
+  const floorLevel = S => S.boards.length ? Math.min(...S.boards.map(b => b.y)) : 0;
+  const floorY = S => floorLevel(S) - MM.thickness / 2 - MM.foot;
+
+  // ---------- Запросы к модели ----------
+  const byId = (S, id) => S.boards.find(b => b.id === id);
+
+  function columns(S) {
+    const m = new Map();
+    for (const b of S.boards) for (const x of b.sup) {
+      if (!m.has(x)) m.set(x, new Set());
+      m.get(x).add(b.y);
+    }
+    const out = new Map();
+    for (const [x, s] of m) out.set(x, [...s].sort((a, c) => a - c));
+    return out;
+  }
+
+  function isBroken(S, x, y1, y2) {
+    return y2 - y1 > 2 * MM.cap && S.breaks.has(bkey(x, y1, y2));
+  }
+
+  function groupsOf(S, cols) {
+    const gs = [];
+    for (const [x, lv] of cols) {
+      let cur = [lv[0]];
+      for (let i = 1; i < lv.length; i++) {
+        if (isBroken(S, x, lv[i - 1], lv[i])) { gs.push({ x, levels: cur }); cur = [lv[i]]; }
+        else cur.push(lv[i]);
+      }
+      gs.push({ x, levels: cur });
+    }
+    return gs;
+  }
+
+  function groupBoards(S, x, levels) {
+    return S.boards.filter(b => levels.includes(b.y) && b.sup.includes(x));
+  }
+
+  function neighborLimit(S, b, dir) {
+    let lim = dir > 0 ? Infinity : -Infinity;
+    for (const o of S.boards) {
+      if (o === b || o.y !== b.y) continue;
+      if (dir > 0 && o.x1 >= b.x2) lim = Math.min(lim, o.x1);
+      if (dir < 0 && o.x2 <= b.x1) lim = Math.max(lim, o.x2);
+    }
+    return lim;
+  }
+
+  function neighborBoard(S, b, dir) {
+    let best = null;
+    for (const o of S.boards) {
+      if (o === b || o.y !== b.y) continue;
+      if (dir > 0 && o.x1 >= b.x2 && (!best || o.x1 < best.x1)) best = o;
+      if (dir < 0 && o.x2 <= b.x1 && (!best || o.x2 > best.x2)) best = o;
+    }
+    return best;
+  }
+
+  function blocked(S, y, a, c, sign) {
+    return S.boards.some(o => (o.y - y) * sign > 0 &&
+      o.sup[0] < c && o.sup[o.sup.length - 1] > a);
+  }
+
+  function firstSpan(S) {
+    const xs = [...columns(S).keys()].sort((a, c) => a - c);
+    return xs.length >= 2 ? { s0: xs[0], s1: xs[1] } : null;
+  }
+
+  // Как труба на оси x относится к щиту на уровне y:
+  // "none" — не мешает; "through" — проходит сквозь уровень щита;
+  // "extend" — стойку можно продлить до щита; "block" — щит упирается.
+  function pipeStatus(S, x, y, groups) {
+    const fl = isFloor(S), fLevel = floorLevel(S);
+    let st = "none";
+    for (const g of groups) {
+      if (g.x !== x) continue;
+      const lv = g.levels, low = lv[0], high = lv[lv.length - 1];
+      if (lv.includes(y)) { st = "through"; continue; }
+      const bottom = fl && low === fLevel ? low - MM.thickness / 2 - MM.foot : low - MM.cap - 15;
+      const top = high + MM.cap + 15;
+      if (y + 30 < bottom || y - MM.gap > top) continue;
+      let ok = false;
+      for (let i = 1; i < lv.length; i++)
+        if (y > lv[i - 1] && y < lv[i] && pipeOk(y - lv[i - 1]) && pipeOk(lv[i] - y)) ok = true;
+      if (ok) { st = "through"; continue; }
+      const canExt = (y > high && pipeOk(y - high)) ||
+        (y < low && pipeOk(low - y) && !(fl && low === fLevel));
+      if (canExt && mergeOk(S, x, y)) { if (st === "none") st = "extend"; continue; }
+      return "block";
+    }
+    return st;
+  }
+
+  // Можно ли прикрепить щит уровня y к существующей трубе x
+  function mergeOk(S, x, y) {
+    const lv = columns(S).get(x) || [];
+    if (lv.includes(y)) return true;
+    const lower = lv.filter(v => v < y).pop(), upper = lv.find(v => v > y);
+    if (lower !== undefined && !pipeOk(y - lower)) return false;
+    if (upper !== undefined && !pipeOk(upper - y)) return false;
+    if (lower !== undefined && upper !== undefined) return !isBroken(S, x, lower, upper);
+    const near = lower !== undefined ? lower : upper;
+    if (near !== undefined) {
+      const a = Math.min(near, y), c = Math.max(near, y);
+      if (S.boards.some(o => o.y > a && o.y < c && x > o.x1 - MM.gap && x < o.x2 + MM.gap)) return false;
+    }
+    const caps = [];
+    if (upper === undefined) caps.push(y + MM.cap);
+    if (lower === undefined && !(isFloor(S) && y <= floorLevel(S))) caps.push(y - MM.cap);
+    for (const cy of caps)
+      if (S.boards.some(o => Math.abs(o.y - cy) < 45 && x > o.x1 - MM.gap && x < o.x2 + MM.gap)) return false;
+    return true;
+  }
+
+  // ---------- Приведение модели в порядок ----------
+  function normalize(S) {
+    for (const b of S.boards) {
+      b.sup = [...new Set(b.sup.map(r10))].sort((a, c) => a - c);
+      b.x1 = r10(b.x1); b.x2 = r10(b.x2);
+    }
+    S.boards = S.boards.filter(b => b.sup.length >= 2);
+
+    const byY = new Map();
+    for (const b of S.boards) {
+      if (!byY.has(b.y)) byY.set(b.y, []);
+      byY.get(b.y).push(b);
+    }
+    const merged = [];
+    for (const row of byY.values()) {
+      row.sort((a, c) => a.x1 - c.x1);
+      let cur = null;
+      for (const b of row) {
+        if (cur && b.x1 <= cur.x2) {
+          cur.x2 = Math.max(cur.x2, b.x2);
+          cur.sup = [...new Set([...cur.sup, ...b.sup])].sort((a, c) => a - c);
+        } else { cur = b; merged.push(b); }
+      }
+    }
+    S.boards = merged;
+
+    // Автокрепление щитов к проходящим трубам — если обе части стандартные
+    for (let guard = 0; guard < 40; guard++) {
+      let changed = false;
+      const cols = columns(S);
+      for (const [x, lv] of cols) {
+        for (let i = 1; i < lv.length; i++) {
+          const y1 = lv[i - 1], y2 = lv[i];
+          if (isBroken(S, x, y1, y2)) continue;
+          for (const b of S.boards) {
+            if (b.y > y1 && b.y < y2 && x > b.x1 + MM.pipeR && x < b.x2 - MM.pipeR &&
+                !b.sup.includes(x)) {
+              if (pipeOk(b.y - y1) && pipeOk(y2 - b.y)) {
+                b.sup.push(x);
+                b.sup.sort((a, c) => a - c);
+              } else if (y2 - y1 > 2 * MM.cap) {
+                S.breaks.add(bkey(x, y1, y2));
+              } else continue;
+              changed = true;
+              break;
+            }
+          }
+        }
+      }
+      if (!changed) break;
+    }
+
+    const valid = new Set();
+    for (const [x, lv] of columns(S))
+      for (let i = 1; i < lv.length; i++)
+        if (lv[i] - lv[i - 1] > 2 * MM.cap) valid.add(bkey(x, lv[i - 1], lv[i]));
+    S.breaks = new Set([...S.breaks].filter(k => valid.has(k)));
+  }
+
+  function detach(S, x, levels) {
+    const lv = columns(S).get(x) || [];
+    const rem = lv.filter(y => !levels.includes(y));
+    for (let i = 1; i < rem.length; i++)
+      if (levels.some(y => y > rem[i - 1] && y < rem[i]))
+        S.breaks.add(bkey(x, rem[i - 1], rem[i]));
+  }
+
+  function attachKeys(S, x, levels) {
+    const lv = columns(S).get(x) || [];
+    const keys = [];
+    for (let i = 1; i < lv.length; i++)
+      if (levels.includes(lv[i - 1]) !== levels.includes(lv[i]))
+        keys.push(bkey(x, lv[i - 1], lv[i]));
+    return keys;
+  }
+
+  // ---------- Удлинение щита ----------
+  function dodge(x, cur, dir, avoid) {
+    for (const f of avoid) {
+      if (Math.abs(x - f) < MM.gap) {
+        const a = f - dir * MM.gap;
+        x = (a - cur) * dir >= MM.minSpan ? a : f + dir * MM.gap;
+      }
+    }
+    return r10(x);
+  }
+
+  function divide(a, c, avoid = []) {
+    const gap = Math.abs(c - a);
+    if (!gap) return [];
+    const dir = Math.sign(c - a), n = Math.ceil(gap / MM.maxSpan), out = [];
+    for (let k = 1; k < n; k++) out.push(dodge(r10(a + (c - a) * k / n), a, dir, avoid));
+    out.push(c);
+    return out;
+  }
+
+  function extContext(S, b, dir) {
+    const base = dir > 0 ? b.sup[b.sup.length - 1] : b.sup[0];
+    const E0 = dir > 0 ? b.x2 : b.x1;
+    const nb = neighborBoard(S, b, dir);
+    const nLimit = nb ? (dir > 0 ? nb.x1 : nb.x2) : dir * Infinity;
+    const nFirst = nb ? (dir > 0 ? nb.sup[0] : nb.sup[nb.sup.length - 1]) : null;
+    const cols = columns(S), groups = groupsOf(S, cols);
+    const foreign = [];
+    for (const x of cols.keys()) {
+      if ((x - base) * dir <= 0 || b.sup.includes(x)) continue;
+      if (nb && (x - nLimit) * dir >= 0) continue;
+      foreign.push({ x, st: pipeStatus(S, x, b.y, groups) });
+    }
+    foreign.sort((p, q) => (p.x - q.x) * dir);
+    const blk = foreign.find(f => f.st === "block") || null;
+    let maxE = blk ? blk.x - dir * MM.pipeR : nLimit;
+    if ((maxE - E0) * dir < 0) maxE = E0;
+    const throughs = foreign
+      .filter(f => (f.st === "through" || f.st === "extend") && (!blk || (f.x - blk.x) * dir < 0))
+      .map(f => f.x);
+    const free = foreign.filter(f => f.st === "none").map(f => f.x);
+    return { base, nb, nLimit, nFirst, foreign, blk, maxE, throughs, free };
+  }
+
+  function planExtension(S, dir, E, c, ovv) {
+    const out = [];
+    let cur = c.base;
+    for (const t of c.throughs) {
+      if ((E - t) * dir < MM.attach) break;
+      out.push(...divide(cur, t, c.free));
+      cur = t;
+    }
+    if (c.nb && (E - c.nLimit) * dir >= 0) {
+      out.push(...divide(cur, c.nFirst, c.free));
+      return { extra: out, merged: true };
+    }
+    for (let guard = 0; guard < 60; guard++) {
+      const over = (E - cur) * dir;
+      if (over <= MM.maxOverhang) break;
+      const x = dodge(cur + dir * r10(clamp(over - ovv, MM.minSpan, MM.maxSpan)), cur, dir, c.free);
+      out.push(x);
+      cur = x;
+    }
+    return { extra: out, merged: false };
+  }
+
+  const setEdge = (b, dir, E) => { if (dir > 0) b.x2 = E; else b.x1 = E; };
+
+  // ---------- Подсказка: где нужна промежуточная полка ----------
+  // Щит уровня y упёрся в стойку x. Ищем высоты, на которых добавление
+  // полки на эту стойку сделает соединение возможным.
+  function blockHelp(S, x, y) {
+    const lv = columns(S).get(x) || [];
+    const lower = lv.filter(v => v < y).pop(), upper = lv.find(v => v > y);
+    if (lower === undefined || upper === undefined) return [];
+    if (isBroken(S, x, lower, upper)) return [];
+    const out = [];
+    const tryV = v => {
+      if (v <= lower || v >= upper || v === y) return;
+      const ok = v > y
+        ? pipeOk(y - lower) && pipeOk(v - y) && pipeOk(upper - v)
+        : pipeOk(v - lower) && pipeOk(y - v) && pipeOk(upper - y);
+      if (ok && !out.some(o => o.v === v)) out.push({ v, lower, upper });
+    };
+    for (const p of BLUE_PIPES) { tryV(lower + p); tryV(upper - p); }
+    out.sort((a, c) => Math.abs(a.v - y) - Math.abs(c.v - y));
+    return out.slice(0, 3);
+  }
+
+  // Добавить полку на стойку x на уровне v (используется подсказкой)
+  function addShelfAt(S, x, v, fromLevel) {
+    const host = S.boards.find(b => b.y === fromLevel && b.sup.includes(x));
+    if (!host) return "Не удалось добавить полку";
+    const i = host.sup.indexOf(x);
+    const a = i > 0 ? host.sup[i - 1] : host.sup[i];
+    const c = i > 0 ? host.sup[i] : host.sup[i + 1];
+    const r = levelCheck(S, host, a, c, v, false);
+    if (!r.ok) return r.reason;
+    S.boards.push({ id: S.nextId++, y: v, x1: r.x1, x2: r.x2, sup: r.sup });
+    normalize(S);
+    return "";
+  }
+
+  // ---------- Действия ----------
+  function createInitial(S, len) {
+    S.boards = [{ id: S.nextId++, y: 0, x1: -ov(S), x2: len + ov(S), sup: [0, len] }];
+    S.breaks.clear();
+    normalize(S);
+  }
+
+  function clickExtend(S, id, dir, newLen) {
+    const b = byId(S, id);
+    if (!b) return { msg: "" };
+    const ovv = ov(S);
+    const c = extContext(S, b, dir);
+    const curEdge = dir > 0 ? b.x2 : b.x1;
+    if ((c.maxE - curEdge) * dir <= 0) {
+      if (c.blk) return { msg: "Дальше щит упирается в трубу", help: blockHelp(S, c.blk.x, b.y), at: c.blk.x };
+      return { msg: "Недостаточно места для новой секции" };
+    }
+
+    let end = c.base + dir * newLen, best = null;
+    for (const f of c.foreign) {
+      if (f.st === "block") break;
+      const dist = Math.abs(f.x - end);
+      if (dist >= MM.snap || (f.x - c.base) * dir < MM.minSpan) continue;
+      if (f.st === "none" && !mergeOk(S, f.x, b.y)) continue;
+      if (best === null || dist < Math.abs(best - end)) best = f.x;
+    }
+    end = best !== null ? best : dodge(end, c.base, dir, c.free);
+    const E = end + dir * ovv;
+
+    if (c.nb && !c.blk && (E - c.nLimit) * dir >= 0) {
+      const plan = planExtension(S, dir, c.nLimit, c, ovv);
+      b.sup = uniqSort([...b.sup, ...plan.extra]);
+      setEdge(b, dir, c.nLimit);
+      normalize(S);
+      return { msg: "Щит соединён с соседним" };
+    }
+    if ((E - c.maxE) * dir > 0) {
+      const plan = planExtension(S, dir, c.maxE, c, ovv);
+      b.sup = uniqSort([...b.sup, ...plan.extra]);
+      setEdge(b, dir, c.maxE);
+      normalize(S);
+      return { msg: "Щит упёрся в трубу — дальше удлинить нельзя",
+               help: c.blk ? blockHelp(S, c.blk.x, b.y) : [], at: c.blk ? c.blk.x : null };
+    }
+
+    const add = [];
+    let cur = c.base;
+    for (const t of c.throughs) {
+      if ((end - t) * dir <= 0) break;
+      add.push(...divide(cur, t, c.free));
+      cur = t;
+    }
+    add.push(...divide(cur, end, c.free));
+    b.sup = uniqSort([...b.sup, ...add]);
+    setEdge(b, dir, (E - curEdge) * dir < 0 ? curEdge : E);
+    normalize(S);
+    return { msg: "" };
+  }
+
+  // Проверка новой полки на уровне ny над/под пролётом a–c полки b
+  function levelCheck(S, b, a, c, ny, strict) {
+    const ovv = ov(S), x1 = a - ovv, x2 = c + ovv;
+    if (isFloor(S) && ny < floorLevel(S)) return { ok: false, reason: "Ниже пола полку добавить нельзя" };
+    if (!mergeOk(S, a, ny) || !mergeOk(S, c, ny))
+      return { ok: false, reason: "Нельзя: трубка между полками получится нестандартной или упрётся в другую полку" };
+    if (strict && S.boards.some(o => o !== b && o.y !== ny && Math.abs(o.y - ny) < minGap() &&
+        o.x1 < x2 && o.x2 > x1))
+      return { ok: false, reason: "Нельзя: мешает другая полка" };
+    const sup = [a, c];
+    const cols = columns(S), groups = groupsOf(S, cols);
+    for (const x of cols.keys()) {
+      if (x === a || x === c) continue;
+      if (x <= x1 - MM.pipeR || x >= x2 + MM.pipeR) continue;
+      const s = pipeStatus(S, x, ny, groups);
+      if (s === "block") return { ok: false, reason: "Нельзя: новая полка упрётся в трубу" };
+      if (s === "extend") {
+        if (x <= x1 + MM.pipeR || x >= x2 - MM.pipeR)
+          return { ok: false, reason: "Нельзя: новая полка упрётся в трубу" };
+        sup.push(x);
+      }
+    }
+    return { ok: true, x1, x2, sup: uniqSort(sup) };
+  }
+
+  function addLevel(S, id, a, c, sign) {
+    const b = byId(S, id);
+    if (!b || blocked(S, b.y, a, c, sign)) return { msg: "" };
+    const ny = b.y + sign * stepH(S);
+    if (isFloor(S) && ny < floorLevel(S)) return { msg: "" };
+    const r = levelCheck(S, b, a, c, ny, false);
+    if (!r.ok) return { msg: r.reason };
+    S.boards.push({ id: S.nextId++, y: ny, x1: r.x1, x2: r.x2, sup: r.sup });
+    normalize(S);
+    return { msg: "" };
+  }
+
+  function rejoin(S, x, y, before, oldBreaks) {
+    const lv = before.get(x) || [];
+    const k = lv.indexOf(y);
+    if (k <= 0 || k >= lv.length - 1) return false;
+    if ((columns(S).get(x) || []).includes(y)) return false;
+    const lower = lv[k - 1], upper = lv[k + 1];
+    const wasBroken = oldBreaks.has(bkey(x, lower, y)) || oldBreaks.has(bkey(x, y, upper));
+    const covered = S.boards.some(o => o.y === y && x > o.x1 + MM.pipeR && x < o.x2 - MM.pipeR);
+    const bad = !pipeOk(upper - lower);
+    if (wasBroken || covered || bad) S.breaks.add(bkey(x, lower, upper));
+    return bad && !wasBroken && !covered && upper - lower > 2 * MM.cap;
+  }
+
+  function removeSpan(S, id, a, c) {
+    const b = byId(S, id);
+    if (!b) return { msg: "" };
+    const ovv = ov(S), s = b.sup, y = b.y;
+    const i = s.indexOf(a);
+    if (i < 0 || s[i + 1] !== c) return { msg: "" };
+    const before = columns(S);
+    const oldBreaks = new Set(S.breaks);
+    let freed = [];
+    if (s.length === 2) {
+      freed = s.slice();
+      S.boards = S.boards.filter(o => o !== b);
+    } else if (i === 0) {
+      freed = [a];
+      b.sup = s.slice(1);
+      b.x1 = b.sup[0] - ovv;
+    } else if (i === s.length - 2) {
+      freed = [c];
+      b.sup = s.slice(0, -1);
+      b.x2 = b.sup[b.sup.length - 1] + ovv;
+    } else {
+      let lx2 = a + ovv, rx1 = c - ovv;
+      if (lx2 >= rx1) { const mid = r10((a + c) / 2); lx2 = mid - 10; rx1 = mid + 10; }
+      const right = { id: S.nextId++, y: b.y, x1: rx1, x2: b.x2, sup: s.slice(i + 1) };
+      b.sup = s.slice(0, i + 1);
+      b.x2 = lx2;
+      S.boards.push(right);
+    }
+    let cut = false;
+    for (const x of freed) if (rejoin(S, x, y, before, oldBreaks)) cut = true;
+    normalize(S);
+    if (!S.boards.length)
+      return { msg: "Все полки удалены. Нажмите «Сбросить всё» или измените длину первого пролёта" };
+    if (cut)
+      return { msg: "Труба получилась бы нестандартной — разрезана, у каждой части своё крепление к стене" };
+    return { msg: "" };
+  }
+
+  function deleteBlockReason(S, x, levels) {
+    for (const b of groupBoards(S, x, levels)) {
+      const o = b.sup.filter(s => s !== x);
+      if (o.length < 2) return "Нельзя удалить: у щита должно остаться минимум 2 опоры";
+      for (let i = 1; i < o.length; i++)
+        if (o[i] - o[i - 1] > MM.maxSpan) return "Нельзя удалить: пролёт станет больше 1500 мм";
+      if (x < o[0] && o[0] - b.x1 > MM.maxOverhang)
+        return "Нельзя удалить: свес станет больше 500 мм";
+      if (x > o[o.length - 1] && b.x2 - o[o.length - 1] > MM.maxOverhang)
+        return "Нельзя удалить: свес станет больше 500 мм";
+    }
+    return "";
+  }
+
+  function deleteGroup(S, x, levels) {
+    const reason = deleteBlockReason(S, x, levels);
+    if (reason) return { msg: reason };
+    detach(S, x, levels);
+    for (const b of groupBoards(S, x, levels)) b.sup = b.sup.filter(s => s !== x);
+    normalize(S);
+    return { msg: "" };
+  }
+
+  function applyFirstSpan(S, len) {
+    if (!S.boards.length) { createInitial(S, len); return { created: true }; }
+    const fs = firstSpan(S);
+    if (!fs) return {};
+    const delta = len - (fs.s1 - fs.s0);
+    if (!delta) return {};
+    for (const b of S.boards) {
+      const minS = b.sup[0], maxS = b.sup[b.sup.length - 1];
+      if (minS >= fs.s1) b.x1 += delta;
+      if (maxS >= fs.s1) b.x2 += delta;
+      b.sup = b.sup.map(x => x >= fs.s1 ? x + delta : x);
+    }
+    S.breaks = new Set([...S.breaks].map(k => {
+      const [x, y1, y2] = k.split("|").map(Number);
+      return bkey(x >= fs.s1 ? x + delta : x, y1, y2);
+    }));
+    normalize(S);
+    return {};
+  }
+
+  function applyOverhang(S) {
+    for (const b of S.boards) {
+      b.x1 = b.sup[0] - ov(S);
+      b.x2 = b.sup[b.sup.length - 1] + ov(S);
+    }
+    normalize(S);
+  }
+
+  // ---------- Количество трубок (для цены и 3D) ----------
+  function countTubes(S) {
+    const fl = isFloor(S), dp = deep(S), fLevel = floorLevel(S);
+    let n = 0;
+    for (const g of groupsOf(S, columns(S))) {
+      const lv = g.levels, onFloor = fl && lv[0] === fLevel;
+      n += 2;                        // верхний конец к стене
+      if (!onFloor) n += 2;          // нижний конец к стене
+      n += lv.length - 1;            // трубы между полками
+      if (dp) n += lv.length;        // поддерживающие трубы
+    }
+    return n;
+  }
+
+  // ---------- Комплектация ----------
+  function computeBOM(S) {
+    const fl = isFloor(S), dp = deep(S), fLevel = floorLevel(S);
+    const wallPipe = D(S).wall, crossPipe = D(S).support;
+    const pipes = new Map();
+    const parts = { flange: 0, elbowTurn: 0, elbowSup: 0, nut: 0, coupling: 0, tee: 0 };
+    const addPipe = (len, n = 1) => pipes.set(len, (pipes.get(len) || 0) + n);
+    const wallEnd = () => { addPipe(PART.endPipe); parts.elbowTurn++; addPipe(wallPipe); parts.flange++; };
+
+    for (const g of groupsOf(S, columns(S))) {
+      const lv = g.levels, low = lv[0];
+      const onFloor = fl && low === fLevel;
+      wallEnd();
+      if (!onFloor) wallEnd();
+      for (let i = 1; i < lv.length; i++) addPipe(lv[i] - lv[i - 1] + MM.pipeAdj);
+      for (const y of lv) {
+        parts.nut++;
+        if (!dp) { parts.coupling++; continue; }
+        if (onFloor && y === low) { parts.tee += 2; addPipe(crossPipe); continue; }
+        parts.tee++; addPipe(crossPipe); parts.elbowSup++;
+      }
+    }
+
+    const rows = [];
+    if (parts.flange) rows.push({ name: "Фланец настенный", qty: parts.flange });
+    for (const len of [...pipes.keys()].sort((a, c) => a - c))
+      rows.push({ name: `Труба ${fmtNum(len)} мм`, qty: pipes.get(len), custom: !STD_PIPES.includes(len) });
+    if (parts.elbowTurn) rows.push({ name: "Уголок латунный поворотный", qty: parts.elbowTurn });
+    if (parts.elbowSup) rows.push({ name: "Уголок латунный опорный", qty: parts.elbowSup });
+    if (parts.nut) rows.push({ name: "Контргайка латунная", qty: parts.nut });
+    if (parts.coupling) rows.push({ name: "Муфта латунная", qty: parts.coupling });
+    if (parts.tee) rows.push({ name: "Тройник латунный резьбовой", qty: parts.tee });
+
+    const pan = computePanels(S);
+    const shelves = pan.panels.map(p => ({
+      name: `Щит ${p.no} — ${fmtNum(p.len)} × ${p.depth} × ${MM.thickness} мм`, qty: p.qty
+    }));
+    return { rows, shelves };
+  }
+
+  // ---------- Раскрой и присадка ----------
+  // Для каждого щита: отступы центров отверстий от ЛЕВОГО торца
+  // и отступ от задней кромки (по глубине). Нумерация снизу вверх.
+  function computePanels(S) {
+    const dp = depthOf(S), back = holeBack(S);
+    const levels = uniqSort(S.boards.map(b => b.y));
+    const sorted = S.boards.slice().sort((a, b) => a.y - b.y || a.x1 - b.x1);
+    const map = new Map();      // ключ → позиция
+    const byBoard = new Map();  // id щита → номер позиции
+    for (const b of sorted) {
+      const holes = b.sup.map(x => x - b.x1);
+      const key = (b.x2 - b.x1) + "|" + holes.join(",");
+      let p = map.get(key);
+      if (!p) {
+        p = { no: map.size + 1, len: b.x2 - b.x1, depth: dp, thickness: MM.thickness,
+              holes, back, dia: HOLE_DIA, qty: 0, tiers: [] };
+        map.set(key, p);
+      }
+      p.qty++;
+      const tier = levels.indexOf(b.y) + 1;
+      if (!p.tiers.includes(tier)) p.tiers.push(tier);
+      byBoard.set(b.id, p.no);
+    }
+    const panels = [...map.values()];
+    for (const p of panels) {
+      p.tiers.sort((a, b) => a - b);
+      let acc = 0;
+      p.steps = [];               // цепочка: торец → отверстие → … → торец
+      const pts = [0, ...p.holes, p.len];
+      for (let i = 1; i < pts.length; i++) p.steps.push(pts[i] - pts[i - 1]);
+      p.cum = p.holes.map(h => h);          // нарастающим итогом от левого торца
+      acc = 0;
+    }
+    return { panels, byBoard };
+  }
+
+  // ---------- Цена ----------
+  function computePrice(S) {
+    const dp = depthOf(S);
+    let area = 0;
+    for (const b of S.boards) area += (b.x2 - b.x1) * dp / 1e6;
+    const tubes = countTubes(S);
+    const wood = area * RATES.wood, pipe = tubes * RATES.pipe;
+    const cost = wood + pipe;
+    return { area, tubes, wood, pipe, cost, total: Math.round(cost * (1 + RATES.markup)) };
+  }
+
+  function sizeOf(S) {
+    if (!S.boards.length) return null;
+    const minX = Math.min(...S.boards.map(b => b.x1));
+    const maxX = Math.max(...S.boards.map(b => b.x2));
+    const minY = Math.min(...S.boards.map(b => b.y));
+    const maxY = Math.max(...S.boards.map(b => b.y));
+    const yBot = isFloor(S) ? floorY(S) : minY - MM.cap, yTop = maxY + MM.cap;
+    return { minX, maxX, minY, maxY, yBot, yTop, W: maxX - minX, H: yTop - yBot };
+  }
+
+  // ---------- Сохранение и загрузка ----------
+  function exportState(S) {
+    return {
+      v: 2,
+      mount: S.mount,
+      depth: depthOf(S),
+      pipe: S.pipe,
+      overhang: S.overhang,
+      boards: S.boards.map(b => ({ y: b.y, x1: b.x1, x2: b.x2, sup: b.sup.slice() })),
+      breaks: [...S.breaks]
+    };
+  }
+
+  // Модели до перехода на «шаг = длина трубы»: каждый зазор между уровнями + 40 мм
+  const OLD_PIPE_ADJ = 40;
+  function migrateState(s) {
+    if (s.v >= 2) return s;
+    const ys = uniqSort(s.boards.map(b => b.y));
+    const map = new Map();
+    ys.forEach((y, i) => map.set(y, i ? map.get(ys[i - 1]) + (y - ys[i - 1]) + OLD_PIPE_ADJ : y));
+    const my = y => map.has(y) ? map.get(y) : y;
+    return {
+      ...s, v: 2,
+      boards: s.boards.map(b => ({ ...b, y: my(b.y) })),
+      breaks: (s.breaks || []).map(k => {
+        const [x, y1, y2] = k.split("|").map(Number);
+        return bkey(x, my(y1), my(y2));
+      })
+    };
+  }
+
+  function loadState(S, src) {
+    const s = migrateState(src);
+    S.mount = s.mount === "floor" ? "floor" : "wall";
+    // Старые модели: "deep": true → 400 мм, "deep": false → 200 мм
+    S.depth = DEPTHS[s.depth] ? Number(s.depth) : (s.deep ? 400 : 200);
+    S.pipe = Number(s.pipe) || 300;
+    S.overhang = Number(s.overhang) || 200;
+    S.nextId = 1;
+    S.boards = s.boards.map(b => ({ id: S.nextId++, y: b.y, x1: b.x1, x2: b.x2, sup: b.sup.slice() }));
+    S.breaks = new Set(s.breaks || []);
+    normalize(S);
+  }
+
+  return {
+    MM, DEPTHS, PART, STD_PIPES, BLUE_PIPES, MAX_STD, HOLE_DIA, RATES, PRESETS,
+    r10, clamp, fmtNum, money, bkey, uniqSort, pipeOk, minGap,
+    newState, snapshot, restore,
+    depthOf, isFloor, deep, wallZ, supportReach, woodZ, frontZ, holeBack,
+    stepH, clearH, ov, floorLevel, floorY,
+    byId, columns, isBroken, groupsOf, groupBoards, neighborLimit, neighborBoard,
+    blocked, firstSpan, pipeStatus, mergeOk,
+    normalize, detach, attachKeys, dodge, divide, extContext, planExtension, setEdge,
+    blockHelp, addShelfAt,
+    createInitial, clickExtend, levelCheck, addLevel, removeSpan,
+    deleteBlockReason, deleteGroup, applyFirstSpan, applyOverhang,
+    countTubes, computeBOM, computePanels, computePrice, sizeOf,
+    exportState, migrateState, loadState
+  };
+})();
+
+/* =======================================================================
+   ИНТЕРФЕЙС: сцена, кнопки, панели. Расчёт — только через Calc.
+   ======================================================================= */
+(() => {
+  "use strict";
+
+  const $ = id => document.getElementById(id);
+
+  if (typeof THREE === "undefined" || !THREE.OrbitControls) {
+    $("no3d").style.display = "flex";
+    return;
+  }
+
+  const C = Calc;
+  const MM = C.MM;
+  const { r10, clamp, fmtNum, money, bkey, uniqSort } = C;
+  const V = (x, y, z) => new THREE.Vector3(x, y, z);
+
+  // Состояние расчёта
+  const S = C.newState();
+
+  // Состояние интерфейса
   let marks = [];           // { id, x, y, w, h } — отметки на стене, мм
   let nextMarkId = 1;
   let markMode = false;
-  let draw = null;          // рисование отметки
+  let draw = null;
   const activePts = new Set();
   let uiVisible = true;
   let needsRender = true;
   let gesture = null;
-  let overlayButtons = [], dims = [], leaders = [];
+  let overlayButtons = [], dims = [], leaders = [], tags = [];
   let L = {};
-  let lastBOM = null;
+  let lastBOM = null, lastPanels = null;
 
   function watch(query, fn) {
     const m = matchMedia(query);
@@ -536,13 +1297,11 @@
   controls.maxDistance = 15000;
   controls.touches = { ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY_PAN };
   controls.addEventListener("change", requestRender);
-  // ---------- Масштаб к курсору / к точке между пальцами ----------
-  controls.enableZoom = false;   // стандартный зум (всегда к центру) выключен
+  controls.enableZoom = false;   // зум к курсору вместо зума к центру
 
   const _zRay = new THREE.Raycaster(), _zNdc = new THREE.Vector2();
   const _zPlane = new THREE.Plane(), _zHit = new THREE.Vector3(), _zDir = new THREE.Vector3();
 
-  // Приблизить/отдалить камеру относительно точки экрана (clientX, clientY)
   function zoomAt(clientX, clientY, scale) {
     if (!controls.enabled || !Number.isFinite(scale) || scale <= 0) return;
     const dist = camera.position.distanceTo(controls.target);
@@ -562,16 +1321,14 @@
     requestRender();
   }
 
-  // Колесо мыши и щипок на тачпаде
   renderer.domElement.addEventListener("wheel", e => {
     e.preventDefault();
     let dy = e.deltaY;
     if (e.deltaMode === 1) dy *= 16; else if (e.deltaMode === 2) dy *= innerHeight;
-    const k = e.ctrlKey ? 0.01 : 0.0015;   // ctrlKey = щипок на тачпаде
+    const k = e.ctrlKey ? 0.01 : 0.0015;
     zoomAt(e.clientX, e.clientY, Math.exp(clamp(dy, -100, 100) * k));
   }, { passive: false });
 
-  // Щипок двумя пальцами на телефоне/планшете
   let pinch = null;
   const pinchInfo = t => ({
     d: Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY),
@@ -621,10 +1378,15 @@
     plane: new THREE.PlaneGeometry(1, 1)
   };
 
+  // Сам стеллаж — отдельная группа (её и будем отдавать на экспорт в 3D),
+  // антураж (стена, пол, отметки) — в другой.
   const model = new THREE.Group();
+  model.name = "Стеллаж";
+  const decor = new THREE.Group();
+  decor.name = "Антураж";
   scene.add(model);
+  scene.add(decor);
 
-  // Предпросмотр рисуемой отметки
   const preview = new THREE.Group();
   preview.visible = false;
   {
@@ -639,645 +1401,46 @@
 
   function requestRender() { needsRender = true; }
 
-  // ---------- Настройки ----------
-  const isFloor = () => {
-    const r = document.querySelector('input[name="mount"]:checked');
-    return !!r && r.value === "floor";
-  };
-  const deep = () => $("deep").checked;
-  const depth = () => deep() ? 400 : 200;
-  const wallZ = () => deep() ? -300 : -150;
-  const woodZ = () => wallZ() + depth() / 2;     // задний край щита вплотную к стене
-  const frontZ = () => woodZ() + depth() / 2;
-  const pipeLen = () => Number($("height").value);
-  const stepH = () => pipeLen() - MM.pipeAdj;    // расстояние между полками
-  const floorLevel = () => boards.length ? Math.min(...boards.map(b => b.y)) : 0;
-  const floorY = () => floorLevel() - MM.thickness / 2 - MM.foot;
-
-  function updateHeightHint() {
-    $("height-hint").textContent =
-      `Расстояние между полками: ${fmtNum(stepH())} мм (труба на ${MM.pipeAdj} мм длиннее — заходит в полки).`;
-  }
-
+  // ---------- Связь страницы и состояния ----------
   function readNum(id, def, min, max) {
     const raw = $(id).value;
     let v = Number(raw);
     if (raw === "" || !Number.isFinite(v)) v = def;
     return clamp(r10(v), min, max);
   }
-  const OV = () => readNum("overhang", 200, 100, MM.maxOverhang);
 
-  // ---------- Модель данных ----------
-  const byId = id => boards.find(b => b.id === id);
-
-  function columns() {
-    const m = new Map();
-    for (const b of boards) for (const x of b.sup) {
-      if (!m.has(x)) m.set(x, new Set());
-      m.get(x).add(b.y);
-    }
-    const out = new Map();
-    for (const [x, s] of m) out.set(x, [...s].sort((a, c) => a - c));
-    return out;
+  function syncFromForm() {
+    const m = document.querySelector('input[name="mount"]:checked');
+    S.mount = m && m.value === "floor" ? "floor" : "wall";
+    const d = document.querySelector('input[name="depth"]:checked');
+    const dv = d ? Number(d.value) : 200;
+    S.depth = C.DEPTHS[dv] ? dv : 200;
+    S.pipe = Number($("height").value) || 300;
+    S.overhang = readNum("overhang", 200, 100, MM.maxOverhang);
   }
 
-  function isBroken(x, y1, y2) {
-    return y2 - y1 > 2 * MM.cap && breaks.has(bkey(x, y1, y2));
+  function syncToForm() {
+    const m = document.querySelector(`input[name="mount"][value="${S.mount}"]`);
+    if (m) m.checked = true;
+    const d = document.querySelector(`input[name="depth"][value="${S.depth}"]`);
+    if (d) d.checked = true;
+    $("height").value = String(S.pipe);
+    $("overhang").value = S.overhang;
   }
 
-  function groupsOf(cols) {
-    const gs = [];
-    for (const [x, lv] of cols) {
-      let cur = [lv[0]];
-      for (let i = 1; i < lv.length; i++) {
-        if (isBroken(x, lv[i - 1], lv[i])) { gs.push({ x, levels: cur }); cur = [lv[i]]; }
-        else cur.push(lv[i]);
-      }
-      gs.push({ x, levels: cur });
-    }
-    return gs;
-  }
-
-  function groupBoards(x, levels) {
-    return boards.filter(b => levels.includes(b.y) && b.sup.includes(x));
-  }
-
-  function neighborLimit(b, dir) {
-    let lim = dir > 0 ? Infinity : -Infinity;
-    for (const o of boards) {
-      if (o === b || o.y !== b.y) continue;
-      if (dir > 0 && o.x1 >= b.x2) lim = Math.min(lim, o.x1);
-      if (dir < 0 && o.x2 <= b.x1) lim = Math.max(lim, o.x2);
-    }
-    return lim;
-  }
-
-  function neighborBoard(b, dir) {
-    let best = null;
-    for (const o of boards) {
-      if (o === b || o.y !== b.y) continue;
-      if (dir > 0 && o.x1 >= b.x2 && (!best || o.x1 < best.x1)) best = o;
-      if (dir < 0 && o.x2 <= b.x1 && (!best || o.x2 > best.x2)) best = o;
-    }
-    return best;
-  }
-
-  function blocked(y, a, c, sign) {
-    return boards.some(o => (o.y - y) * sign > 0 &&
-      o.sup[0] < c && o.sup[o.sup.length - 1] > a);
-  }
-
-  function firstSpan() {
-    const xs = [...columns().keys()].sort((a, c) => a - c);
-    return xs.length >= 2 ? { s0: xs[0], s1: xs[1] } : null;
-  }
-
-  // Как труба на оси x относится к щиту на уровне y:
-  // "none"    — не мешает, щит проходит мимо;
-  // "through" — проходит сквозь уровень щита (можно крепить);
-  // "extend"  — щит упирается в конец чужой стойки, но стойку можно продлить до щита
-  //             (трубка между полками выходит не короче 150 мм);
-  // "block"   — щит упирается (трубка вышла бы короче 150 мм или стойку продлить нельзя).
-  function pipeStatus(x, y, groups) {
-    const fl = isFloor(), fLevel = floorLevel();
-    let st = "none";
-    for (const g of groups) {
-      if (g.x !== x) continue;
-      const lv = g.levels, low = lv[0], high = lv[lv.length - 1];
-      if (lv.includes(y)) { st = "through"; continue; }
-      const bottom = fl && low === fLevel ? low - MM.thickness / 2 - MM.foot : low - MM.cap - 15;
-      const top = high + MM.cap + 15;
-      if (y + 30 < bottom || y - MM.gap > top) continue;
-      let ok = false;
-      for (let i = 1; i < lv.length; i++)
-        if (y > lv[i - 1] && y < lv[i] &&
-            y - lv[i - 1] >= minGap() && lv[i] - y >= minGap()) ok = true;
-      if (ok) { st = "through"; continue; }
-      const canExt = (y > high && y - high >= minGap()) ||
-        (y < low && low - y >= minGap() && !(fl && low === fLevel));
-      if (canExt && mergeOk(x, y)) { if (st === "none") st = "extend"; continue; }
-      return "block";
-    }
-    return st;
-  }
-
-  // Можно ли прикрепить щит уровня y к существующей трубе x (для клика и синего «+»)
-  function mergeOk(x, y) {
-    const lv = columns().get(x) || [];
-    if (lv.includes(y)) return true;
-    const lower = lv.filter(v => v < y).pop(), upper = lv.find(v => v > y);
-    if (lower !== undefined && y - lower < minGap()) return false;
-    if (upper !== undefined && upper - y < minGap()) return false;
-    if (lower !== undefined && upper !== undefined) return !isBroken(x, lower, upper);
-    const near = lower !== undefined ? lower : upper;
-    if (near !== undefined) {
-      const a = Math.min(near, y), c = Math.max(near, y);
-      if (boards.some(o => o.y > a && o.y < c && x > o.x1 - MM.gap && x < o.x2 + MM.gap)) return false;
-    }
-    const caps = [];
-    if (upper === undefined) caps.push(y + MM.cap);
-    if (lower === undefined && !(isFloor() && y <= floorLevel())) caps.push(y - MM.cap);
-    for (const cy of caps)
-      if (boards.some(o => Math.abs(o.y - cy) < 45 && x > o.x1 - MM.gap && x < o.x2 + MM.gap)) return false;
-    return true;
-  }
-
-  // Приведение модели в порядок
-  function normalize() {
-    for (const b of boards) {
-      b.sup = [...new Set(b.sup.map(r10))].sort((a, c) => a - c);
-      b.x1 = r10(b.x1); b.x2 = r10(b.x2);
-    }
-    boards = boards.filter(b => b.sup.length >= 2);
-
-    const byY = new Map();
-    for (const b of boards) {
-      if (!byY.has(b.y)) byY.set(b.y, []);
-      byY.get(b.y).push(b);
-    }
-    const merged = [];
-    for (const row of byY.values()) {
-      row.sort((a, c) => a.x1 - c.x1);
-      let cur = null;
-      for (const b of row) {
-        if (cur && b.x1 <= cur.x2) {
-          cur.x2 = Math.max(cur.x2, b.x2);
-          cur.sup = [...new Set([...cur.sup, ...b.sup])].sort((a, c) => a - c);
-        } else { cur = b; merged.push(b); }
-      }
-    }
-    boards = merged;
-
-    for (let guard = 0; guard < 20; guard++) {
-      let changed = false;
-      const cols = columns();
-      for (const [x, lv] of cols) {
-        for (let i = 1; i < lv.length; i++) {
-          const y1 = lv[i - 1], y2 = lv[i];
-          if (isBroken(x, y1, y2)) continue;
-          for (const b of boards) {
-            if (b.y > y1 && b.y < y2 && x > b.x1 + MM.pipeR && x < b.x2 - MM.pipeR &&
-                !b.sup.includes(x)) {
-              b.sup.push(x);
-              b.sup.sort((a, c) => a - c);
-              changed = true;
-            }
-          }
-        }
-      }
-      if (!changed) break;
-    }
-
-    const valid = new Set();
-    for (const [x, lv] of columns())
-      for (let i = 1; i < lv.length; i++)
-        if (lv[i] - lv[i - 1] > 2 * MM.cap) valid.add(bkey(x, lv[i - 1], lv[i]));
-    breaks = new Set([...breaks].filter(k => valid.has(k)));
-  }
-
-  function detach(x, levels) {
-    const lv = columns().get(x) || [];
-    const rem = lv.filter(y => !levels.includes(y));
-    for (let i = 1; i < rem.length; i++)
-      if (levels.some(y => y > rem[i - 1] && y < rem[i]))
-        breaks.add(bkey(x, rem[i - 1], rem[i]));
-  }
-
-  function attachKeys(x, levels) {
-    const lv = columns().get(x) || [];
-    const keys = [];
-    for (let i = 1; i < lv.length; i++)
-      if (levels.includes(lv[i - 1]) !== levels.includes(lv[i]))
-        keys.push(bkey(x, lv[i - 1], lv[i]));
-    return keys;
-  }
-
-  // ---------- Удлинение щита ----------
-  // Не ставить новую опору ровно на чужую трубу другого уровня
-  function dodge(x, cur, dir, avoid) {
-    for (const f of avoid) {
-      if (Math.abs(x - f) < MM.gap) {
-        const a = f - dir * MM.gap;
-        x = (a - cur) * dir >= MM.minSpan ? a : f + dir * MM.gap;
-      }
-    }
-    return r10(x);
-  }
-
-  // Точки опор от a до c (не включая a), пролёты не больше 1500 мм
-  function divide(a, c, avoid = []) {
-    const gap = Math.abs(c - a);
-    if (!gap) return [];
-    const dir = Math.sign(c - a), n = Math.ceil(gap / MM.maxSpan), out = [];
-    for (let k = 1; k < n; k++) out.push(dodge(r10(a + (c - a) * k / n), a, dir, avoid));
-    out.push(c);
-    return out;
-  }
-
-  // Всё, что нужно знать о пути щита в направлении dir
-  function extContext(b, dir) {
-    const base = dir > 0 ? b.sup[b.sup.length - 1] : b.sup[0];
-    const E0 = dir > 0 ? b.x2 : b.x1;
-    const nb = neighborBoard(b, dir);
-    const nLimit = nb ? (dir > 0 ? nb.x1 : nb.x2) : dir * Infinity;
-    const nFirst = nb ? (dir > 0 ? nb.sup[0] : nb.sup[nb.sup.length - 1]) : null;
-    const cols = columns(), groups = groupsOf(cols);
-    const foreign = [];
-    for (const x of cols.keys()) {
-      if ((x - base) * dir <= 0 || b.sup.includes(x)) continue;
-      if (nb && (x - nLimit) * dir >= 0) continue;
-      foreign.push({ x, st: pipeStatus(x, b.y, groups) });
-    }
-    foreign.sort((p, q) => (p.x - q.x) * dir);
-    const blk = foreign.find(f => f.st === "block") || null;
-    let maxE = blk ? blk.x - dir * MM.pipeR : nLimit;
-    if ((maxE - E0) * dir < 0) maxE = E0;
-    // Трубы, к которым щит крепится: сквозные и стойки, которые можно продлить
-    const throughs = foreign
-      .filter(f => (f.st === "through" || f.st === "extend") && (!blk || (f.x - blk.x) * dir < 0))
-      .map(f => f.x);
-    const free = foreign.filter(f => f.st === "none").map(f => f.x);
-    return { base, nb, nLimit, nFirst, foreign, blk, maxE, throughs, free };
-  }
-
-  // Опоры при растягивании щита до края E
-  function planExtension(dir, E, c, ov) {
-    const out = [];
-    let cur = c.base;
-    for (const t of c.throughs) {
-      if ((E - t) * dir < MM.attach) break;
-      out.push(...divide(cur, t, c.free));
-      cur = t;
-    }
-    if (c.nb && (E - c.nLimit) * dir >= 0) {
-      out.push(...divide(cur, c.nFirst, c.free));
-      return { extra: out, merged: true };
-    }
-    for (let guard = 0; guard < 60; guard++) {
-      const over = (E - cur) * dir;
-      if (over <= MM.maxOverhang) break;
-      const x = dodge(cur + dir * r10(clamp(over - ov, MM.minSpan, MM.maxSpan)), cur, dir, c.free);
-      out.push(x);
-      cur = x;
-    }
-    return { extra: out, merged: false };
-  }
-
-  // ---------- Действия ----------
-  function createInitial(len) {
-    const ov = OV();
-    boards = [{ id: nextId++, y: 0, x1: -ov, x2: len + ov, sup: [0, len] }];
-    breaks.clear();
-    normalize();
-    rebuild();
-  }
-
-  // Записать текущий стеллаж
-  function exportState() {
-    return {
-      mount: isFloor() ? "floor" : "wall",
-      deep: deep(),
-      pipe: pipeLen(),
-      overhang: OV(),
-      boards: boards.map(b => ({ y: b.y, x1: b.x1, x2: b.x2, sup: b.sup.slice() })),
-      breaks: [...breaks]
-    };
-  }
-
-  // Собрать стеллаж из записи
-  function loadState(s) {
-    const radio = document.querySelector(`input[name="mount"][value="${s.mount}"]`);
-    if (radio) radio.checked = true;
-    $("deep").checked = !!s.deep;
-    $("height").value = String(s.pipe);
-    $("overhang").value = s.overhang;
-    updateHeightHint();
-    nextId = 1;
-    boards = s.boards.map(b => ({ id: nextId++, y: b.y, x1: b.x1, x2: b.x2, sup: b.sup.slice() }));
-    breaks = new Set(s.breaks || []);
-    normalize();
-    rebuild();
-  }
-
-  function copyModelCode() {
-    if (!boards.length) { toast("Сначала соберите стеллаж"); return; }
-    const name = prompt("Название модели латиницей, без пробелов (например liniya):", "liniya");
-    if (!name) return;
-    const key = name.trim().toLowerCase().replace(/[^a-z0-9_-]/g, "");
-    if (!key) { toast("Используйте только латинские буквы и цифры"); return; }
-    const line = `    "${key}": ${JSON.stringify(exportState())},`;
-    const fallback = () => prompt("Скопируйте эту строку (Ctrl+C):", line);
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(line)
-        .then(() => toast(`Код модели «${key}» скопирован`))
-        .catch(fallback);
-    } else fallback();
-  }
-
-  function setEdge(b, dir, E) { if (dir > 0) b.x2 = E; else b.x1 = E; }
-
-  function clickExtend(id, dir) {
-    const b = byId(id);
-    if (!b) return;
-    const ov = OV();
-    const len = readNum("length", 500, MM.minSpan, MM.maxLen);
-    const c = extContext(b, dir);
-    const curEdge = dir > 0 ? b.x2 : b.x1;
-    if ((c.maxE - curEdge) * dir <= 0) {
-      toast(c.blk ? "Дальше щит упирается в трубу" : "Недостаточно места для новой секции");
-      return;
-    }
-
-    let end = c.base + dir * len, best = null;
-    for (const f of c.foreign) {
-      if (f.st === "block") break;
-      const dist = Math.abs(f.x - end);
-      if (dist >= MM.snap || (f.x - c.base) * dir < MM.minSpan) continue;
-      if (f.st === "none" && !mergeOk(f.x, b.y)) continue;
-      if (best === null || dist < Math.abs(best - end)) best = f.x;
-    }
-    end = best !== null ? best : dodge(end, c.base, dir, c.free);
-    const E = end + dir * ov;
-
-    if (c.nb && !c.blk && (E - c.nLimit) * dir >= 0) {
-      const plan = planExtension(dir, c.nLimit, c, ov);
-      b.sup = uniqSort([...b.sup, ...plan.extra]);
-      setEdge(b, dir, c.nLimit);
-      normalize(); rebuild();
-      toast("Щит соединён с соседним");
-      return;
-    }
-    if ((E - c.maxE) * dir > 0) {
-      const plan = planExtension(dir, c.maxE, c, ov);
-      b.sup = uniqSort([...b.sup, ...plan.extra]);
-      setEdge(b, dir, c.maxE);
-      normalize(); rebuild();
-      toast("Щит упёрся в трубу — дальше удлинить нельзя");
-      return;
-    }
-
-    const add = [];
-    let cur = c.base;
-    for (const t of c.throughs) {
-      if ((end - t) * dir <= 0) break;
-      add.push(...divide(cur, t, c.free));
-      cur = t;
-    }
-    add.push(...divide(cur, end, c.free));
-    b.sup = uniqSort([...b.sup, ...add]);
-    setEdge(b, dir, (E - curEdge) * dir < 0 ? curEdge : E);
-    normalize();
-    rebuild();
-  }
-
-  // Проверка новой полки на уровне ny над/под пролётом a–c полки b.
-  // strict — дополнительная проверка для перетаскивания синего «+»:
-  // рядом по высоте (ближе 110 мм) не должно быть другой полки в пределах нового щита.
-  function levelCheck(b, a, c, ny, strict) {
-    const ov = OV(), x1 = a - ov, x2 = c + ov;
-    if (isFloor() && ny < floorLevel()) return { ok: false, reason: "Ниже пола полку добавить нельзя" };
-    if (!mergeOk(a, ny) || !mergeOk(c, ny))
-      return { ok: false, reason: "Нельзя: трубка между полками будет короче 150 мм или упрётся в другую полку" };
-    if (strict && boards.some(o => o !== b && Math.abs(o.y - ny) < minGap() && o.x1 < x2 && o.x2 > x1))
-      return { ok: false, reason: "Нельзя: мешает другая полка" };
-    const sup = [a, c];
-    const cols = columns(), groups = groupsOf(cols);
-    for (const x of cols.keys()) {
-      if (x === a || x === c) continue;
-      if (x <= x1 - MM.pipeR || x >= x2 + MM.pipeR) continue;
-      const s = pipeStatus(x, ny, groups);
-      if (s === "block") return { ok: false, reason: "Нельзя: новая полка упрётся в трубу" };
-      if (s === "extend") {
-        if (x <= x1 + MM.pipeR || x >= x2 - MM.pipeR)
-          return { ok: false, reason: "Нельзя: новая полка упрётся в трубу" };
-        sup.push(x);                // полка крепится к чужой стойке
-      }
-    }
-    return { ok: true, x1, x2, sup: uniqSort(sup) };
-  }
-
-  function addLevel(id, a, c, sign) {
-    const b = byId(id);
-    if (!b || blocked(b.y, a, c, sign)) return;
-    const ny = b.y + sign * stepH();
-    if (isFloor() && ny < floorLevel()) return;
-    const r = levelCheck(b, a, c, ny, false);
-    if (!r.ok) { toast(r.reason); return; }
-    boards.push({ id: nextId++, y: ny, x1: r.x1, x2: r.x2, sup: r.sup });
-    normalize();
-    rebuild();
-  }
-
-  function removeSpan(id, a, c) {
-    const b = byId(id);
-    if (!b) return;
-    const ov = OV(), s = b.sup;
-    const i = s.indexOf(a);
-    if (i < 0 || s[i + 1] !== c) return;
-    if (s.length === 2) {
-      for (const x of s) detach(x, [b.y]);
-      boards = boards.filter(o => o !== b);
-    } else if (i === 0) {
-      detach(a, [b.y]);
-      b.sup = s.slice(1);
-      b.x1 = b.sup[0] - ov;
-    } else if (i === s.length - 2) {
-      detach(c, [b.y]);
-      b.sup = s.slice(0, -1);
-      b.x2 = b.sup[b.sup.length - 1] + ov;
-    } else {
-      let lx2 = a + ov, rx1 = c - ov;
-      if (lx2 >= rx1) { const mid = r10((a + c) / 2); lx2 = mid - 10; rx1 = mid + 10; }
-      const right = { id: nextId++, y: b.y, x1: rx1, x2: b.x2, sup: s.slice(i + 1) };
-      b.sup = s.slice(0, i + 1);
-      b.x2 = lx2;
-      boards.push(right);
-    }
-    normalize();
-    rebuild();
-    if (!boards.length) toast("Все полки удалены. Нажмите «Сбросить всё» или измените длину первого пролёта");
-  }
-
-  function deleteBlockReason(x, levels) {
-    for (const b of groupBoards(x, levels)) {
-      const o = b.sup.filter(s => s !== x);
-      if (o.length < 2) return "Нельзя удалить: у щита должно остаться минимум 2 опоры";
-      for (let i = 1; i < o.length; i++)
-        if (o[i] - o[i - 1] > MM.maxSpan) return "Нельзя удалить: пролёт станет больше 1500 мм";
-      if (x < o[0] && o[0] - b.x1 > MM.maxOverhang)
-        return "Нельзя удалить: свес станет больше 500 мм";
-      if (x > o[o.length - 1] && b.x2 - o[o.length - 1] > MM.maxOverhang)
-        return "Нельзя удалить: свес станет больше 500 мм";
-    }
-    return "";
-  }
-
-  function deleteGroup(x, levels) {
-    const reason = deleteBlockReason(x, levels);
-    if (reason) { toast(reason); return; }
-    detach(x, levels);
-    for (const b of groupBoards(x, levels)) b.sup = b.sup.filter(s => s !== x);
-    normalize();
-    rebuild();
-  }
-
-  function applyFirstSpan() {
-    const len = readNum("first", 500, MM.minSpan, MM.maxSpan);
-    $("first").value = len;
-    if (!boards.length) { createInitial(len); fitCamera(); return; }
-    const fs = firstSpan();
-    if (!fs) return;
-    const delta = len - (fs.s1 - fs.s0);
-    if (!delta) return;
-    for (const b of boards) {
-      const minS = b.sup[0], maxS = b.sup[b.sup.length - 1];
-      if (minS >= fs.s1) b.x1 += delta;
-      if (maxS >= fs.s1) b.x2 += delta;
-      b.sup = b.sup.map(x => x >= fs.s1 ? x + delta : x);
-    }
-    breaks = new Set([...breaks].map(k => {
-      const [x, y1, y2] = k.split("|").map(Number);
-      return bkey(x >= fs.s1 ? x + delta : x, y1, y2);
-    }));
-    normalize();
-    rebuild();
-  }
-
-  function applyOverhang() {
-    const ov = OV();
-    $("overhang").value = ov;
-    for (const b of boards) {
-      b.x1 = b.sup[0] - ov;
-      b.x2 = b.sup[b.sup.length - 1] + ov;
-    }
-    normalize();
-    rebuild();
-  }
-
-  // ---------- Комплектация ----------
-  function computeBOM() {
-    const fl = isFloor(), dp = deep(), fLevel = floorLevel();
-    const wallPipe = PART.wallPipe();
-    const pipes = new Map();
-    const parts = { flange: 0, elbowTurn: 0, elbowSup: 0, nut: 0, coupling: 0, tee: 0 };
-    const addPipe = (len, n = 1) => pipes.set(len, (pipes.get(len) || 0) + n);
-    // Конец стойки к стене: труба 110 + уголок поворотный + труба 150/300 + фланец
-    const wallEnd = () => { addPipe(PART.endPipe); parts.elbowTurn++; addPipe(wallPipe); parts.flange++; };
-
-    for (const g of groupsOf(columns())) {
-      const lv = g.levels, low = lv[0];
-      const onFloor = fl && low === fLevel;
-      wallEnd();                    // верхний конец
-      if (!onFloor) wallEnd();      // нижний конец, если стойка не стоит на полу
-      for (let i = 1; i < lv.length; i++) addPipe(lv[i] - lv[i - 1] + MM.pipeAdj);
-      for (const y of lv) {
-        parts.nut++;                // контргайка над полкой
-        if (!dp) { parts.coupling++; continue; }      // муфта под полкой (у пола — ножка)
-        if (onFloor && y === low) { parts.tee += 2; addPipe(PART.crossPipe); continue; }
-        parts.tee++; addPipe(PART.crossPipe); parts.elbowSup++;
-      }
-    }
-
-    const rows = [];
-    if (parts.flange) rows.push({ name: "Фланец настенный", qty: parts.flange });
-    for (const len of [...pipes.keys()].sort((a, c) => a - c))
-      rows.push({ name: `Труба ${fmtNum(len)} мм`, qty: pipes.get(len), custom: !STD_PIPES.includes(len) });
-    if (parts.elbowTurn) rows.push({ name: "Уголок латунный поворотный", qty: parts.elbowTurn });
-    if (parts.elbowSup) rows.push({ name: "Уголок латунный опорный", qty: parts.elbowSup });
-    if (parts.nut) rows.push({ name: "Контргайка латунная", qty: parts.nut });
-    if (parts.coupling) rows.push({ name: "Муфта латунная", qty: parts.coupling });
-    if (parts.tee) rows.push({ name: "Тройник латунный резьбовой", qty: parts.tee });
-
-    const sh = new Map();
-    for (const b of boards) {
-      const len = b.x2 - b.x1;
-      sh.set(len, (sh.get(len) || 0) + 1);
-    }
-    const shelves = [...sh.keys()].sort((a, c) => c - a).map(len => ({
-      name: `Щит ${fmtNum(len)} × ${depth()} × ${MM.thickness} мм`, qty: sh.get(len)
-    }));
-    return { rows, shelves };
-  }
-
-  function renderBOM() {
-    const bom = computeBOM();
-    lastBOM = bom;
-    const t = $("bom");
-    t.replaceChildren();
-    const tr = (cells, cls) => {
-      const r = document.createElement("tr");
-      if (cls) r.className = cls;
-      cells.forEach(c => r.appendChild(c));
-      t.appendChild(r);
-      return r;
-    };
-    const cell = (tag, text, cls) => {
-      const c = document.createElement(tag);
-      if (cls) c.className = cls;
-      c.textContent = text;
-      return c;
-    };
-    tr([cell("th", "Деталь"), cell("th", "Кол-во", "q")]);
-    if (!bom.rows.length && !bom.shelves.length) {
-      const c = cell("td", "Нет деталей", "empty");
-      c.colSpan = 2;
-      tr([c]);
-      $("bom-csv").disabled = true;
-      return;
-    }
-    $("bom-csv").disabled = false;
-    const group = text => { const c = cell("td", text); c.colSpan = 2; tr([c], "group"); };
-    group("Трубы и фурнитура");
-    for (const r of bom.rows) {
-      const name = cell("td", r.name);
-      if (r.custom) name.appendChild(cell("span", "на заказ", "custom"));
-      tr([name, cell("td", r.qty + " шт", "q")]);
-    }
-    group("Мебельный щит");
-    for (const r of bom.shelves) tr([cell("td", r.name), cell("td", r.qty + " шт", "q")]);
-    $("bom-note").textContent =
-      `Длина трубы между полками = расстояние между полками + ${MM.pipeAdj} мм.`;
-  }
-
-  function downloadCSV() {
-    const bom = lastBOM;
-    if (!bom || (!bom.rows.length && !bom.shelves.length)) return;
-    const esc = v => {
-      const s = String(v);
-      return /[;"\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
-    };
-    const lines = [
-      ["Комплектация стеллажа"],
-      ["Тип", isFloor() ? "Напольный" : "Настенный"],
-      ["Глубина полок, мм", depth()],
-      ["Габариты (Ш × В)", $("size").textContent],
-      [],
-      ["Деталь", "Количество, шт", "Примечание"],
-      ...bom.rows.map(r => [r.name, r.qty, r.custom ? "на заказ" : ""]),
-      [],
-      ["Мебельный щит", "Количество, шт", ""],
-      ...bom.shelves.map(r => [r.name, r.qty, ""])
-    ];
-    const text = "\uFEFF" + lines.map(l => l.map(esc).join(";")).join("\r\n");
-    const blob = new Blob([text], { type: "text/csv;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "komplektaciya.csv";
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 1500);
+  function updateHeightHint() {
+    $("height-hint").textContent =
+      `Шаг полок: ${fmtNum(C.stepH(S))} мм, просвет между полками: ${fmtNum(C.clearH(S))} мм.`;
   }
 
   // ---------- Отметки на стене ----------
   const markById = id => marks.find(m => m.id === id);
-  const snapY = v => isFloor() ? floorY() + r10(v - floorY()) : r10(v);
-  const minMarkY = () => isFloor() ? floorY() : -Infinity;
+  const snapY = v => C.isFloor(S) ? C.floorY(S) + r10(v - C.floorY(S)) : r10(v);
+  const minMarkY = () => C.isFloor(S) ? C.floorY(S) : -Infinity;
 
   function markText(m) {
     let t = `${fmtNum(m.w)} × ${fmtNum(m.h)} мм`;
-    if (isFloor()) t += ` · от пола ${fmtNum(m.y - floorY())} мм`;
+    if (C.isFloor(S)) t += ` · от пола ${fmtNum(m.y - C.floorY(S))} мм`;
     return t;
   }
 
@@ -1285,7 +1448,7 @@
   function wallPoint(cx, cy) {
     _ndc.set(cx / innerWidth * 2 - 1, -(cy / innerHeight) * 2 + 1);
     _ray.setFromCamera(_ndc, camera);
-    const plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), -wallZ());
+    const plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), -C.wallZ(S));
     return _ray.ray.intersectPlane(plane, _hit) ? _hit.clone() : null;
   }
 
@@ -1300,17 +1463,17 @@
     const h = readNum("mark-h", 710, MM.markMin, 10000);
     $("mark-w").value = w; $("mark-h").value = h;
     let cx = 250, cy = 300;
-    if (boards.length) {
-      cx = (Math.min(...boards.map(b => b.x1)) + Math.max(...boards.map(b => b.x2))) / 2;
-      cy = (Math.min(...boards.map(b => b.y)) + Math.max(...boards.map(b => b.y))) / 2;
+    if (S.boards.length) {
+      cx = (Math.min(...S.boards.map(b => b.x1)) + Math.max(...S.boards.map(b => b.x2))) / 2;
+      cy = (Math.min(...S.boards.map(b => b.y)) + Math.max(...S.boards.map(b => b.y))) / 2;
     }
     const off = marks.length * 100;
     const x = r10(cx - w / 2) + off;
     let y;
-    if (isFloor()) {
+    if (C.isFloor(S)) {
       const f = readNum("mark-floor", 800, 0, 10000);
       $("mark-floor").value = f;
-      y = floorY() + f;
+      y = C.floorY(S) + f;
     } else y = r10(cy - h / 2) + off;
     marks.push({ id: nextMarkId++, x, y, w, h });
     rebuild();
@@ -1324,7 +1487,7 @@
   function renderMarkList() {
     const box = $("mark-list");
     box.replaceChildren();
-    const fl = isFloor();
+    const fl = C.isFloor(S);
     $("mark-floor-row").style.display = fl ? "" : "none";
     $("mark-clear").style.display = marks.length ? "" : "none";
     marks.forEach((m, i) => {
@@ -1362,7 +1525,8 @@
       fields.append(
         field("Ширина, мм", () => m.w, v => { m.w = v; }, MM.markMin),
         field("Высота, мм", () => m.h, v => { m.h = v; }, MM.markMin));
-      if (fl) fields.append(field("От пола, мм", () => m.y - floorY(), v => { m.y = floorY() + v; }, 0));
+      if (fl) fields.append(field("От пола, мм", () => m.y - C.floorY(S),
+        v => { m.y = C.floorY(S) + v; }, 0));
       item.append(head, fields);
       box.appendChild(item);
     });
@@ -1397,8 +1561,7 @@
     else { closeSheets(); fitCamera(true); }
   }
 
-  // ---------- Жесты (нажатие / перетаскивание) ----------
-  // Направление и масштаб оси на экране: по умолчанию ось X, для синего «+» — ось Y
+  // ---------- Жесты ----------
   function screenAxis(p, dirVec = V(100, 0, 0)) {
     camera.updateMatrixWorld();
     const a = proj(p), b = proj(p.clone().add(dirVec));
@@ -1443,7 +1606,6 @@
   document.addEventListener("pointerup", e => endGesture(e, false));
   document.addEventListener("pointercancel", e => endGesture(e, true));
 
-  // Рисование отметки на стене
   renderer.domElement.addEventListener("pointerdown", e => {
     if (e.isPrimary) activePts.clear();
     activePts.add(e.pointerId);
@@ -1465,7 +1627,7 @@
     const x = Math.min(draw.x0, draw.x1), y = Math.min(draw.y0, draw.y1);
     const w = Math.abs(draw.x1 - draw.x0), h = Math.abs(draw.y1 - draw.y0);
     preview.visible = w > 0 && h > 0;
-    preview.position.set(x, y, wallZ() + 1.2);
+    preview.position.set(x, y, C.wallZ(S) + 1.2);
     preview.scale.set(Math.max(w, 1), Math.max(h, 1), 1);
     if (w || h) showDragLabel(markText({ x, y, w, h }), e.clientX, e.clientY);
     requestRender();
@@ -1479,22 +1641,43 @@
     if (draw && e.pointerId === draw.id) finishDraw(true);
   });
 
+  // ---------- Подсказка при упоре в трубу ----------
+  function showBlockHelp(res) {
+    if (!res.help || !res.help.length) { toast(res.msg); return; }
+    const acts = res.help.map(h => ({
+      text: `Полка на ${fmtNum(Math.abs(h.v - res.y))} мм ${h.v > res.y ? "выше" : "ниже"}`,
+      run: () => {
+        const err = C.addShelfAt(S, res.at, h.v, h.lower);
+        rebuild();
+        toast(err || "Полка добавлена — теперь щит можно дотянуть");
+      }
+    }));
+    toast("На этой высоте не соединить — нужна промежуточная полка", acts);
+  }
+
   function greenGesture(id, dir) {
     let st = null;
     return {
-      click: () => clickExtend(id, dir),
+      click() {
+        const b = C.byId(S, id);
+        const len = readNum("length", 500, MM.minSpan, MM.maxLen);
+        const res = C.clickExtend(S, id, dir, len);
+        rebuild();
+        if (res.help && res.help.length && b) showBlockHelp({ ...res, y: b.y });
+        else if (res.msg) toast(res.msg);
+      },
       start() {
-        const b = byId(id);
+        const b = C.byId(S, id);
         if (!b) return;
-        const ov = OV();
-        const c = extContext(b, dir);
+        const ovv = C.ov(S);
+        const c = C.extContext(S, b, dir);
         const E0 = dir > 0 ? b.x2 : b.x1;
-        let minE = c.base + dir * ov;
+        let minE = c.base + dir * ovv;
         if ((E0 - minE) * dir < 0) minE = E0;
         st = {
-          b, c, E0, minE, ov, E: E0, merged: false,
+          b, c, E0, minE, ov: ovv, E: E0, merged: false,
           baseSups: b.sup.slice(),
-          axis: screenAxis(V(E0, b.y, frontZ()))
+          axis: screenAxis(V(E0, b.y, C.frontZ(S)))
         };
       },
       move(dx, dy, e) {
@@ -1506,10 +1689,10 @@
         if ((E - c.base) * dir > 20000) E = c.base + dir * 20000;
         if (E !== st.E) {
           st.E = E;
-          const plan = planExtension(dir, E, c, st.ov);
+          const plan = C.planExtension(S, dir, E, c, st.ov);
           st.merged = plan.merged;
           st.b.sup = uniqSort([...st.baseSups, ...plan.extra]);
-          setEdge(st.b, dir, E);
+          C.setEdge(st.b, dir, E);
           rebuild();
         }
         const s = st.b.sup;
@@ -1526,7 +1709,7 @@
       },
       end() {
         if (!st) return;
-        const b = st.b, c = st.c, merged = st.merged;
+        const b = st.b, c = st.c, merged = st.merged, atLimit = c.blk && st.E === c.maxE;
         if (!merged) {
           const last = dir > 0 ? b.sup[b.sup.length - 1] : b.sup[0];
           const need = last + dir * st.ov;
@@ -1534,57 +1717,64 @@
           if ((E - need) * dir < 0) {
             E = need;
             if ((E - c.maxE) * dir > 0) E = c.maxE;
-            setEdge(b, dir, E);
+            C.setEdge(b, dir, E);
           }
         }
+        const y = b.y, blkX = c.blk ? c.blk.x : null;
         st = null;
-        normalize();
+        C.normalize(S);
         rebuild();
         if (merged) toast("Щит соединён с соседним");
+        else if (atLimit && blkX !== null) {
+          const help = C.blockHelp(S, blkX, y);
+          if (help.length) showBlockHelp({ msg: "", help, at: blkX, y });
+        }
       }
     };
   }
 
-  // Синий «+»: нажатие — полка на выбранной трубе; перетаскивание — выбор трубы 150–500 мм
-  const cancelPx = () => L.c / 2 + 6;   // зона отмены вокруг плюса, px
+  const cancelPx = () => L.c / 2 + 6;
 
   function blueGesture(id, a, c, sign) {
     let st = null;
 
     function applyTemp() {
-      boards = st.snap.map(o => ({ ...o, sup: o.sup.slice() }));
-      breaks = new Set(st.snapBreaks);
+      C.restore(S, st.snap);
       if (st.cur) {
         const k = st.cur.chk;
-        boards.push({ id: st.tempId, y: st.cur.ny, x1: k.x1, x2: k.x2, sup: k.sup.slice() });
+        S.boards.push({ id: st.tempId, y: st.cur.ny, x1: k.x1, x2: k.x2, sup: k.sup.slice() });
       }
-      normalize();
+      C.normalize(S);
       rebuild();
     }
 
     return {
-      click: () => addLevel(id, a, c, sign),
+      click() {
+        const res = C.addLevel(S, id, a, c, sign);
+        rebuild();
+        if (res.msg) toast(res.msg);
+      },
       start() {
-        const b = byId(id);
+        const b = C.byId(S, id);
         if (!b) return;
-        const opts = BLUE_PIPES.map(p => {
-          const gap = p - MM.pipeAdj, ny = b.y + sign * gap;
-          return { pipe: p, gap, ny, off: p - BLUE_PIPES[0], chk: levelCheck(b, a, c, ny, true) };
+        const opts = C.BLUE_PIPES.map(p => {
+          const ny = b.y + sign * p;
+          return { pipe: p, gap: p, ny, off: p - C.BLUE_PIPES[0],
+                   chk: C.levelCheck(S, b, a, c, ny, true) };
         });
         st = {
           opts, valid: opts.filter(o => o.chk.ok), cur: null,
-          snap: boards.map(o => ({ ...o, sup: o.sup.slice() })),
-          snapBreaks: new Set(breaks),
-          tempId: nextId++,
-          axis: screenAxis(V((a + c) / 2, b.y, frontZ()), V(0, 100, 0))
+          snap: C.snapshot(S),
+          tempId: S.nextId++,
+          axis: screenAxis(V((a + c) / 2, b.y, C.frontZ(S)), V(0, 100, 0))
         };
       },
       move(dx, dy, e) {
         if (!st) return;
-        const px = (dx * st.axis.ux + dy * st.axis.uy) * sign;   // сдвиг от полки, px
+        const px = (dx * st.axis.ux + dy * st.axis.uy) * sign;
         let pick = null;
         if (st.valid.length && px >= cancelPx()) {
-          const w = (px - cancelPx()) / st.axis.ppm;               // в мм за зоной отмены
+          const w = (px - cancelPx()) / st.axis.ppm;
           for (const o of st.valid)
             if (!pick || Math.abs(w - o.off) < Math.abs(w - pick.off)) pick = o;
         }
@@ -1592,7 +1782,12 @@
         let text;
         if (!st.valid.length) text = "Нет места для новой полки";
         else if (!st.cur) text = "Отпустите — полка не добавится";
-        else text = `Труба ${st.cur.pipe} мм · между полками ${fmtNum(st.cur.gap)} мм`;
+        else {
+          text = `Труба ${st.cur.pipe} мм · просвет ${fmtNum(st.cur.pipe - MM.thickness)} мм`;
+          if (st.snap.boards.some(o => o.y === st.cur.ny &&
+              o.x1 <= st.cur.chk.x2 && o.x2 >= st.cur.chk.x1))
+            text += " · соединение с полкой";
+        }
         showDragLabel(text, e.clientX, e.clientY);
       },
       end(cancelled) {
@@ -1600,12 +1795,12 @@
         if (cancelled || !st.cur) {
           const none = !st.valid.length, reason = st.opts[0].chk.reason;
           st.cur = null;
-          applyTemp();               // вернуть всё как было
+          applyTemp();
           st = null;
           if (!cancelled && none) toast(reason || "Нет места для новой полки");
           return;
         }
-        st = null;                   // полка уже добавлена при перетаскивании
+        st = null;
         rebuild();
       }
     };
@@ -1615,9 +1810,9 @@
     let st = null;
     return {
       start() {
-        const bs = groupBoards(x0, levels);
+        const bs = C.groupBoards(S, x0, levels);
         if (!bs.length) return;
-        const ov = OV();
+        const ovv = C.ov(S);
         let lo = -Infinity, hi = Infinity;
         for (const b of bs) {
           const o = b.sup.filter(s => s !== x0);
@@ -1626,21 +1821,21 @@
           if (left !== undefined) {
             lo = Math.max(lo, left + MM.minSpan); hi = Math.min(hi, left + MM.maxSpan);
           } else {
-            lo = Math.max(lo, b.x1 + ov); hi = Math.min(hi, b.x1 + MM.maxOverhang);
+            lo = Math.max(lo, b.x1 + ovv); hi = Math.min(hi, b.x1 + MM.maxOverhang);
           }
           if (right !== undefined) {
             hi = Math.min(hi, right - MM.minSpan); lo = Math.max(lo, right - MM.maxSpan);
           } else {
-            hi = Math.min(hi, b.x2 - ov); lo = Math.max(lo, b.x2 - MM.maxOverhang);
+            hi = Math.min(hi, b.x2 - ovv); lo = Math.max(lo, b.x2 - MM.maxOverhang);
           }
         }
         lo = Math.min(Math.ceil(lo / 10) * 10, x0);
         hi = Math.max(Math.floor(hi / 10) * 10, x0);
-        detach(x0, levels);
+        C.detach(S, x0, levels);
         st = {
           bs, lo, hi, cur: x0,
-          baseBreaks: new Set(breaks),
-          axis: screenAxis(V(x0, levels[0], frontZ()))
+          baseBreaks: new Set(S.breaks),
+          axis: screenAxis(V(x0, levels[0], C.frontZ(S)))
         };
       },
       move(dx, dy, e) {
@@ -1649,7 +1844,7 @@
         if (x !== st.cur) {
           for (const b of st.bs) b.sup = b.sup.map(s => s === st.cur ? x : s).sort((a, c) => a - c);
           st.cur = x;
-          breaks = new Set([...st.baseBreaks, ...attachKeys(x, levels)]);
+          S.breaks = new Set([...st.baseBreaks, ...C.attachKeys(S, x, levels)]);
           rebuild();
         }
         const b = st.bs[0], i = b.sup.indexOf(st.cur);
@@ -1660,7 +1855,7 @@
       end() {
         if (!st) return;
         st = null;
-        normalize();
+        C.normalize(S);
         rebuild();
       }
     };
@@ -1717,49 +1912,50 @@
   }
 
   // ---------- 3D-построение ----------
-  function add(geo, mat, x, y, z, sx, sy, sz, rx = 0) {
+  function add(geo, mat, x, y, z, sx, sy, sz, rx = 0, group = model, name = "") {
     const m = new THREE.Mesh(geo, mat);
     m.position.set(x, y, z);
     m.scale.set(sx, sy, sz);
     if (rx) m.rotation.x = rx;
     m.castShadow = true;
     m.receiveShadow = true;
-    model.add(m);
+    if (name) m.name = name;
+    group.add(m);
     return m;
   }
 
-  function clearModel() {
-    while (model.children.length) {
-      const ch = model.children[model.children.length - 1];
+  function clearGroup(g) {
+    while (g.children.length) {
+      const ch = g.children[g.children.length - 1];
       if (ch.userData.ownGeo) ch.geometry.dispose();
-      model.remove(ch);
+      g.remove(ch);
     }
   }
 
   function pipe(x, y1, y2) {
     if (y2 <= y1) return;
-    add(G.cyl, pipeMat, x, (y1 + y2) / 2, 0, MM.pipeR, y2 - y1, MM.pipeR);
+    add(G.cyl, pipeMat, x, (y1 + y2) / 2, 0, MM.pipeR, y2 - y1, MM.pipeR, 0, model, "Труба");
   }
 
   function wallMount(x, y) {
-    const wz = wallZ(), len = -wz;
-    add(G.sphere, fitMat, x, y, 0, 15, 15, 15);
-    add(G.cyl, pipeMat, x, y, -len / 2, MM.pipeR, len, MM.pipeR, Math.PI / 2);
-    add(G.cyl, pipeMat, x, y, wz + 2.5, 35, 5, 35, Math.PI / 2);
+    const wz = C.wallZ(S), len = -wz;
+    add(G.sphere, fitMat, x, y, 0, 15, 15, 15, 0, model, "Уголок");
+    add(G.cyl, pipeMat, x, y, -len / 2, MM.pipeR, len, MM.pipeR, Math.PI / 2, model, "Труба к стене");
+    add(G.cyl, pipeMat, x, y, wz + 2.5, 35, 5, 35, Math.PI / 2, model, "Фланец");
   }
 
-  // Ножка напольного стеллажа под нижней полкой
   function floorFoot(x, y) {
     const yc = y - MM.thickness / 2 - MM.foot / 2;
-    if (!deep()) {
-      add(G.cyl, fitMat, x, yc, 0, 14, MM.foot, 14);   // латунная муфта-ножка
+    if (!C.deep(S)) {
+      add(G.cyl, fitMat, x, yc, 0, 14, MM.foot, 14, 0, model, "Муфта-ножка");
       return;
     }
-    add(G.cyl, fitMat, x, yc, 0, 15, MM.foot, 15);       // тройник у трубы
-    add(G.cyl, fitMat, x, yc, -14, 11, 12, 11, Math.PI / 2);
-    add(G.cyl, pipeMat, x, yc, -100, MM.pipeR, 170, MM.pipeR, Math.PI / 2);
-    add(G.cyl, fitMat, x, yc, -186, 11, 12, 11, Math.PI / 2);
-    add(G.cyl, fitMat, x, yc, -200, 15, MM.foot, 15);    // тройник-опора у стены
+    const r = C.supportReach(S);
+    add(G.cyl, fitMat, x, yc, 0, 15, MM.foot, 15, 0, model, "Тройник");
+    add(G.cyl, fitMat, x, yc, -14, 11, 12, 11, Math.PI / 2, model, "Тройник");
+    add(G.cyl, pipeMat, x, yc, -r / 2, MM.pipeR, r - 30, MM.pipeR, Math.PI / 2, model, "Труба опорная");
+    add(G.cyl, fitMat, x, yc, -(r - 14), 11, 12, 11, Math.PI / 2, model, "Тройник");
+    add(G.cyl, fitMat, x, yc, -r, 15, MM.foot, 15, 0, model, "Тройник");
   }
 
   // ---------- Оверлей ----------
@@ -1799,7 +1995,7 @@
     if (gesture && gesture.el) gesture.el.style.opacity = "0";
     svg.replaceChildren();
     dimLayer.querySelectorAll(".dimension-label").forEach(n => n.remove());
-    overlayButtons = []; dims = []; leaders = [];
+    overlayButtons = []; dims = []; leaders = []; tags = [];
   }
 
   function addButton(o) {
@@ -1836,6 +2032,14 @@
       dx: opt.dx || 0, dy: opt.dy || 0, always: !!opt.always, tick: opt.tick || 5,
       need: opt.vertical ? L.lblH + 4 : text.length * L.charW + 10
     });
+  }
+
+  function addTag(p, text, dy) {
+    const el = document.createElement("div");
+    el.className = "dimension-label tag";
+    el.textContent = text;
+    dimLayer.appendChild(el);
+    tags.push({ p, el, dy: dy || 0 });
   }
 
   function addLeader(a, b, cls = "") {
@@ -1880,6 +2084,13 @@
       d.label.style.transform =
         `translate(${(a.x + b.x) / 2}px,${(a.y + b.y) / 2}px) translate(-50%,-50%)`;
     }
+    for (const t of tags) {
+      let ok = show, p;
+      if (ok) { p = proj(t.p); ok = inFrustum(p); }
+      t.el.style.display = ok ? "block" : "none";
+      if (ok) t.el.style.transform =
+        `translate(${p.x}px,${p.y + t.dy}px) translate(-50%,-50%)`;
+    }
     for (const l of leaders) {
       let ok = show, a, b;
       if (ok) { a = proj(l.a); b = proj(l.b); ok = inFrustum(a) && inFrustum(b); }
@@ -1890,22 +2101,26 @@
 
   // ---------- Перестройка сцены ----------
   function rebuild() {
-    clearModel();
+    clearGroup(model);
+    clearGroup(decor);
     clearOverlay();
 
-    const d = depth(), wz = woodZ(), fz = frontZ(), T = MM.thickness, step = stepH();
-    const fl = isFloor(), fLevel = floorLevel(), fY = floorY();
+    const d = C.depthOf(S), wz = C.woodZ(S), fz = C.frontZ(S), T = MM.thickness, step = C.stepH(S);
+    const fl = C.isFloor(S), fLevel = C.floorLevel(S), fY = C.floorY(S);
     const mm = v => L.small ? fmtNum(v) : fmtNum(v) + " мм";
-    let area = 0, tubes = 0, W = 0, H = 0;
     let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
 
+    const pan = C.computePanels(S);
+    lastPanels = pan;
+
     // Щиты и цепочка размеров под каждым щитом
-    for (const b of boards) {
+    for (const b of S.boards) {
       const len = b.x2 - b.x1;
-      area += len * d / 1e6;
-      add(G.box, woodMat, (b.x1 + b.x2) / 2, b.y, wz, len, T, d);
+      const no = pan.byBoard.get(b.id);
+      add(G.box, woodMat, (b.x1 + b.x2) / 2, b.y, wz, len, T, d, 0, model, `Щит ${no}`);
       minX = Math.min(minX, b.x1); maxX = Math.max(maxX, b.x2);
       minY = Math.min(minY, b.y); maxY = Math.max(maxY, b.y);
+      if (no) addTag(V((b.x1 + b.x2) / 2, b.y, fz), `Щит ${no}`, -L.lbl - 14);
       const pts = [b.x1, ...b.sup, b.x2];
       for (let i = 1; i < pts.length; i++) {
         const p = pts[i - 1], q = pts[i];
@@ -1917,63 +2132,68 @@
     }
 
     // Трубы: кнопки разреза
-    const cols = columns();
+    const cols = C.columns(S);
     for (const [x, lv] of cols) {
       for (let i = 1; i < lv.length; i++) {
         const y1 = lv[i - 1], y2 = lv[i];
         if (y2 - y1 <= 2 * MM.cap) continue;
         const key = bkey(x, y1, y2);
-        const broken = breaks.has(key);
+        const broken = S.breaks.has(key);
         addButton({
           text: broken ? "↔" : "✂", cls: "pipe" + (broken ? " broken" : ""), small: true,
           title: broken ? "Соединить трубу" : "Разрезать трубу",
           pos: at(V(x, (y1 + y2) / 2, 0), -(L.s / 2 + 6), 0),
           click: () => {
-            if (breaks.has(key)) breaks.delete(key); else breaks.add(key);
-            normalize(); rebuild();
+            const was = S.breaks.has(key);
+            if (was) S.breaks.delete(key); else S.breaks.add(key);
+            C.normalize(S);
+            rebuild();
+            if (was && S.breaks.has(key))
+              toast("Нельзя соединить: на пути щит, трубы получились бы нестандартными");
           }
         });
       }
     }
 
-    for (const g of groupsOf(cols)) {
+    for (const g of C.groupsOf(S, cols)) {
       const { x, levels } = g;
       const low = levels[0], high = levels[levels.length - 1];
       const onFloor = fl && low === fLevel;
-      if (!onFloor) { pipe(x, low - MM.cap, low); wallMount(x, low - MM.cap); tubes += 2; }
-      pipe(x, high, high + MM.cap); wallMount(x, high + MM.cap); tubes += 2;
-      for (let i = 1; i < levels.length; i++) { pipe(x, levels[i - 1], levels[i]); tubes++; }
+      if (!onFloor) { pipe(x, low - MM.cap, low); wallMount(x, low - MM.cap); }
+      pipe(x, high, high + MM.cap); wallMount(x, high + MM.cap);
+      for (let i = 1; i < levels.length; i++) pipe(x, levels[i - 1], levels[i]);
       for (const y of levels) {
-        add(G.cyl, fitMat, x, y + 14, 0, 14, 9, 14);
-        if (onFloor && y === low) {
-          floorFoot(x, y);
-          if (deep()) tubes++;
-          continue;
-        }
-        if (deep()) {
-          add(G.cyl, fitMat, x, y - 22, 0, 15, 24, 15);
-          add(G.cyl, pipeMat, x, y - 22, -100, MM.pipeR, 200, MM.pipeR, Math.PI / 2);
-          add(G.box, fitMat, x, y - 22, -200, 25, 25, 25);
-          tubes++;
+        add(G.cyl, fitMat, x, y + 14, 0, 14, 9, 14, 0, model, "Контргайка");
+        if (onFloor && y === low) { floorFoot(x, y); continue; }
+        if (C.deep(S)) {
+          const reach = C.supportReach(S);
+          add(G.cyl, fitMat, x, y - 22, 0, 15, 24, 15, 0, model, "Тройник");
+          add(G.cyl, pipeMat, x, y - 22, -reach / 2, MM.pipeR, reach, MM.pipeR, Math.PI / 2,
+            model, "Труба опорная");
+          add(G.box, fitMat, x, y - 22, -reach, 25, 25, 25, 0, model, "Уголок опорный");
         } else {
-          add(G.cyl, fitMat, x, y - 19, 0, 13, 18, 13);
+          add(G.cyl, fitMat, x, y - 19, 0, 13, 18, 13, 0, model, "Муфта");
         }
       }
       addButton({
         text: "⇔", cls: "support", small: true, title: "Сдвинуть опору",
         pos: at(V(x, low, fz), 0, L.sup), gesture: supportGesture(x, levels)
       });
-      const reason = deleteBlockReason(x, levels);
+      const reason = C.deleteBlockReason(S, x, levels);
       addButton({
         text: "×", cls: "del-support" + (reason ? " disabled" : ""), small: true,
         title: reason || "Удалить опору",
         pos: at(V(x, low, fz), 0, L.del),
-        click: () => reason ? toast(reason) : deleteGroup(x, levels)
+        click: () => reason ? toast(reason) : (() => {
+          const res = C.deleteGroup(S, x, levels);
+          rebuild();
+          if (res.msg) toast(res.msg);
+        })()
       });
     }
 
     // Стена, пол и свет
-    const has = boards.length > 0;
+    const has = S.boards.length > 0;
     let ax1 = has ? minX : -250, ax2 = has ? maxX : 750;
     let ay1 = has ? minY : 0, ay2 = has ? maxY : 0;
     for (const m of marks) {
@@ -1982,13 +2202,13 @@
     }
     const wx1 = ax1 - 1500, wx2 = ax2 + 1500;
     const wy1 = fl ? fY : ay1 - 1300, wy2 = ay2 + 1300;
-    const wall = add(G.plane, wallMat, (wx1 + wx2) / 2, (wy1 + wy2) / 2, wallZ() - .5,
-      wx2 - wx1, wy2 - wy1, 1);
+    const wall = add(G.plane, wallMat, (wx1 + wx2) / 2, (wy1 + wy2) / 2, C.wallZ(S) - .5,
+      wx2 - wx1, wy2 - wy1, 1, 0, decor, "Стена");
     wall.castShadow = false;
     if (fl) {
       const fd = 2600;
-      const floor = add(G.plane, floorMat, (wx1 + wx2) / 2, fY, wallZ() + fd / 2,
-        wx2 - wx1, fd, 1, -Math.PI / 2);
+      const floor = add(G.plane, floorMat, (wx1 + wx2) / 2, fY, C.wallZ(S) + fd / 2,
+        wx2 - wx1, fd, 1, -Math.PI / 2, decor, "Пол");
       floor.castShadow = false;
     }
     const cx = (ax1 + ax2) / 2, cy = (ay1 + ay2) / 2;
@@ -2001,17 +2221,21 @@
     sc.updateProjectionMatrix();
 
     // Кнопки щитов
-    for (const b of boards) {
+    for (const b of S.boards) {
       const s = b.sup;
       for (let i = 0; i < s.length - 1; i++) {
         const a = s[i], c = s[i + 1], mid = (a + c) / 2;
         addButton({
           text: "−", cls: "remove", title: "Удалить пролёт",
           pos: at(V(mid, b.y + T / 2, fz), 0, -L.rem),
-          click: () => removeSpan(b.id, a, c)
+          click: () => {
+            const res = C.removeSpan(S, b.id, a, c);
+            rebuild();
+            if (res.msg) toast(res.msg);
+          }
         });
         for (const sign of [1, -1]) {
-          if (blocked(b.y, a, c, sign)) continue;
+          if (C.blocked(S, b.y, a, c, sign)) continue;
           if (sign < 0 && fl && b.y - step < fLevel) continue;
           const base = V(mid, b.y + sign * T / 2, fz);
           const tgt = V(mid, b.y + sign * step * .5, fz);
@@ -2031,7 +2255,7 @@
       }
       for (const dir of [-1, 1]) {
         const edge = dir > 0 ? b.x2 : b.x1;
-        if ((neighborLimit(b, dir) - edge) * dir <= 0) continue;
+        if ((C.neighborLimit(S, b, dir) - edge) * dir <= 0) continue;
         addButton({
           text: "+", cls: "horizontal",
           title: "Нажмите — добавить секцию; потяните — изменить длину щита",
@@ -2042,15 +2266,16 @@
     }
 
     // Общие размеры
+    let W = 0, H = 0;
     if (has) {
-      const levels = [...new Set(boards.map(b => b.y))].sort((a, c) => a - c);
+      const levels = uniqSort(S.boards.map(b => b.y));
       const chainX = minX - 160, totX = minX - 320;
       if (levels.length > 1) {
         for (let i = 1; i < levels.length; i++)
           addDim(V(chainX, levels[i - 1] + T / 2, fz), V(chainX, levels[i] + T / 2, fz),
             mm(levels[i] - levels[i - 1]), "level", { vertical: true });
         for (const y of levels) {
-          const lx = Math.min(...boards.filter(b => b.y === y).map(b => b.x1));
+          const lx = Math.min(...S.boards.filter(b => b.y === y).map(b => b.x1));
           addLeader(V(chainX, y + T / 2, fz), V(lx, y + T / 2, fz));
         }
       }
@@ -2065,24 +2290,25 @@
       const wy = yBot - 220;
       addDim(V(minX, wy, fz), V(maxX, wy, fz), (L.small ? "Ш " : "Ширина ") + mm(W), "total",
         { always: true, tick: 6 });
-      const leftB = boards.reduce((p, c) => c.x1 < p.x1 ? c : p);
-      const rightB = boards.reduce((p, c) => c.x2 > p.x2 ? c : p);
+      const leftB = S.boards.reduce((p, c) => c.x1 < p.x1 ? c : p);
+      const rightB = S.boards.reduce((p, c) => c.x2 > p.x2 ? c : p);
       addLeader(V(minX, leftB.y, fz), V(minX, wy, fz), "total");
       addLeader(V(maxX, rightB.y, fz), V(maxX, wy, fz), "total");
 
-      const top = boards.filter(b => b.y === maxY).sort((p, q) => q.x2 - p.x2)[0];
+      const top = S.boards.filter(b => b.y === maxY).sort((p, q) => q.x2 - p.x2)[0];
       addDim(V(top.x2 + 40, top.y + T / 2, wz - d / 2), V(top.x2 + 40, top.y + T / 2, wz + d / 2),
         mm(d), "");
     }
 
     // Отметки на стене
-    const mz = wallZ() + 1;
+    const mz = C.wallZ(S) + 1;
     for (const m of marks) {
       const fill = new THREE.Mesh(G.plane, markFillMat);
-      fill.position.set(m.x + m.w / 2, m.y + m.h / 2, wallZ() + .6);
+      fill.position.set(m.x + m.w / 2, m.y + m.h / 2, C.wallZ(S) + .6);
       fill.scale.set(m.w, m.h, 1);
       fill.renderOrder = 2;
-      model.add(fill);
+      fill.name = "Отметка";
+      decor.add(fill);
       const geo = new THREE.BufferGeometry().setFromPoints([
         V(m.x, m.y, mz), V(m.x + m.w, m.y, mz), V(m.x + m.w, m.y + m.h, mz),
         V(m.x, m.y + m.h, mz), V(m.x, m.y, mz)
@@ -2091,7 +2317,8 @@
       ln.computeLineDistances();
       ln.userData.ownGeo = true;
       ln.renderOrder = 3;
-      model.add(ln);
+      ln.name = "Отметка";
+      decor.add(ln);
 
       addDim(V(m.x, m.y + m.h, mz), V(m.x + m.w, m.y + m.h, mz), mm(m.w), "mark",
         { dy: -L.lbl, always: true });
@@ -2119,35 +2346,241 @@
     }
 
     // Стоимость
-    const woodPrice = area * WOOD_RATE, pipePrice = tubes * PIPE_RATE;
-    $("area").textContent = area.toLocaleString("ru-RU",
+    const pr = C.computePrice(S);
+    $("area").textContent = pr.area.toLocaleString("ru-RU",
       { minimumFractionDigits: 2, maximumFractionDigits: 3 }) + " м²";
-    $("wood-price").textContent = money(woodPrice);
-    $("pipe-price").textContent = money(pipePrice);
-    $("pipe-count").textContent = String(tubes);
-    $("total").textContent = money(woodPrice + pipePrice);
-    $("bar-total").textContent = money(woodPrice + pipePrice);
+    $("wood-price").textContent = money(pr.wood);
+    $("pipe-price").textContent = money(pr.pipe);
+    $("pipe-count").textContent = String(pr.tubes);
+    $("total").textContent = money(pr.total);
+    $("bar-total").textContent = money(pr.total);
     $("size").textContent = has ? `${fmtNum(W)} × ${fmtNum(H)} мм` : "—";
 
-    // Комплектация
     renderBOM();
+    renderPanels(pan);
 
     if (document.activeElement !== $("first")) {
-      const fs = firstSpan();
+      const fs = C.firstSpan(S);
       if (fs) $("first").value = fs.s1 - fs.s0;
     }
     if (!$("mark-list").contains(document.activeElement)) renderMarkList();
     requestRender();
   }
 
+  // ---------- Комплектация ----------
+  function renderBOM() {
+    const bom = C.computeBOM(S);
+    lastBOM = bom;
+    const t = $("bom");
+    t.replaceChildren();
+    const tr = (cells, cls) => {
+      const r = document.createElement("tr");
+      if (cls) r.className = cls;
+      cells.forEach(c => r.appendChild(c));
+      t.appendChild(r);
+      return r;
+    };
+    const cell = (tag, text, cls) => {
+      const c = document.createElement(tag);
+      if (cls) c.className = cls;
+      c.textContent = text;
+      return c;
+    };
+    tr([cell("th", "Деталь"), cell("th", "Кол-во", "q")]);
+    if (!bom.rows.length && !bom.shelves.length) {
+      const c = cell("td", "Нет деталей", "empty");
+      c.colSpan = 2;
+      tr([c]);
+      $("bom-csv").disabled = true;
+      return;
+    }
+    $("bom-csv").disabled = false;
+    const group = text => { const c = cell("td", text); c.colSpan = 2; tr([c], "group"); };
+    group("Трубы и фурнитура");
+    for (const r of bom.rows) {
+      const name = cell("td", r.name);
+      if (r.custom) name.appendChild(cell("span", "на заказ", "custom"));
+      tr([name, cell("td", r.qty + " шт", "q")]);
+    }
+    group("Мебельный щит");
+    for (const r of bom.shelves) tr([cell("td", r.name), cell("td", r.qty + " шт", "q")]);
+    $("bom-note").textContent =
+      "Длина трубы между полками равна шагу полок; просвет меньше на толщину щита.";
+  }
+
+  // ---------- Раскрой и присадка ----------
+  function panelSchemaSVG(p, w = 520) {
+    const padX = 34, padTop = 46, padBot = 52, h = 150;
+    const inner = w - padX * 2;
+    const k = inner / p.len;
+    const X = v => padX + v * k;
+    const top = padTop, bot = padTop + h;
+    const e = [];
+    const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;");
+    e.push(`<rect x="${padX}" y="${top}" width="${inner}" height="${h}" fill="#f6efe4" stroke="#9a7445" stroke-width="1.5"/>`);
+    // отверстия
+    const hy = top + h * (p.back / p.depth);
+    for (const o of p.holes) {
+      e.push(`<circle cx="${X(o).toFixed(1)}" cy="${hy.toFixed(1)}" r="5" fill="#fff" stroke="#2c3b42" stroke-width="1.5"/>`);
+      e.push(`<line x1="${X(o).toFixed(1)}" y1="${top}" x2="${X(o).toFixed(1)}" y2="${bot}" stroke="#c9b48f" stroke-width=".8" stroke-dasharray="4 4"/>`);
+    }
+    // цепочка снизу
+    const cy = bot + 22;
+    const pts = [0, ...p.holes, p.len];
+    e.push(`<line x1="${padX}" y1="${cy}" x2="${padX + inner}" y2="${cy}" stroke="#245971" stroke-width="1"/>`);
+    for (let i = 1; i < pts.length; i++) {
+      const a = X(pts[i - 1]), b = X(pts[i]);
+      e.push(`<line x1="${a.toFixed(1)}" y1="${cy - 5}" x2="${a.toFixed(1)}" y2="${cy + 5}" stroke="#245971" stroke-width="1"/>`);
+      e.push(`<text x="${((a + b) / 2).toFixed(1)}" y="${cy + 16}" text-anchor="middle" font-size="11" fill="#213d4b">${esc(Math.round(pts[i] - pts[i - 1]))}</text>`);
+    }
+    e.push(`<line x1="${(padX + inner).toFixed(1)}" y1="${cy - 5}" x2="${(padX + inner).toFixed(1)}" y2="${cy + 5}" stroke="#245971" stroke-width="1"/>`);
+    // нарастающим итогом сверху
+    const uy = top - 24;
+    e.push(`<line x1="${padX}" y1="${uy}" x2="${padX + inner}" y2="${uy}" stroke="#168050" stroke-width="1"/>`);
+    e.push(`<text x="${padX}" y="${uy - 6}" font-size="10" fill="#12683d">от левого торца, мм</text>`);
+    for (const o of p.holes) {
+      e.push(`<line x1="${X(o).toFixed(1)}" y1="${uy - 4}" x2="${X(o).toFixed(1)}" y2="${(uy + 4).toFixed(1)}" stroke="#168050" stroke-width="1"/>`);
+      e.push(`<text x="${X(o).toFixed(1)}" y="${uy + 15}" text-anchor="middle" font-size="10.5" fill="#12683d">${esc(Math.round(o))}</text>`);
+    }
+    // отступ от задней кромки справа
+    e.push(`<line x1="${(padX + inner + 10).toFixed(1)}" y1="${top}" x2="${(padX + inner + 10).toFixed(1)}" y2="${hy.toFixed(1)}" stroke="#245971" stroke-width="1"/>`);
+    e.push(`<text x="${(padX + inner + 14).toFixed(1)}" y="${((top + hy) / 2 + 4).toFixed(1)}" font-size="10.5" fill="#213d4b">${esc(p.back)}</text>`);
+    e.push(`<text x="${padX}" y="${bot + 44}" font-size="11" fill="#66757b">Щит ${p.no} · ${esc(fmtNum(p.len))} × ${p.depth} × ${p.thickness} мм · отв. ⌀${p.dia} мм · ${p.qty} шт</text>`);
+    return `<svg viewBox="0 0 ${w + 40} ${bot + padBot + 10}" xmlns="http://www.w3.org/2000/svg">${e.join("")}</svg>`;
+  }
+
+  function renderPanels(pan) {
+    const box = $("panels");
+    box.replaceChildren();
+    const ps = pan.panels;
+    $("pan-print").disabled = !ps.length;
+    $("pan-note").textContent = ps.length
+      ? `Отступы — до центров отверстий от левого торца щита. От задней кромки: ${C.holeBack(S)} мм, диаметр ${C.HOLE_DIA} мм.`
+      : "Соберите стеллаж — появится раскрой щитов.";
+    for (const p of ps) {
+      const card = document.createElement("div");
+      card.className = "pan-card";
+
+      const head = document.createElement("div");
+      head.className = "pan-head";
+      const h1 = document.createElement("span");
+      h1.textContent = `Щит ${p.no} — ${fmtNum(p.len)} × ${p.depth} × ${p.thickness} мм`;
+      const h2 = document.createElement("span");
+      h2.className = "q";
+      h2.textContent = p.qty + " шт";
+      head.append(h1, h2);
+
+      const sub = document.createElement("p");
+      sub.className = "pan-sub";
+      sub.textContent = `Ярусы: ${p.tiers.join(", ")} · отверстий ${p.holes.length} · ⌀${p.dia} мм · от задней кромки ${p.back} мм`;
+
+      const r1 = document.createElement("div");
+      r1.className = "pan-row";
+      r1.innerHTML = "<b>От левого торца:</b> " +
+        p.holes.map(v => fmtNum(v)).join(" · ") + " мм";
+
+      const r2 = document.createElement("div");
+      r2.className = "pan-row";
+      r2.innerHTML = "<b>Цепочка:</b> " + p.steps.map(v => fmtNum(v)).join(" + ") + " мм";
+
+      const sch = document.createElement("div");
+      sch.className = "pan-schema";
+      sch.innerHTML = panelSchemaSVG(p);
+
+      card.append(head, sub, r1, r2, sch);
+      box.appendChild(card);
+    }
+  }
+
+  function printPanels() {
+    const ps = lastPanels ? lastPanels.panels : [];
+    if (!ps.length) return;
+    const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;");
+    const head = `Стеллаж ${esc($("size").textContent)} · ${C.isFloor(S) ? "напольный" : "настенный"} · глубина ${C.depthOf(S)} мм`;
+    const pages = ps.map(p => `
+      <section>
+        <h1>Щит ${p.no}</h1>
+        <p class="meta">${esc(fmtNum(p.len))} × ${p.depth} × ${p.thickness} мм &nbsp;·&nbsp;
+          количество: <b>${p.qty} шт</b> &nbsp;·&nbsp; ярусы: ${p.tiers.join(", ")}</p>
+        <p class="meta">Отверстия ⌀${p.dia} мм, от задней кромки ${p.back} мм</p>
+        ${panelSchemaSVG(p, 700)}
+        <table>
+          <tr><th>№ отв.</th>${p.holes.map((_, i) => `<td>${i + 1}</td>`).join("")}</tr>
+          <tr><th>От торца, мм</th>${p.holes.map(v => `<td>${esc(fmtNum(v))}</td>`).join("")}</tr>
+        </table>
+      </section>`).join("");
+    const html = `<!DOCTYPE html><html lang="ru"><head><meta charset="UTF-8">
+      <title>Раскрой и присадка</title><style>
+      body{font:14px "Segoe UI",Arial,sans-serif;color:#1f2a30;margin:0;padding:18px}
+      header{margin-bottom:14px;font-size:13px;color:#66757b}
+      section{page-break-after:always;padding-bottom:18px}
+      section:last-child{page-break-after:auto}
+      h1{font-size:20px;margin:0 0 4px}
+      .meta{margin:2px 0;color:#445}
+      svg{width:100%;max-width:760px;height:auto;margin:10px 0}
+      table{border-collapse:collapse;font-size:12px;margin-top:6px}
+      th,td{border:1px solid #cbd2d6;padding:4px 8px;text-align:center}
+      th{background:#f3f6f7;text-align:left;white-space:nowrap}
+      @media print{body{padding:0}}
+      </style></head><body><header>${head}</header>${pages}</body></html>`;
+    const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "raskroy-i-prisadka.html";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1500);
+    toast("Файл скачан — откройте его и отправьте на печать");
+  }
+
+  function downloadCSV() {
+    const bom = lastBOM;
+    if (!bom || (!bom.rows.length && !bom.shelves.length)) return;
+    const ps = lastPanels ? lastPanels.panels : [];
+    const esc = v => {
+      const s = String(v);
+      return /[;"\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    };
+    const lines = [
+      ["Комплектация стеллажа"],
+      ["Тип", C.isFloor(S) ? "Напольный" : "Настенный"],
+      ["Глубина полок, мм", C.depthOf(S)],
+      ["Габариты (Ш × В)", $("size").textContent],
+      [],
+      ["Деталь", "Количество, шт", "Примечание"],
+      ...bom.rows.map(r => [r.name, r.qty, r.custom ? "на заказ" : ""]),
+      [],
+      ["Мебельный щит", "Количество, шт", ""],
+      ...bom.shelves.map(r => [r.name, r.qty, ""]),
+      [],
+      ["Раскрой и присадка"],
+      ["Щит", "Длина, мм", "Глубина, мм", "Толщина, мм", "Кол-во, шт",
+       "От задней кромки, мм", "Диаметр, мм", "Отверстия от левого торца, мм"],
+      ...ps.map(p => [p.no, p.len, p.depth, p.thickness, p.qty, p.back, p.dia,
+        p.holes.join(", ")])
+    ];
+    const text = "\uFEFF" + lines.map(l => l.map(esc).join(";")).join("\r\n");
+    const blob = new Blob([text], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "komplektaciya.csv";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1500);
+  }
+
   // ---------- Камера ----------
   function fitCamera(front = false) {
     let minX = -300, maxX = 800, minY = -200, maxY = 400;
-    if (boards.length) {
-      minX = Math.min(...boards.map(b => b.x1)) - 380;
-      maxX = Math.max(...boards.map(b => b.x2)) + 80;
-      minY = (isFloor() ? floorY() : Math.min(...boards.map(b => b.y)) - MM.cap) - 280;
-      maxY = Math.max(...boards.map(b => b.y)) + MM.cap + 80;
+    if (S.boards.length) {
+      minX = Math.min(...S.boards.map(b => b.x1)) - 380;
+      maxX = Math.max(...S.boards.map(b => b.x2)) + 80;
+      minY = (C.isFloor(S) ? C.floorY(S) : Math.min(...S.boards.map(b => b.y)) - MM.cap) - 280;
+      maxY = Math.max(...S.boards.map(b => b.y)) + MM.cap + 80;
     }
     for (const m of marks) {
       minX = Math.min(minX, m.x - 120); maxX = Math.max(maxX, m.x + m.w + 120);
@@ -2184,12 +2617,32 @@
   function hideDragLabel() { $("drag-label").style.display = "none"; }
 
   let toastTimer = 0;
-  function toast(msg) {
+  function toast(msg, actions) {
     const t = $("toast");
-    t.textContent = msg;
+    t.replaceChildren();
+    const sp = document.createElement("div");
+    sp.textContent = msg;
+    t.appendChild(sp);
+    if (actions && actions.length) {
+      const box = document.createElement("div");
+      box.className = "toast-actions";
+      for (const a of actions) {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.textContent = a.text;
+        b.addEventListener("click", () => {
+          t.classList.remove("show");
+          clearTimeout(toastTimer);
+          a.run();
+        });
+        box.appendChild(b);
+      }
+      t.appendChild(box);
+    }
     t.classList.add("show");
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => t.classList.remove("show"), 2800);
+    toastTimer = setTimeout(() => t.classList.remove("show"),
+      actions && actions.length ? 9000 : 2800);
   }
 
   // ---------- Панели ----------
@@ -2226,6 +2679,22 @@
     requestRender();
   }
 
+  // ---------- Копирование кода модели ----------
+  function copyModelCode() {
+    if (!S.boards.length) { toast("Сначала соберите стеллаж"); return; }
+    const name = prompt("Название модели латиницей, без пробелов (например liniya):", "liniya");
+    if (!name) return;
+    const key = name.trim().toLowerCase().replace(/[^a-z0-9_-]/g, "");
+    if (!key) { toast("Используйте только латинские буквы и цифры"); return; }
+    const line = `    "${key}": ${JSON.stringify(C.exportState(S))},`;
+    const fallback = () => prompt("Скопируйте эту строку (Ctrl+C):", line);
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(line)
+        .then(() => toast(`Код модели «${key}» скопирован`))
+        .catch(fallback);
+    } else fallback();
+  }
+
   // ---------- События интерфейса ----------
   $("open-settings").addEventListener("click", () => openSheet("settings"));
   $("open-estimate").addEventListener("click", () => openSheet("estimate"));
@@ -2242,22 +2711,41 @@
   }));
 
   document.querySelectorAll('input[name="mount"]').forEach(r => r.addEventListener("change", () => {
+    syncFromForm();
     rebuild();
     renderMarkList();
     fitCamera(markMode);
   }));
-  $("deep").addEventListener("change", rebuild);
-  $("height").addEventListener("change", () => { updateHeightHint(); rebuild(); });
-  $("first").addEventListener("change", applyFirstSpan);
-  $("overhang").addEventListener("change", applyOverhang);
+  document.querySelectorAll('input[name="depth"]').forEach(r => r.addEventListener("change", () => {
+    syncFromForm();
+    rebuild();
+  }));
+  $("height").addEventListener("change", () => { syncFromForm(); updateHeightHint(); rebuild(); });
+  $("first").addEventListener("change", () => {
+    const len = readNum("first", 500, MM.minSpan, MM.maxSpan);
+    $("first").value = len;
+    syncFromForm();
+    const res = C.applyFirstSpan(S, len);
+    rebuild();
+    if (res.created) fitCamera();
+  });
+  $("overhang").addEventListener("change", () => {
+    syncFromForm();
+    $("overhang").value = S.overhang;
+    C.applyOverhang(S);
+    rebuild();
+  });
   $("length").addEventListener("change", () => {
     $("length").value = readNum("length", 500, MM.minSpan, MM.maxLen);
   });
   $("reset").addEventListener("click", () => {
-    createInitial(readNum("first", 500, MM.minSpan, MM.maxSpan));
+    syncFromForm();
+    C.createInitial(S, readNum("first", 500, MM.minSpan, MM.maxSpan));
+    rebuild();
     fitCamera();
   });
   $("bom-csv").addEventListener("click", downloadCSV);
+  $("pan-print").addEventListener("click", printPanels);
   $("copy-model").addEventListener("click", copyModelCode);
   $("toggle").addEventListener("click", () => setUiVisible(!uiVisible));
   $("fit").addEventListener("click", () => fitCamera(markMode));
@@ -2307,10 +2795,16 @@
   // ---------- Старт ----------
   document.body.classList.toggle("compact", compactMQ.matches);
   computeLayout();
-  updateHeightHint();
+  syncFromForm();
   const presetId = new URLSearchParams(location.search).get("model");
-  if (presetId && PRESETS[presetId]) loadState(PRESETS[presetId]);
-  else createInitial(500);
+  if (presetId && C.PRESETS[presetId]) {
+    C.loadState(S, C.PRESETS[presetId]);
+    syncToForm();
+  } else {
+    C.createInitial(S, 500);
+  }
+  updateHeightHint();
+  rebuild();
   renderMarkList();
   fitCamera();
   animate();
