@@ -20,7 +20,7 @@
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body { height: 100%; }
   body {
-    margin: 0; overflow: hidden; background: #dedede; color: #1f2a30;
+    margin: 0; overflow: hidden; background: #d9d4cc; color: #1f2a30;
     font: 14px "Segoe UI", Roboto, Arial, sans-serif;
     overscroll-behavior: none; touch-action: none;
     -webkit-user-select: none; user-select: none; -webkit-touch-callout: none;
@@ -40,7 +40,14 @@
   #estimate { right: 18px; }
   body.ui-hidden:not(.compact) #settings { display: none; }
   .panel-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 10px; }
+  .panel-head-r { display: flex; align-items: center; gap: 8px; }
   h2 { margin: 0; font-size: 18px; }
+  .role-badge {
+    padding: 3px 8px; border-radius: 6px; background: #eef2f3; color: #37474f;
+    font-size: 11px; font-weight: 700; letter-spacing: .02em; white-space: nowrap;
+  }
+  .role-badge:empty { display: none; }
+  body.role-owner .role-badge { background: #fbe3e1; color: #b8322a; }
   .sheet-close {
     display: none; place-items: center; width: 34px; height: 34px; border: 0; border-radius: 50%;
     background: #eef2f3; color: #37474f; font-size: 15px; cursor: pointer; flex: 0 0 auto;
@@ -56,7 +63,7 @@
   input[type="number"] { -moz-appearance: textfield; }
   input[type="number"]::-webkit-inner-spin-button,
   input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-  .check { display: flex; align-items: center; gap: 10px; cursor: pointer; margin-top: 12px; }
+  .check { display: flex; align-items: center; gap: 10px; cursor: pointer; margin-top: 14px; }
   .check input { width: 20px; height: 20px; margin: 0; accent-color: #37474f; }
 
   .seg { display: flex; border: 1px solid #cbd2d6; border-radius: 8px; overflow: hidden; }
@@ -68,9 +75,15 @@
     touch-action: manipulation; transition: background .15s, color .15s;
   }
   .seg.seg-tight span { padding: 6px 2px; font-size: 13px; }
+  .seg.seg-sm span { padding: 6px 3px; font-size: 12px; line-height: 1.15; }
   .seg label + label span { border-left: 1px solid #cbd2d6; }
   .seg input:checked + span { background: #37474f; color: #fff; }
   .seg input:focus-visible + span { outline: 2px solid #348dca; outline-offset: -2px; }
+  .sw {
+    display: inline-block; width: 13px; height: 13px; border-radius: 50%; margin-right: 6px;
+    border: 1px solid #0003; flex: 0 0 auto;
+  }
+  .seg input:checked + span .sw { border-color: #fff; }
 
   .stepper { display: flex; gap: 6px; }
   .stepper input { flex: 1; min-width: 0; text-align: center; }
@@ -122,6 +135,17 @@
   .bom .custom { display: inline-block; margin-left: 4px; padding: 0 5px; border-radius: 4px; background: #fbe3e1; color: #b8322a; font-size: 11px; font-weight: 600; }
   .bom td.empty { color: #66757b; text-align: center; }
 
+  .cost { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-top: 4px; }
+  .cost td { padding: 5px 0; border-bottom: 1px solid #eef1f2; vertical-align: top; }
+  .cost td.r { text-align: right; white-space: nowrap; padding-left: 8px; font-weight: 600; }
+  .cost td .u { display: block; color: #66757b; font-size: 11px; font-weight: 400; }
+  .cost tr.group td { padding-top: 11px; font-weight: 700; color: #37474f; border-bottom: 1px solid #dde3e6; }
+  .cost tr.off td, .cost tr.off td .u { color: #a3acb0; }
+  .cost tr.sum td { font-weight: 700; padding-top: 9px; }
+  .cost tr.final td { font-size: 15px; font-weight: 800; color: #168050; border-bottom: 0; padding-top: 9px; }
+  .cost tr.margin td { color: #66757b; border-bottom: 0; }
+  .warn { padding: 8px 10px; border-radius: 8px; background: #fff4e0; color: #8a5a00; font-size: 12px; line-height: 1.4; }
+
   .pan-card { margin-top: 10px; padding: 10px 11px 11px; border: 1px solid #e0e6e8; border-radius: 10px; background: #f8fafb; }
   .pan-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-weight: 700; font-size: 13px; }
   .pan-head .q { color: #168050; white-space: nowrap; }
@@ -137,12 +161,15 @@
   .help li { margin: 4px 0; }
   .estimate-row { display: flex; justify-content: space-between; gap: 10px; margin: 11px 0; }
   .estimate-row strong { white-space: nowrap; }
+  .estimate-row strong.wrap { white-space: normal; text-align: right; font-weight: 600; }
   #estimate .total {
     display: flex; justify-content: space-between; align-items: baseline; gap: 8px;
     margin-top: 14px; padding-top: 13px; border-top: 1px solid #ddd;
     font-size: 17px; font-weight: bold;
   }
   #total { color: #168050; white-space: nowrap; }
+  #tone-note { color: #9a6a2f; font-size: 12px; text-align: right; margin-top: 4px; min-height: 0; }
+  #tone-note:empty { display: none; }
 
   .fab {
     position: absolute; z-index: 30; display: grid; place-items: center; padding: 0;
@@ -296,6 +323,7 @@
     }
   }
 </style>
+<script src="prices.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 </head>
@@ -357,8 +385,41 @@
   </select>
   <p class="muted hint" id="height-hint"></p>
 
+  <div class="section">
+    <div class="section-title">Отделка</div>
+    <p class="muted">Массив дуба, масло Osmo.</p>
+
+    <div class="field-title">Степень блеска</div>
+    <div class="seg seg-sm" role="radiogroup" aria-label="Степень блеска">
+      <label><input type="radio" name="finish" value="matte"><span>Матовое</span></label>
+      <label><input type="radio" name="finish" value="silk" checked><span>Шелковисто-матовое</span></label>
+      <label><input type="radio" name="finish" value="gloss"><span>Глянцевое</span></label>
+    </div>
+
+    <div class="field-title spaced">Цвет дерева</div>
+    <div class="seg seg-sm" role="radiogroup" aria-label="Колеровка">
+      <label><input type="radio" name="tone" value="none" checked><span><i class="sw" style="background:#c9a273"></i>Натуральный дуб</span></label>
+      <label><input type="radio" name="tone" value="wenge"><span><i class="sw" style="background:#4a3324"></i>Венге</span></label>
+    </div>
+    <p class="muted hint" id="tone-hint"></p>
+
+    <div class="field-title spaced">Трубы</div>
+    <div class="seg seg-sm" role="radiogroup" aria-label="Цвет труб">
+      <label><input type="radio" name="pipecolor" value="black" checked><span><i class="sw" style="background:#1b1d1f"></i>Чёрные</span></label>
+      <label><input type="radio" name="pipecolor" value="white"><span><i class="sw" style="background:#ece9e3"></i>Белые</span></label>
+    </div>
+
+    <div class="field-title spaced">Фитинги</div>
+    <div class="seg seg-sm" role="radiogroup" aria-label="Фитинги">
+      <label><input type="radio" name="fit" value="brass" checked><span><i class="sw" style="background:#d1a65a"></i>Латунь</span></label>
+      <label><input type="radio" name="fit" value="black"><span><i class="sw" style="background:#232527"></i>Чёрные</span></label>
+    </div>
+
+    <label class="check"><input type="checkbox" id="decor" checked><span>Интерьер и декор на полках</span></label>
+  </div>
+
   <button id="reset" class="reset" type="button">Сбросить всё</button>
-  <button id="copy-model" class="btn-secondary" type="button">Скопировать код модели</button>
+  <button id="copy-model" class="btn-secondary owner-only" type="button">Скопировать код модели</button>
 
   <div class="section">
     <div class="section-title">Отметки на стене</div>
@@ -400,33 +461,40 @@
       <li>Оранжевый «⇔» — сдвинуть опору, «×» — удалить опору.</li>
       <li>Жёлтая «✂» — разрезать трубу, фиолетовая «↔» — соединить.</li>
       <li>«▭» — разметка на стене: проведите по стене. Синие точки — размер, «✥» — сдвиг, «×» — удалить.</li>
-      <li>Один палец — вращение, два — масштаб и сдвиг. «⤢» — показать весь стеллаж, «◉» — скрыть размеры и кнопки.</li>
+      <li>Отделка: степень блеска масла, цвет дерева, цвет труб и фитингов — всё сразу видно в 3D.</li>
+      <li>Один палец — вращение, два — масштаб и сдвиг. «⤢» — показать весь стеллаж, «◉» — скрыть размеры и кнопки, чтобы полюбоваться.</li>
     </ul>
   </details>
 </div>
 
 <div id="estimate" class="panel">
   <div class="panel-head">
-    <h2>Расчёт стоимости</h2>
-    <button class="sheet-close" type="button" data-close aria-label="Закрыть">✕</button>
+    <h2>Стоимость</h2>
+    <div class="panel-head-r">
+      <span class="role-badge" id="role-badge"></span>
+      <button class="sheet-close" type="button" data-close aria-label="Закрыть">✕</button>
+    </div>
   </div>
-  <div class="estimate-row"><span>Габариты (Ш × В)</span><strong id="size">—</strong></div>
-  <div class="estimate-row"><span>Мебельный щит</span><strong id="wood-price">0 ₽</strong></div>
-  <div class="estimate-row"><span>Площадь щита</span><strong id="area">0 м²</strong></div>
-  <div class="estimate-row"><span>Трубки</span><strong id="pipe-price">0 ₽</strong></div>
-  <div class="estimate-row"><span>Количество трубок</span><strong id="pipe-count">0</strong></div>
-  <div class="total"><span>Итого</span><span id="total">0 ₽</span></div>
-  <p class="muted">Щит — 30 000 ₽/м²; каждая отдельная трубка — 1 000 ₽.
-    Фурнитура, крепёж, обработка и монтаж не включены.</p>
+  <div class="estimate-row"><span>Габариты (Ш × В × Г)</span><strong id="size">—</strong></div>
+  <div class="estimate-row"><span>Отделка</span><strong id="fin-summary" class="wrap"></strong></div>
+  <div class="total"><span>Цена</span><span id="total">—</span></div>
+  <div id="tone-note"></div>
+  <p class="muted">Массив дуба 20 мм, масло Osmo, трубы и фурнитура.
+    Доставка и монтаж рассчитываются отдельно.</p>
 
-  <div class="section">
+  <div class="section owner-only">
+    <div class="section-title">Себестоимость</div>
+    <div id="cost-box"></div>
+  </div>
+
+  <div class="section owner-only">
     <div class="section-title">Комплектация</div>
     <table class="bom" id="bom"></table>
     <button id="bom-csv" class="btn-secondary" type="button">⬇ Скачать CSV</button>
     <p class="muted hint" id="bom-note"></p>
   </div>
 
-  <div class="section">
+  <div class="section owner-only">
     <div class="section-title">Раскрой и присадка</div>
     <p class="muted" id="pan-note"></p>
     <div id="panels"></div>
@@ -440,16 +508,16 @@
 
 <div id="mobile-bar">
   <button id="open-settings" type="button">⚙ Настройки</button>
-  <button id="open-estimate" type="button"><span>Итого</span><strong id="bar-total">0 ₽</strong></button>
+  <button id="open-estimate" type="button"><span>Цена</span><strong id="bar-total">—</strong></button>
 </div>
 
 <script>
 /* =======================================================================
    МОДУЛЬ РАСЧЁТА — без обращений к странице.
    Работает с обычным объектом состояния S:
-     { mount, depth, pipe, overhang, boards, breaks, nextId }
-   Этот модуль можно без изменений запускать на сервере:
-   проверять цену при оплате и отдавать комплектацию только владельцу.
+     { mount, depth, pipe, overhang, finish, tone, pipeColor, fit, boards, breaks, nextId }
+   Цены передаются параметром (объект из prices.js), поэтому модуль
+   можно без изменений запускать на сервере.
    ======================================================================= */
 const Calc = (() => {
   "use strict";
@@ -476,14 +544,17 @@ const Calc = (() => {
     600: { wall: 500, support: 500, hole: 520 }
   };
 
-  const PART = { endPipe: 110 };                  // труба от муфты/тройника до поворотного уголка
+  const PART = { endPipe: 110 };
   const STD_PIPES = [110, 150, 200, 300, 400, 500];
-  const BLUE_PIPES = [150, 200, 300, 400, 500];   // длины труб при перетаскивании синего «+»
-  const MAX_STD = 500;                            // трубы длиннее — на заказ
-  const HOLE_DIA = 22;                            // диаметр отверстия в щите
+  const BLUE_PIPES = [150, 200, 300, 400, 500];
+  const MAX_STD = 500;
+  const HOLE_DIA = 22;
 
-  // Ставки. markup — наценка на себестоимость, доли (0.15 = +15 %)
-  const RATES = { wood: 30000, pipe: 1000, markup: 0 };
+  // Варианты отделки
+  const FINISH = { matte: "матовое", silk: "шелковисто-матовое", gloss: "глянцевое" };
+  const TONE = { none: "натуральный дуб", wenge: "колеровка венге" };
+  const PIPE_COLOR = { black: "чёрные матовые", white: "белые" };
+  const FIT = { brass: "латунь", black: "чёрные" };
 
   // Готовые модели. Ссылка: constructor.html?model=название
   const PRESETS = {
@@ -532,13 +603,12 @@ const Calc = (() => {
   const r10 = n => Math.round(n / 10) * 10;
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
   const fmtNum = n => new Intl.NumberFormat("ru-RU").format(Math.round(n));
+  const fmtDec = n => Number(n).toLocaleString("ru-RU", { maximumFractionDigits: 2 });
   const money = n => fmtNum(n) + " ₽";
   const bkey = (x, y1, y2) => `${x}|${y1}|${y2}`;
   const uniqSort = a => [...new Set(a)].sort((p, q) => p - q);
-  const minGap = () => MM.minPipe - MM.pipeAdj;      // минимальное расстояние между полками
+  const minGap = () => MM.minPipe - MM.pipeAdj;
 
-  // Труба между полками на расстоянии gap допустима:
-  // стандартная до 500 мм или длиннее 500 мм (на заказ)
   const pipeOk = gap => {
     const len = r10(gap + MM.pipeAdj);
     return len > MAX_STD || BLUE_PIPES.includes(len);
@@ -547,6 +617,7 @@ const Calc = (() => {
   // ---------- Состояние ----------
   function newState() {
     return { mount: "wall", depth: 200, pipe: 300, overhang: 200,
+             finish: "silk", tone: "none", pipeColor: "black", fit: "brass",
              boards: [], breaks: new Set(), nextId: 1 };
   }
   const snapshot = S => ({
@@ -562,17 +633,23 @@ const Calc = (() => {
   const depthOf = S => DEPTHS[S.depth] ? S.depth : 200;
   const D = S => DEPTHS[depthOf(S)];
   const isFloor = S => S.mount === "floor";
-  const deep = S => D(S).support > 0;               // есть поддерживающие трубы
-  const wallZ = S => -D(S).wall;                    // трубы отодвинуты от стены
-  const supportReach = S => D(S).wall - 100;        // вылет поддерживающей трубы в 3D
-  const woodZ = S => wallZ(S) + depthOf(S) / 2;     // задний край щита вплотную к стене
+  const deep = S => D(S).support > 0;
+  const wallZ = S => -D(S).wall;
+  const supportReach = S => D(S).wall - 100;
+  const woodZ = S => wallZ(S) + depthOf(S) / 2;
   const frontZ = S => woodZ(S) + depthOf(S) / 2;
-  const holeBack = S => D(S).hole;                  // отступ отверстия от задней кромки
-  const stepH = S => S.pipe;                        // шаг полок = длина трубы
-  const clearH = S => S.pipe - MM.thickness;        // просвет между полками
+  const holeBack = S => D(S).hole;
+  const stepH = S => S.pipe;
+  const clearH = S => S.pipe - MM.thickness;
   const ov = S => S.overhang;
   const floorLevel = S => S.boards.length ? Math.min(...S.boards.map(b => b.y)) : 0;
   const floorY = S => floorLevel(S) - MM.thickness / 2 - MM.foot;
+
+  function finishText(S) {
+    return `Дуб, масло Osmo, ${FINISH[S.finish] || FINISH.silk}` +
+      (S.tone === "wenge" ? ", колеровка венге" : "") +
+      `; трубы ${PIPE_COLOR[S.pipeColor] || PIPE_COLOR.black}; фитинги — ${FIT[S.fit] || FIT.brass}`;
+  }
 
   // ---------- Запросы к модели ----------
   const byId = (S, id) => S.boards.find(b => b.id === id);
@@ -639,9 +716,6 @@ const Calc = (() => {
     return xs.length >= 2 ? { s0: xs[0], s1: xs[1] } : null;
   }
 
-  // Как труба на оси x относится к щиту на уровне y:
-  // "none" — не мешает; "through" — проходит сквозь уровень щита;
-  // "extend" — стойку можно продлить до щита; "block" — щит упирается.
   function pipeStatus(S, x, y, groups) {
     const fl = isFloor(S), fLevel = floorLevel(S);
     let st = "none";
@@ -664,7 +738,6 @@ const Calc = (() => {
     return st;
   }
 
-  // Можно ли прикрепить щит уровня y к существующей трубе x
   function mergeOk(S, x, y) {
     const lv = columns(S).get(x) || [];
     if (lv.includes(y)) return true;
@@ -711,7 +784,6 @@ const Calc = (() => {
     }
     S.boards = merged;
 
-    // Автокрепление щитов к проходящим трубам — если обе части стандартные
     for (let guard = 0; guard < 40; guard++) {
       let changed = false;
       const cols = columns(S);
@@ -830,8 +902,6 @@ const Calc = (() => {
   const setEdge = (b, dir, E) => { if (dir > 0) b.x2 = E; else b.x1 = E; };
 
   // ---------- Подсказка: где нужна промежуточная полка ----------
-  // Щит уровня y упёрся в стойку x. Ищем высоты, на которых добавление
-  // полки на эту стойку сделает соединение возможным.
   function blockHelp(S, x, y) {
     const lv = columns(S).get(x) || [];
     const lower = lv.filter(v => v < y).pop(), upper = lv.find(v => v > y);
@@ -850,7 +920,6 @@ const Calc = (() => {
     return out.slice(0, 3);
   }
 
-  // Добавить полку на стойку x на уровне v (используется подсказкой)
   function addShelfAt(S, x, v, fromLevel) {
     const host = S.boards.find(b => b.y === fromLevel && b.sup.includes(x));
     if (!host) return "Не удалось добавить полку";
@@ -923,7 +992,6 @@ const Calc = (() => {
     return { msg: "" };
   }
 
-  // Проверка новой полки на уровне ny над/под пролётом a–c полки b
   function levelCheck(S, b, a, c, ny, strict) {
     const ovv = ov(S), x1 = a - ovv, x2 = c + ovv;
     if (isFloor(S) && ny < floorLevel(S)) return { ok: false, reason: "Ниже пола полку добавить нельзя" };
@@ -1062,22 +1130,8 @@ const Calc = (() => {
     normalize(S);
   }
 
-  // ---------- Количество трубок (для цены и 3D) ----------
-  function countTubes(S) {
-    const fl = isFloor(S), dp = deep(S), fLevel = floorLevel(S);
-    let n = 0;
-    for (const g of groupsOf(S, columns(S))) {
-      const lv = g.levels, onFloor = fl && lv[0] === fLevel;
-      n += 2;                        // верхний конец к стене
-      if (!onFloor) n += 2;          // нижний конец к стене
-      n += lv.length - 1;            // трубы между полками
-      if (dp) n += lv.length;        // поддерживающие трубы
-    }
-    return n;
-  }
-
   // ---------- Комплектация ----------
-  function computeBOM(S) {
+  function bomCounts(S) {
     const fl = isFloor(S), dp = deep(S), fLevel = floorLevel(S);
     const wallPipe = D(S).wall, crossPipe = D(S).support;
     const pipes = new Map();
@@ -1098,16 +1152,22 @@ const Calc = (() => {
         parts.tee++; addPipe(crossPipe); parts.elbowSup++;
       }
     }
+    return { pipes, parts };
+  }
 
+  function computeBOM(S) {
+    const { pipes, parts } = bomCounts(S);
+    const fw = S.fit === "black" ? "чёрный" : "латунь";
+    const pw = S.pipeColor === "white" ? "белая" : "чёрная матовая";
     const rows = [];
-    if (parts.flange) rows.push({ name: "Фланец настенный", qty: parts.flange });
+    if (parts.flange) rows.push({ name: `Фланец настенный — ${fw}`, qty: parts.flange });
     for (const len of [...pipes.keys()].sort((a, c) => a - c))
-      rows.push({ name: `Труба ${fmtNum(len)} мм`, qty: pipes.get(len), custom: !STD_PIPES.includes(len) });
-    if (parts.elbowTurn) rows.push({ name: "Уголок латунный поворотный", qty: parts.elbowTurn });
-    if (parts.elbowSup) rows.push({ name: "Уголок латунный опорный", qty: parts.elbowSup });
-    if (parts.nut) rows.push({ name: "Контргайка латунная", qty: parts.nut });
-    if (parts.coupling) rows.push({ name: "Муфта латунная", qty: parts.coupling });
-    if (parts.tee) rows.push({ name: "Тройник латунный резьбовой", qty: parts.tee });
+      rows.push({ name: `Труба ${fmtNum(len)} мм — ${pw}`, qty: pipes.get(len), custom: !STD_PIPES.includes(len) });
+    if (parts.elbowTurn) rows.push({ name: `Уголок поворотный — ${fw}`, qty: parts.elbowTurn });
+    if (parts.elbowSup) rows.push({ name: `Уголок опорный — ${fw}`, qty: parts.elbowSup });
+    if (parts.nut) rows.push({ name: `Контргайка — ${fw}`, qty: parts.nut });
+    if (parts.coupling) rows.push({ name: `Муфта — ${fw}`, qty: parts.coupling });
+    if (parts.tee) rows.push({ name: `Тройник резьбовой — ${fw}`, qty: parts.tee });
 
     const pan = computePanels(S);
     const shelves = pan.panels.map(p => ({
@@ -1117,14 +1177,12 @@ const Calc = (() => {
   }
 
   // ---------- Раскрой и присадка ----------
-  // Для каждого щита: отступы центров отверстий от ЛЕВОГО торца
-  // и отступ от задней кромки (по глубине). Нумерация снизу вверх.
   function computePanels(S) {
     const dp = depthOf(S), back = holeBack(S);
     const levels = uniqSort(S.boards.map(b => b.y));
     const sorted = S.boards.slice().sort((a, b) => a.y - b.y || a.x1 - b.x1);
-    const map = new Map();      // ключ → позиция
-    const byBoard = new Map();  // id щита → номер позиции
+    const map = new Map();
+    const byBoard = new Map();
     for (const b of sorted) {
       const holes = b.sup.map(x => x - b.x1);
       const key = (b.x2 - b.x1) + "|" + holes.join(",");
@@ -1142,25 +1200,63 @@ const Calc = (() => {
     const panels = [...map.values()];
     for (const p of panels) {
       p.tiers.sort((a, b) => a - b);
-      let acc = 0;
-      p.steps = [];               // цепочка: торец → отверстие → … → торец
+      p.steps = [];
       const pts = [0, ...p.holes, p.len];
       for (let i = 1; i < pts.length; i++) p.steps.push(pts[i] - pts[i - 1]);
-      p.cum = p.holes.map(h => h);          // нарастающим итогом от левого торца
-      acc = 0;
     }
     return { panels, byBoard };
   }
 
-  // ---------- Цена ----------
-  function computePrice(S) {
+  // ---------- Себестоимость и цена ----------
+  // P — объект цен (window.PRICES). Возвращает null, если цен нет или стеллаж пуст.
+  function computeCost(S, P) {
+    if (!P || !S.boards.length) return null;
+    const n = v => Number(v) || 0;
+    const { pipes, parts } = bomCounts(S);
     const dp = depthOf(S);
     let area = 0;
     for (const b of S.boards) area += (b.x2 - b.x1) * dp / 1e6;
-    const tubes = countTubes(S);
-    const wood = area * RATES.wood, pipe = tubes * RATES.pipe;
-    const cost = wood + pipe;
-    return { area, tubes, wood, pipe, cost, total: Math.round(cost * (1 + RATES.markup)) };
+    let pipeM = 0, pieces = 0;
+    for (const [len, q] of pipes) { pipeM += len * q / 1000; pieces += q; }
+    const waste = n(P.pipeWaste) || 1;
+    const F = P.fittings || {}, Wk = P.work || {}, Fin = P.finish || {}, Col = P.colors || {};
+    const lines = [];
+    const add = (group, name, qty, unit, price, off = false) =>
+      lines.push({ group, name, qty, unit, price, sum: qty * price, off });
+
+    add("Материалы", "Щит, массив дуба 20 мм", area, "м²", n(P.boardPerSqm));
+    add("Материалы", `Труба ½″ (отход ×${fmtDec(waste)})`, pipeM * waste, "м", n(P.pipePerMeter));
+    if (S.pipeColor === "white")
+      add("Материалы", "Доплата за белые трубы", pipeM, "м", n(Col.whitePipePerMeter));
+
+    const FN = { flange: "Фланец настенный", elbowTurn: "Уголок поворотный", elbowSup: "Уголок опорный",
+                 nut: "Контргайка", coupling: "Муфта", tee: "Тройник" };
+    const extraFit = S.fit === "black" ? n(Col.blackFittingExtra) : 0;
+    for (const k of Object.keys(FN))
+      if (parts[k]) add("Фурнитура", FN[k], parts[k], "шт", n(F[k]) + extraFit);
+
+    if (S.tone === "wenge") add("Отделка", "Колеровка венге (Osmo)", area, "м²", n(Fin.toningPerSqm));
+    if (S.finish === "gloss") add("Отделка", "Доплата за глянец", area, "м²", n(Fin.glossPerSqm));
+
+    const holes = computePanels(S).panels.reduce((s, p) => s + p.holes.length * p.qty, 0);
+    const tiers = uniqSort(S.boards.map(b => b.y)).length;
+    const off = !P.workEnabled;
+    add("Работа", "Рез трубы", pieces, "шт", n(Wk.pipeCut), off);
+    add("Работа", "Нарезка резьбы", pieces * 2, "конц.", n(Wk.pipeThread), off);
+    add("Работа", "Отверстия в щите", holes, "шт", n(Wk.holeDrill), off);
+    add("Работа", "Шлифовка и покрытие щита", area, "м²", n(Wk.boardFinish), off);
+    add("Работа", "Покраска труб", pipeM, "м", n(Wk.pipeCoat), off);
+    add("Работа", "Сборка и проверка", tiers, "ярус", n(Wk.assembly), off);
+
+    const cost = lines.filter(l => !l.off).reduce((s, l) => s + l.sum, 0);
+    const markup = n(P.markup) || 1;
+    const raw = cost * markup;
+    const step = n(P.roundTo);
+    const rounded = step > 0 ? Math.ceil(raw / step - 1e-9) * step : Math.round(raw);
+    const minOrder = n(P.minOrder);
+    const price = Math.max(rounded, minOrder);
+    return { lines, area, pipeM, cost, markup, raw, step, rounded, minOrder, price,
+             minApplied: price > rounded, workOff: off };
   }
 
   function sizeOf(S) {
@@ -1181,12 +1277,12 @@ const Calc = (() => {
       depth: depthOf(S),
       pipe: S.pipe,
       overhang: S.overhang,
+      finish: S.finish, tone: S.tone, pipeColor: S.pipeColor, fit: S.fit,
       boards: S.boards.map(b => ({ y: b.y, x1: b.x1, x2: b.x2, sup: b.sup.slice() })),
       breaks: [...S.breaks]
     };
   }
 
-  // Модели до перехода на «шаг = длина трубы»: каждый зазор между уровнями + 40 мм
   const OLD_PIPE_ADJ = 40;
   function migrateState(s) {
     if (s.v >= 2) return s;
@@ -1207,10 +1303,13 @@ const Calc = (() => {
   function loadState(S, src) {
     const s = migrateState(src);
     S.mount = s.mount === "floor" ? "floor" : "wall";
-    // Старые модели: "deep": true → 400 мм, "deep": false → 200 мм
     S.depth = DEPTHS[s.depth] ? Number(s.depth) : (s.deep ? 400 : 200);
     S.pipe = Number(s.pipe) || 300;
     S.overhang = Number(s.overhang) || 200;
+    S.finish = FINISH[s.finish] ? s.finish : "silk";
+    S.tone = TONE[s.tone] ? s.tone : "none";
+    S.pipeColor = PIPE_COLOR[s.pipeColor] ? s.pipeColor : "black";
+    S.fit = FIT[s.fit] ? s.fit : "brass";
     S.nextId = 1;
     S.boards = s.boards.map(b => ({ id: S.nextId++, y: b.y, x1: b.x1, x2: b.x2, sup: b.sup.slice() }));
     S.breaks = new Set(s.breaks || []);
@@ -1218,18 +1317,19 @@ const Calc = (() => {
   }
 
   return {
-    MM, DEPTHS, PART, STD_PIPES, BLUE_PIPES, MAX_STD, HOLE_DIA, RATES, PRESETS,
-    r10, clamp, fmtNum, money, bkey, uniqSort, pipeOk, minGap,
+    MM, DEPTHS, PART, STD_PIPES, BLUE_PIPES, MAX_STD, HOLE_DIA, PRESETS,
+    FINISH, TONE, PIPE_COLOR, FIT,
+    r10, clamp, fmtNum, fmtDec, money, bkey, uniqSort, pipeOk, minGap,
     newState, snapshot, restore,
     depthOf, isFloor, deep, wallZ, supportReach, woodZ, frontZ, holeBack,
-    stepH, clearH, ov, floorLevel, floorY,
+    stepH, clearH, ov, floorLevel, floorY, finishText,
     byId, columns, isBroken, groupsOf, groupBoards, neighborLimit, neighborBoard,
     blocked, firstSpan, pipeStatus, mergeOk,
     normalize, detach, attachKeys, dodge, divide, extContext, planExtension, setEdge,
     blockHelp, addShelfAt,
     createInitial, clickExtend, levelCheck, addLevel, removeSpan,
     deleteBlockReason, deleteGroup, applyFirstSpan, applyOverhang,
-    countTubes, computeBOM, computePanels, computePrice, sizeOf,
+    bomCounts, computeBOM, computePanels, computeCost, sizeOf,
     exportState, migrateState, loadState
   };
 })();
@@ -1252,21 +1352,35 @@ const Calc = (() => {
   const { r10, clamp, fmtNum, money, bkey, uniqSort } = C;
   const V = (x, y, z) => new THREE.Vector3(x, y, z);
 
+  // ---------- Роль ----------
+  // Временно берётся из адреса: ?role=owner / ?role=designer. Позже — с сервера.
+  const ROLE = (() => {
+    const r = new URLSearchParams(location.search).get("role");
+    return r === "owner" || r === "designer" ? r : "client";
+  })();
+  const OWNER = ROLE === "owner";
+  document.body.classList.add("role-" + ROLE);
+  if (!OWNER) document.querySelectorAll(".owner-only").forEach(n => n.remove());
+  $("role-badge").textContent = OWNER ? "Владелец" : ROLE === "designer" ? "Дизайнер" : "";
+
+  const prices = () => (typeof window.PRICES === "object" && window.PRICES) ? window.PRICES : null;
+
   // Состояние расчёта
   const S = C.newState();
 
   // Состояние интерфейса
-  let marks = [];           // { id, x, y, w, h } — отметки на стене, мм
+  let marks = [];
   let nextMarkId = 1;
   let markMode = false;
   let draw = null;
   const activePts = new Set();
   let uiVisible = true;
+  let decorOn = true;
   let needsRender = true;
   let gesture = null;
   let overlayButtons = [], dims = [], leaders = [], tags = [];
   let L = {};
-  let lastBOM = null, lastPanels = null;
+  let lastBOM = null, lastPanels = null, lastCost = null;
 
   function watch(query, fn) {
     const m = matchMedia(query);
@@ -1276,18 +1390,37 @@ const Calc = (() => {
   const compactMQ = watch("(max-width: 900px), (max-height: 520px)", onLayoutChange);
   const smallMQ = watch("(max-width: 600px), (max-height: 500px)", onLayoutChange);
 
+  // ---------- Помощники графики ----------
+  const col = h => new THREE.Color(h).convertSRGBToLinear();
+  function mulberry32(a) {
+    return function () {
+      a |= 0; a = a + 0x6D2B79F5 | 0;
+      let t = Math.imul(a ^ a >>> 15, 1 | a);
+      t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+  const hash = (...v) => v.reduce((h, x) => Math.imul(h ^ Math.round(x), 2654435761) >>> 0, 2166136261);
+  const canvas = (w, h) => { const c = document.createElement("canvas"); c.width = w; c.height = h; return c; };
+
   // ---------- Three.js ----------
+  const BG = "#d9d4cc";
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color("#dedede");
-  const camera = new THREE.PerspectiveCamera(45, innerWidth / innerHeight, 10, 40000);
+  scene.background = col(BG);
+  scene.fog = new THREE.Fog(col(BG), 12000, 32000);
+  const camera = new THREE.PerspectiveCamera(42, innerWidth / innerHeight, 10, 60000);
   camera.position.set(650, 480, 1750);
 
   const renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setPixelRatio(Math.min(devicePixelRatio || 1, compactMQ.matches ? 1.75 : 2));
   renderer.setSize(innerWidth, innerHeight);
+  renderer.outputEncoding = THREE.sRGBEncoding;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.0;
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   $("scene").appendChild(renderer.domElement);
+  const ANISO = renderer.capabilities.getMaxAnisotropy();
 
   const controls = new THREE.OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
@@ -1297,7 +1430,7 @@ const Calc = (() => {
   controls.maxDistance = 15000;
   controls.touches = { ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY_PAN };
   controls.addEventListener("change", requestRender);
-  controls.enableZoom = false;   // зум к курсору вместо зума к центру
+  controls.enableZoom = false;
 
   const _zRay = new THREE.Raycaster(), _zNdc = new THREE.Vector2();
   const _zPlane = new THREE.Plane(), _zHit = new THREE.Vector3(), _zDir = new THREE.Vector3();
@@ -1348,38 +1481,260 @@ const Calc = (() => {
     pinch = e.touches.length === 2 ? pinchInfo(e.touches) : null;
   }, { passive: true });
 
-  scene.add(new THREE.AmbientLight(0xffffff, .6));
-  const light = new THREE.DirectionalLight(0xffffff, .65);
-  light.castShadow = true;
-  const shadowSize = compactMQ.matches ? 1024 : 2048;
-  light.shadow.mapSize.set(shadowSize, shadowSize);
-  light.shadow.bias = -0.0005;
-  scene.add(light);
-  scene.add(light.target);
+  // ---------- Окружение: «виртуальная комната» для отражений ----------
+  (function buildEnvironment() {
+    const env = new THREE.Scene();
+    const box = new THREE.BoxGeometry(1, 1, 1);
+    const roomMat = new THREE.MeshBasicMaterial({ color: 0x7d776f, side: THREE.BackSide });
+    const room = new THREE.Mesh(box, roomMat);
+    room.scale.set(30, 14, 30);
+    room.position.set(0, 4, 0);
+    env.add(room);
+    const floorM = new THREE.Mesh(box, new THREE.MeshBasicMaterial({ color: 0x5a4c3e }));
+    floorM.scale.set(30, .1, 30); floorM.position.set(0, -2.95, 0);
+    env.add(floorM);
+    const light = (intensity, tint, sx, sy, sz, x, y, z) => {
+      const m = new THREE.MeshBasicMaterial({ color: new THREE.Color(tint).multiplyScalar(intensity) });
+      const mesh = new THREE.Mesh(box, m);
+      mesh.scale.set(sx, sy, sz); mesh.position.set(x, y, z);
+      env.add(mesh);
+    };
+    light(3.2, 0xfff4e6, 12, .1, 6, 0, 10.9, 0);       // потолочный свет
+    light(9.0, 0xfff1dc, .1, 6, 5, 14.9, 4, 3);        // окно справа
+    light(2.2, 0xe8eef7, .1, 5, 8, -14.9, 4, -2);      // мягкий свет слева
+    light(4.0, 0xffffff, 6, 4, .1, 0, 5, 14.9);        // свет сзади камеры
+    const pm = new THREE.PMREMGenerator(renderer);
+    scene.environment = pm.fromScene(env, .04).texture;
+    pm.dispose();
+  })();
 
-  const woodMat = new THREE.MeshStandardMaterial({ color: "#a6753e", roughness: .82 });
-  const pipeMat = new THREE.MeshStandardMaterial({ color: "#202528", metalness: .25, roughness: .65 });
-  const fitMat = new THREE.MeshStandardMaterial({ color: "#bf9d5b", metalness: .7, roughness: .3 });
-  const wallMat = new THREE.MeshStandardMaterial({ color: "#EBE5D9" });
-  const floorMat = new THREE.MeshStandardMaterial({ color: "#cfc9c0", roughness: .9 });
+  const hemi = new THREE.HemisphereLight(col("#fff6ea"), col("#b5a48f"), .3);
+  scene.add(hemi);
+  const sun = new THREE.DirectionalLight(col("#fff1df"), 1.25);
+  sun.castShadow = true;
+  const shadowSize = compactMQ.matches ? 1024 : 2048;
+  sun.shadow.mapSize.set(shadowSize, shadowSize);
+  sun.shadow.bias = -0.0004;
+  sun.shadow.normalBias = 1.5;
+  scene.add(sun);
+  scene.add(sun.target);
+
+  // ---------- Процедурные текстуры ----------
+  const PAL = {
+    oak:   { base: "#c49b6a", dark: [92, 56, 26], light: [255, 236, 204], band: [70, 40, 15] },
+    wenge: { base: "#4a3324", dark: [22, 12, 6],  light: [150, 112, 82],  band: [15, 8, 4] }
+  };
+
+  function makeWood(p, seed) {
+    const W = 2048, H = 512, rnd = mulberry32(seed);
+    const c = canvas(W, H), g = c.getContext("2d");
+    const bc = canvas(W, H), bg = bc.getContext("2d");
+    g.fillStyle = p.base; g.fillRect(0, 0, W, H);
+    bg.fillStyle = "#bdbdbd"; bg.fillRect(0, 0, W, H);
+    const rgba = (a, al) => `rgba(${a[0]},${a[1]},${a[2]},${al})`;
+    const TAU = Math.PI * 2;
+
+    const wavy = (ctx, y0, q) => {
+      for (const off of [-H, 0, H]) {
+        ctx.beginPath();
+        for (let x = 0; x <= W; x += 16) {
+          const y = y0 + off + q.a1 * Math.sin(x / W * TAU * q.k1 + q.p1) + q.a2 * Math.sin(x / W * TAU * q.k2 + q.p2);
+          if (x) ctx.lineTo(x, y); else ctx.moveTo(x, y);
+        }
+        ctx.stroke();
+      }
+    };
+    const params = () => ({
+      k1: 1 + Math.floor(rnd() * 3), k2: 3 + Math.floor(rnd() * 6),
+      a1: 2 + rnd() * 12, a2: .5 + rnd() * 3, p1: rnd() * TAU, p2: rnd() * TAU
+    });
+
+    // широкие полосы тона
+    for (let i = 0; i < 16; i++) {
+      const q = params(), y0 = rnd() * H;
+      g.lineWidth = 14 + rnd() * 50;
+      g.strokeStyle = rnd() < .5 ? rgba(p.light, .05 + rnd() * .06) : rgba(p.band, .05 + rnd() * .08);
+      wavy(g, y0, q);
+    }
+    // волокна
+    for (let i = 0; i < 300; i++) {
+      const q = params(), y0 = rnd() * H, w = .6 + rnd() * 2.2, a = .07 + rnd() * .3;
+      g.lineWidth = w; g.strokeStyle = rgba(p.dark, a); wavy(g, y0, q);
+      bg.lineWidth = w; bg.strokeStyle = `rgba(0,0,0,${a * .9})`; wavy(bg, y0, q);
+    }
+    // поры
+    for (let i = 0; i < 7000; i++) {
+      const x = rnd() * W, y = rnd() * H, len = 3 + rnd() * 14, a = .12 + rnd() * .25;
+      for (const off of [0, -W]) {
+        g.fillStyle = rgba(p.dark, a); g.fillRect(x + off, y, len, 1);
+        bg.fillStyle = `rgba(0,0,0,${a * 1.4})`; bg.fillRect(x + off, y, len, 1.2);
+      }
+    }
+    // сердцевинные лучи — светлые «искры» дуба
+    for (let i = 0; i < 420; i++) {
+      const x = rnd() * W, y = rnd() * H, rw = 5 + rnd() * 26, rh = 1 + rnd() * 2.2;
+      g.fillStyle = rgba(p.light, .1 + rnd() * .14);
+      for (const off of [0, -W]) {
+        g.beginPath(); g.ellipse(x + off, y, rw, rh, 0, 0, TAU); g.fill();
+      }
+    }
+    const map = new THREE.CanvasTexture(c);
+    map.encoding = THREE.sRGBEncoding;
+    const bump = new THREE.CanvasTexture(bc);
+    for (const t of [map, bump]) {
+      t.wrapS = t.wrapT = THREE.RepeatWrapping;
+      t.anisotropy = ANISO;
+    }
+    return { map, bump };
+  }
+
+  function makeParquet() {
+    const N = 1024, rnd = mulberry32(77);
+    const c = canvas(N, N), g = c.getContext("2d");
+    const rows = 8, rh = N / rows;
+    const plank = (x, y, w, h, base) => {
+      g.save();
+      g.beginPath(); g.rect(x, y, w, h); g.clip();
+      g.fillStyle = base; g.fillRect(x, y, w, h);
+      for (let i = 0; i < 26; i++) {
+        const yy = y + rnd() * h, a = .05 + rnd() * .14, k = rnd() * 6.28;
+        g.strokeStyle = `rgba(80,55,30,${a})`; g.lineWidth = .6 + rnd() * 1.6;
+        g.beginPath();
+        for (let xx = x; xx <= x + w; xx += 12) {
+          const v = yy + 3 * Math.sin((xx - x) / w * 6.28 + k);
+          if (xx === x) g.moveTo(xx, v); else g.lineTo(xx, v);
+        }
+        g.stroke();
+      }
+      g.fillStyle = "rgba(60,40,22,.55)";
+      g.fillRect(x, y, w, 2); g.fillRect(x, y, 2, h);
+      g.restore();
+    };
+    for (let r = 0; r < rows; r++) {
+      let x = -rnd() * N * .7;
+      while (x < N) {
+        const len = N * (.5 + rnd() * .55);
+        const l = 150 + Math.floor(rnd() * 26), base = `rgb(${l + 25},${l},${l - 35})`;
+        plank(x, r * rh, len, rh, base);
+        if (x < 0) plank(x + N, r * rh, len, rh, base);
+        if (x + len > N) plank(x - N, r * rh, len, rh, base);
+        x += len;
+      }
+    }
+    const t = new THREE.CanvasTexture(c);
+    t.encoding = THREE.sRGBEncoding;
+    t.wrapS = t.wrapT = THREE.RepeatWrapping;
+    t.anisotropy = ANISO;
+    return t;
+  }
+
+  function makePlaster() {
+    const N = 512, c = canvas(N, N), g = c.getContext("2d"), rnd = mulberry32(5);
+    const img = g.createImageData(N, N);
+    for (let i = 0; i < N * N; i++) {
+      const v = 236 + (rnd() - .5) * 10;
+      img.data[i * 4] = v + 3; img.data[i * 4 + 1] = v; img.data[i * 4 + 2] = v - 6; img.data[i * 4 + 3] = 255;
+    }
+    g.putImageData(img, 0, 0);
+    for (let i = 0; i < 260; i++) {
+      g.fillStyle = `rgba(${rnd() < .5 ? "255,255,255" : "160,150,135"},${.03 + rnd() * .04})`;
+      g.beginPath(); g.arc(rnd() * N, rnd() * N, 6 + rnd() * 40, 0, 6.28); g.fill();
+    }
+    const t = new THREE.CanvasTexture(c);
+    t.encoding = THREE.sRGBEncoding;
+    t.wrapS = t.wrapT = THREE.RepeatWrapping;
+    return t;
+  }
+
+  const TEX = { oak: makeWood(PAL.oak, 11), wenge: makeWood(PAL.wenge, 23) };
+  const floorTex = makeParquet();
+  const wallTex = makePlaster();
+
+  // ---------- Материалы ----------
+  const woodMat = new THREE.MeshPhysicalMaterial({
+    map: TEX.oak.map, bumpMap: TEX.oak.bump, bumpScale: .9,
+    roughness: .55, metalness: 0, envMapIntensity: .85
+  });
+  const pipeMat = new THREE.MeshStandardMaterial({ color: col("#1b1d1f"), metalness: .35, roughness: .6, envMapIntensity: .9 });
+  const fitMat = new THREE.MeshStandardMaterial({ color: col("#d1a65a"), metalness: 1, roughness: .28, envMapIntensity: 1.1 });
+  const screwMat = new THREE.MeshStandardMaterial({ color: col("#8d8f91"), metalness: .9, roughness: .35 });
+  const wallMat = new THREE.MeshStandardMaterial({ map: wallTex, roughness: .95, envMapIntensity: .5 });
+  const floorMat = new THREE.MeshStandardMaterial({ map: floorTex, roughness: .55, envMapIntensity: .6 });
+  const plinthMat = new THREE.MeshStandardMaterial({ color: col("#f3f0ea"), roughness: .5 });
   const markFillMat = new THREE.MeshBasicMaterial({
     color: "#2c6fb5", transparent: true, opacity: .14, depthWrite: false,
-    polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2
+    polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2, toneMapped: false
   });
-  const markLineMat = new THREE.LineDashedMaterial({ color: "#2c6fb5", dashSize: 40, gapSize: 25 });
+  const markLineMat = new THREE.LineDashedMaterial({ color: "#2c6fb5", dashSize: 40, gapSize: 25, toneMapped: false });
   const previewFillMat = markFillMat.clone();
   previewFillMat.opacity = .22;
-  const previewLineMat = new THREE.LineBasicMaterial({ color: "#2c6fb5" });
+  const previewLineMat = new THREE.LineBasicMaterial({ color: "#2c6fb5", toneMapped: false });
+
+  function applyFinish() {
+    const t = S.tone === "wenge" ? TEX.wenge : TEX.oak;
+    woodMat.map = t.map;
+    woodMat.bumpMap = t.bump;
+    const f = {
+      matte: { r: .78, cc: 0,   ccr: .6 },
+      silk:  { r: .58, cc: .22, ccr: .35 },
+      gloss: { r: .42, cc: .9,  ccr: .07 }
+    }[S.finish] || { r: .58, cc: .22, ccr: .35 };
+    woodMat.roughness = f.r;
+    woodMat.clearcoat = f.cc;
+    woodMat.clearcoatRoughness = f.ccr;
+    woodMat.needsUpdate = true;
+
+    if (S.pipeColor === "white") {
+      pipeMat.color.copy(col("#ebe8e2")); pipeMat.metalness = .05; pipeMat.roughness = .45;
+    } else {
+      pipeMat.color.copy(col("#1b1d1f")); pipeMat.metalness = .35; pipeMat.roughness = .6;
+    }
+    if (S.fit === "black") {
+      fitMat.color.copy(col("#202224")); fitMat.metalness = .55; fitMat.roughness = .45;
+    } else {
+      fitMat.color.copy(col("#d1a65a")); fitMat.metalness = 1; fitMat.roughness = .28;
+    }
+  }
 
   const G = {
     box: new THREE.BoxGeometry(1, 1, 1),
-    cyl: new THREE.CylinderGeometry(1, 1, 1, 14),
-    sphere: new THREE.SphereGeometry(1, 14, 10),
+    cyl: new THREE.CylinderGeometry(1, 1, 1, 28),
+    hex: new THREE.CylinderGeometry(1, 1, 1, 6),
+    sphere: new THREE.SphereGeometry(1, 28, 18),
     plane: new THREE.PlaneGeometry(1, 1)
   };
 
-  // Сам стеллаж — отдельная группа (её и будем отдавать на экспорт в 3D),
-  // антураж (стена, пол, отметки) — в другой.
+  // Щит со скруглёнными кромками и UV в масштабе реального дерева
+  function boardGeometry(w, h, d, r, seedOff) {
+    const s = 2, n = 2 * s + 1;
+    r = Math.min(r, w / 2 - .01, h / 2 - .01, d / 2 - .01);
+    const geo = new THREE.BoxGeometry(1, 1, 1, n, n, n);
+    const pos = geo.attributes.position, nor = geo.attributes.normal, uv = geo.attributes.uv;
+    const half = [w / 2, h / 2, d / 2], hc = .5 / n, stp = 1 / n;
+    const v = [0, 0, 0], dir = [0, 0, 0], p = [0, 0, 0];
+    for (let i = 0; i < pos.count; i++) {
+      v[0] = pos.getX(i); v[1] = pos.getY(i); v[2] = pos.getZ(i);
+      for (let k = 0; k < 3; k++) {
+        const kk = Math.round((Math.abs(v[k]) - hc) / stp);
+        dir[k] = Math.sign(v[k]) * kk / s;
+      }
+      const len = Math.hypot(dir[0], dir[1], dir[2]) || 1;
+      for (let k = 0; k < 3; k++) p[k] = Math.sign(v[k]) * (half[k] - r) + r * dir[k] / len;
+      pos.setXYZ(i, p[0], p[1], p[2]);
+      const nx = dir[0] / len, ny = dir[1] / len, nz = dir[2] / len;
+      nor.setXYZ(i, nx, ny, nz);
+      const ax = Math.abs(nx), ay = Math.abs(ny), az = Math.abs(nz);
+      let u, vv;
+      if (ay >= ax && ay >= az) { u = (p[0] + seedOff) / 2400; vv = (p[2] + seedOff * .37) / 600; }
+      else if (az >= ax) { u = (p[0] + seedOff) / 2400; vv = (p[1] + seedOff * .61) / 600; }
+      else { u = (p[2] + seedOff) / 2400; vv = (p[1] + seedOff * .61) / 600; }
+      uv.setXY(i, u, vv);
+    }
+    return geo;
+  }
+
+  // Стеллаж — отдельная группа (её будем отдавать на экспорт в 3D),
+  // интерьер и отметки — в другой.
   const model = new THREE.Group();
   model.name = "Стеллаж";
   const decor = new THREE.Group();
@@ -1408,22 +1763,34 @@ const Calc = (() => {
     if (raw === "" || !Number.isFinite(v)) v = def;
     return clamp(r10(v), min, max);
   }
+  const radio = name => {
+    const r = document.querySelector(`input[name="${name}"]:checked`);
+    return r ? r.value : null;
+  };
+  const setRadio = (name, v) => {
+    const r = document.querySelector(`input[name="${name}"][value="${v}"]`);
+    if (r) r.checked = true;
+  };
 
   function syncFromForm() {
-    const m = document.querySelector('input[name="mount"]:checked');
-    S.mount = m && m.value === "floor" ? "floor" : "wall";
-    const d = document.querySelector('input[name="depth"]:checked');
-    const dv = d ? Number(d.value) : 200;
+    S.mount = radio("mount") === "floor" ? "floor" : "wall";
+    const dv = Number(radio("depth")) || 200;
     S.depth = C.DEPTHS[dv] ? dv : 200;
     S.pipe = Number($("height").value) || 300;
     S.overhang = readNum("overhang", 200, 100, MM.maxOverhang);
+    S.finish = C.FINISH[radio("finish")] ? radio("finish") : "silk";
+    S.tone = C.TONE[radio("tone")] ? radio("tone") : "none";
+    S.pipeColor = C.PIPE_COLOR[radio("pipecolor")] ? radio("pipecolor") : "black";
+    S.fit = C.FIT[radio("fit")] ? radio("fit") : "brass";
   }
 
   function syncToForm() {
-    const m = document.querySelector(`input[name="mount"][value="${S.mount}"]`);
-    if (m) m.checked = true;
-    const d = document.querySelector(`input[name="depth"][value="${S.depth}"]`);
-    if (d) d.checked = true;
+    setRadio("mount", S.mount);
+    setRadio("depth", S.depth);
+    setRadio("finish", S.finish);
+    setRadio("tone", S.tone);
+    setRadio("pipecolor", S.pipeColor);
+    setRadio("fit", S.fit);
     $("height").value = String(S.pipe);
     $("overhang").value = S.overhang;
   }
@@ -1925,9 +2292,13 @@ const Calc = (() => {
   }
 
   function clearGroup(g) {
+    const kill = o => {
+      for (const ch of o.children) kill(ch);
+      if (o.userData && o.userData.ownGeo && o.geometry) o.geometry.dispose();
+    };
     while (g.children.length) {
       const ch = g.children[g.children.length - 1];
-      if (ch.userData.ownGeo) ch.geometry.dispose();
+      kill(ch);
       g.remove(ch);
     }
   }
@@ -1937,25 +2308,205 @@ const Calc = (() => {
     add(G.cyl, pipeMat, x, (y1 + y2) / 2, 0, MM.pipeR, y2 - y1, MM.pipeR, 0, model, "Труба");
   }
 
-  function wallMount(x, y) {
-    const wz = C.wallZ(S), len = -wz;
-    add(G.sphere, fitMat, x, y, 0, 15, 15, 15, 0, model, "Уголок");
-    add(G.cyl, pipeMat, x, y, -len / 2, MM.pipeR, len, MM.pipeR, Math.PI / 2, model, "Труба к стене");
-    add(G.cyl, pipeMat, x, y, wz + 2.5, 35, 5, 35, Math.PI / 2, model, "Фланец");
+  // Узел крепления к стене: уголок, труба к стене, фланец с винтами.
+  // up = +1, если вертикальная труба приходит снизу (верхний конец стойки).
+  function wallMount(x, y, up) {
+    const wz = C.wallZ(S);
+    add(G.sphere, fitMat, x, y, 0, 15.5, 15.5, 15.5, 0, model, "Уголок поворотный");
+    add(G.cyl, fitMat, x, y - up * 11, 0, 14, 14, 14, 0, model, "Уголок поворотный");
+    add(G.cyl, fitMat, x, y, -11, 14, 14, 14, Math.PI / 2, model, "Уголок поворотный");
+    const z1 = -16, z2 = wz + 18;
+    if (z1 > z2) add(G.cyl, pipeMat, x, y, (z1 + z2) / 2, MM.pipeR, z1 - z2, MM.pipeR, Math.PI / 2, model, "Труба к стене");
+    add(G.cyl, fitMat, x, y, wz + 3, 32, 6, 32, Math.PI / 2, model, "Фланец");
+    add(G.cyl, fitMat, x, y, wz + 13, 16, 16, 16, Math.PI / 2, model, "Фланец");
+    for (let k = 0; k < 3; k++) {
+      const a = Math.PI / 2 + k * Math.PI * 2 / 3;
+      add(G.cyl, screwMat, x + Math.cos(a) * 24, y + Math.sin(a) * 24, wz + 6.8, 4, 2.5, 4,
+        Math.PI / 2, model, "Винт");
+    }
   }
 
   function floorFoot(x, y) {
     const yc = y - MM.thickness / 2 - MM.foot / 2;
     if (!C.deep(S)) {
-      add(G.cyl, fitMat, x, yc, 0, 14, MM.foot, 14, 0, model, "Муфта-ножка");
+      add(G.cyl, fitMat, x, yc, 0, 14.5, MM.foot, 14.5, 0, model, "Муфта-ножка");
+      add(G.cyl, fitMat, x, yc - MM.foot / 2 + 1.5, 0, 15.5, 3, 15.5, 0, model, "Муфта-ножка");
       return;
     }
     const r = C.supportReach(S);
     add(G.cyl, fitMat, x, yc, 0, 15, MM.foot, 15, 0, model, "Тройник");
-    add(G.cyl, fitMat, x, yc, -14, 11, 12, 11, Math.PI / 2, model, "Тройник");
+    add(G.cyl, fitMat, x, yc, -14, 12, 14, 12, Math.PI / 2, model, "Тройник");
     add(G.cyl, pipeMat, x, yc, -r / 2, MM.pipeR, r - 30, MM.pipeR, Math.PI / 2, model, "Труба опорная");
-    add(G.cyl, fitMat, x, yc, -(r - 14), 11, 12, 11, Math.PI / 2, model, "Тройник");
+    add(G.cyl, fitMat, x, yc, -(r - 14), 12, 14, 12, Math.PI / 2, model, "Тройник");
     add(G.cyl, fitMat, x, yc, -r, 15, MM.foot, 15, 0, model, "Тройник");
+  }
+
+  // ---------- Интерьер и декор ----------
+  const DEC = (() => {
+    const std = (c, r, m = 0) => new THREE.MeshStandardMaterial({ color: col(c), roughness: r, metalness: m });
+    const vaseProfile = [[0, 0], [.42, 0], [.5, .06], [.58, .28], [.55, .5], [.38, .74], [.26, .88], [.3, 1], [.24, 1]]
+      .map(([r, y]) => new THREE.Vector2(r, y));
+    const leafMat = std("#4f6e3d", .7);
+    leafMat.flatShading = true;
+    const leaf2 = std("#6b8a4e", .7);
+    leaf2.flatShading = true;
+    return {
+      books: ["#2f4858", "#8a5a44", "#c9b79c", "#6b705c", "#a5a58d", "#3d405b", "#e0d8c8", "#9c6644", "#577590", "#d6ccc2", "#b56576"]
+        .map(c => std(c, .85)),
+      ceramic: [std("#efece6", .35), std("#b5654a", .75), std("#9aa58f", .5), std("#2a2a2a", .4), std("#d9c7a7", .6)],
+      leaves: [leafMat, leaf2],
+      soil: std("#3b2b20", .95),
+      pot: std("#e8e3da", .55),
+      potDark: std("#5b5148", .8),
+      frame: std("#1f1f1f", .5),
+      frameOak: std("#b08a5a", .6),
+      prints: ["#e9e0d2", "#d8cfc0", "#f2ece3"].map(c => std(c, .9)),
+      accents: ["#b5654a", "#3d405b", "#c9a227", "#6b705c"].map(c => std(c, .8)),
+      vaseGeo: new THREE.LatheGeometry(vaseProfile, 32),
+      potGeo: new THREE.CylinderGeometry(1, .78, 1, 28),
+      leafGeo: new THREE.IcosahedronGeometry(1, 1),
+      disc: new THREE.CylinderGeometry(1, 1, 1, 32)
+    };
+  })();
+
+  function dmesh(geo, mat, x, y, z, sx, sy, sz, parent = decor) {
+    const m = new THREE.Mesh(geo, mat);
+    m.position.set(x, y, z);
+    m.scale.set(sx, sy, sz);
+    m.castShadow = true;
+    m.receiveShadow = true;
+    parent.add(m);
+    return m;
+  }
+
+  function decorItem(rnd, x, room, top, clr, d, wz) {
+    const pick = arr => arr[Math.floor(rnd() * arr.length)];
+    const r = rnd();
+    // книги стоя
+    if (r < .4 && clr >= 140) {
+      const bd = Math.min(d - 40, 150 + rnd() * 40);
+      const z = wz + 8 + bd / 2;
+      let cx = x, used = 0;
+      const n = 3 + Math.floor(rnd() * 7), hMax = Math.min(clr - 8, 280);
+      for (let i = 0; i < n; i++) {
+        const t = 18 + rnd() * 26;
+        if (used + t > room - 4) break;
+        const h = Math.min(hMax, 165 + rnd() * 95);
+        if (h < 120) break;
+        dmesh(G.box, pick(DEC.books), cx + t / 2, top + h / 2, z + (rnd() - .5) * 10, t, h, bd);
+        cx += t + .8; used += t + .8;
+      }
+      return used;
+    }
+    // стопка книг
+    if (r < .52 && clr >= 70) {
+      const w = Math.min(room - 4, 160 + rnd() * 70);
+      if (w < 120) return 0;
+      const dd = Math.min(d - 40, 130 + rnd() * 40);
+      let y = top;
+      const k = 2 + Math.floor(rnd() * 3);
+      for (let i = 0; i < k; i++) {
+        const t = 24 + rnd() * 18;
+        if (y + t - top > clr - 6) break;
+        const m = dmesh(G.box, pick(DEC.books), x + w / 2 + (rnd() - .5) * 12, y + t / 2,
+          wz + 12 + dd / 2, w - rnd() * 30, t, dd);
+        m.rotation.y = (rnd() - .5) * .12;
+        y += t;
+      }
+      if (rnd() < .55 && clr - (y - top) > 100) {
+        const h = Math.min(clr - (y - top) - 10, 70 + rnd() * 40);
+        dmesh(DEC.vaseGeo, pick(DEC.ceramic), x + w / 2, y, wz + 12 + dd / 2, h * .32, h, h * .32);
+      }
+      return w;
+    }
+    // ваза
+    if (r < .66 && clr >= 120) {
+      const h = Math.min(clr - 10, 120 + rnd() * 150);
+      const rad = h * (.24 + rnd() * .1);
+      const w = rad * 1.25 * 2;
+      if (w > room || rad * 1.2 + 30 > d) return 0;
+      dmesh(DEC.vaseGeo, pick(DEC.ceramic), x + w / 2, top, wz + Math.min(d / 2, rad * 1.2 + 25), rad, h, rad);
+      return w;
+    }
+    // растение в горшке
+    if (r < .78 && clr >= 190) {
+      const ph = 80 + rnd() * 40, pr = ph * .55, w = 2 * pr + 40;
+      if (w > room || pr * 2 + 30 > d) return 0;
+      const cx = x + w / 2, zc = wz + Math.min(d / 2, pr + 25);
+      dmesh(DEC.potGeo, rnd() < .5 ? DEC.pot : DEC.potDark, cx, top + ph / 2, zc, pr, ph, pr);
+      dmesh(DEC.disc, DEC.soil, cx, top + ph - 4, zc, pr * .92, 2, pr * .92);
+      const lim = top + clr - 6, n = 7 + Math.floor(rnd() * 6);
+      for (let i = 0; i < n; i++) {
+        const s = 20 + rnd() * 22;
+        let y = top + ph + s * .5 + rnd() * Math.max(10, Math.min(clr - ph - s * 1.2, 140));
+        y = Math.min(y, lim - s * .75);
+        const m = dmesh(DEC.leafGeo, pick(DEC.leaves), cx + (rnd() - .5) * pr * 1.6, y,
+          zc + (rnd() - .5) * pr * 1.2, s, s * .75, s);
+        m.rotation.set(rnd() * 3, rnd() * 3, rnd() * 3);
+      }
+      return w;
+    }
+    // рамка с картиной
+    if (r < .86 && clr >= 170 && d >= 200) {
+      const fw = 140 + rnd() * 90;
+      const fh = Math.min(clr - 15, fw * (1.15 + rnd() * .25));
+      if (fh < 140 || fw + 10 > room) return 0;
+      const grp = new THREE.Group();
+      grp.position.set(x + fw / 2, top, wz + 24);
+      grp.rotation.x = -.09;
+      decor.add(grp);
+      dmesh(G.box, rnd() < .6 ? DEC.frame : DEC.frameOak, 0, fh / 2, 0, fw, fh, 14, grp);
+      dmesh(G.box, pick(DEC.prints), 0, fh / 2, 7.2, fw - 34, fh - 34, .6, grp);
+      const ac = dmesh(DEC.disc, pick(DEC.accents), (rnd() - .5) * fw * .2, fh * (.45 + rnd() * .15), 7.8,
+        fw * .2, .6, fw * .2, grp);
+      ac.rotation.x = Math.PI / 2;
+      return fw + 10;
+    }
+    return 0;
+  }
+
+  function buildDecor(colXs, floorVis, minX, maxX) {
+    if (!decorOn || !S.boards.length) return;
+    const d = C.depthOf(S), wz = C.wallZ(S), T = MM.thickness;
+    for (const b of S.boards) {
+      const rnd = mulberry32(hash(b.x1, b.y, b.x2, d));
+      const top = b.y + T / 2;
+      let clr = 340;
+      for (const o of S.boards)
+        if (o !== b && o.y > b.y && o.x1 < b.x2 && o.x2 > b.x1) clr = Math.min(clr, o.y - T / 2 - top - 12);
+      if (clr < 60) continue;
+      let iv = [[b.x1 + 30, b.x2 - 30]];
+      for (const x of colXs) {
+        const a = x - 38, c = x + 38, next = [];
+        for (const [p, q] of iv) {
+          if (c <= p || a >= q) { next.push([p, q]); continue; }
+          if (a > p) next.push([p, a]);
+          if (c < q) next.push([c, q]);
+        }
+        iv = next;
+      }
+      for (const [a0, a1] of iv) {
+        let x = a0 + rnd() * 40;
+        let guard = 0;
+        while (a1 - x > 70 && guard++ < 40) {
+          const w = decorItem(rnd, x, a1 - x, top, clr, d, wz);
+          x += w ? w + 50 + rnd() * 200 : 80 + rnd() * 150;
+        }
+      }
+    }
+    // Большое растение на полу справа
+    const rnd = mulberry32(hash(maxX, 7));
+    const px = maxX + 480, pz = wz + 280, ph = 400, pr = 170;
+    dmesh(DEC.potGeo, DEC.potDark, px, floorVis + ph / 2, pz, pr, ph, pr);
+    dmesh(DEC.disc, DEC.soil, px, floorVis + ph - 6, pz, pr * .92, 3, pr * .92);
+    for (let i = 0; i < 26; i++) {
+      const s = 70 + rnd() * 70;
+      const m = dmesh(DEC.leafGeo, DEC.leaves[i % 2],
+        px + (rnd() - .5) * 360, floorVis + ph + 120 + rnd() * 900, pz + (rnd() - .5) * 300,
+        s, s * .6, s * 1.1);
+      m.rotation.set(rnd() * 3, rnd() * 3, rnd() * 3);
+    }
+    dmesh(G.cyl, DEC.potDark, px, floorVis + ph + 300, pz, 9, 600, 9);
   }
 
   // ---------- Оверлей ----------
@@ -2117,10 +2668,16 @@ const Calc = (() => {
     for (const b of S.boards) {
       const len = b.x2 - b.x1;
       const no = pan.byBoard.get(b.id);
-      add(G.box, woodMat, (b.x1 + b.x2) / 2, b.y, wz, len, T, d, 0, model, `Щит ${no}`);
+      const geo = boardGeometry(len, T, d, 2.5, (hash(b.x1, b.y) % 1000) * 2.3);
+      const m = new THREE.Mesh(geo, woodMat);
+      m.position.set((b.x1 + b.x2) / 2, b.y, wz);
+      m.castShadow = true; m.receiveShadow = true;
+      m.userData.ownGeo = true;
+      m.name = `Щит ${no}`;
+      model.add(m);
       minX = Math.min(minX, b.x1); maxX = Math.max(maxX, b.x2);
       minY = Math.min(minY, b.y); maxY = Math.max(maxY, b.y);
-      if (no) addTag(V((b.x1 + b.x2) / 2, b.y, fz), `Щит ${no}`, -L.lbl - 14);
+      if (OWNER && no) addTag(V((b.x1 + b.x2) / 2, b.y, fz), `Щит ${no}`, -L.lbl - 14);
       const pts = [b.x1, ...b.sup, b.x2];
       for (let i = 1; i < pts.length; i++) {
         const p = pts[i - 1], q = pts[i];
@@ -2155,24 +2712,29 @@ const Calc = (() => {
       }
     }
 
+    // Стойки и фурнитура
     for (const g of C.groupsOf(S, cols)) {
       const { x, levels } = g;
       const low = levels[0], high = levels[levels.length - 1];
       const onFloor = fl && low === fLevel;
-      if (!onFloor) { pipe(x, low - MM.cap, low); wallMount(x, low - MM.cap); }
-      pipe(x, high, high + MM.cap); wallMount(x, high + MM.cap);
+      if (!onFloor) { pipe(x, low - MM.cap + 11, low); wallMount(x, low - MM.cap, -1); }
+      pipe(x, high, high + MM.cap - 11); wallMount(x, high + MM.cap, 1);
       for (let i = 1; i < levels.length; i++) pipe(x, levels[i - 1], levels[i]);
       for (const y of levels) {
-        add(G.cyl, fitMat, x, y + 14, 0, 14, 9, 14, 0, model, "Контргайка");
+        add(G.hex, fitMat, x, y + T / 2 + 4.5, 0, 17, 9, 17, 0, model, "Контргайка");
         if (onFloor && y === low) { floorFoot(x, y); continue; }
         if (C.deep(S)) {
           const reach = C.supportReach(S);
-          add(G.cyl, fitMat, x, y - 22, 0, 15, 24, 15, 0, model, "Тройник");
-          add(G.cyl, pipeMat, x, y - 22, -reach / 2, MM.pipeR, reach, MM.pipeR, Math.PI / 2,
+          add(G.cyl, fitMat, x, y - 22, 0, 15, 26, 15, 0, model, "Тройник");
+          add(G.cyl, fitMat, x, y - 22, -15, 13, 16, 13, Math.PI / 2, model, "Тройник");
+          add(G.cyl, pipeMat, x, y - 22, -(reach + 23) / 2, MM.pipeR, reach - 23, MM.pipeR, Math.PI / 2,
             model, "Труба опорная");
-          add(G.box, fitMat, x, y - 22, -reach, 25, 25, 25, 0, model, "Уголок опорный");
+          add(G.sphere, fitMat, x, y - 22, -reach, 14.5, 14.5, 14.5, 0, model, "Уголок опорный");
+          add(G.cyl, fitMat, x, y - 22, -reach + 10, 13, 12, 13, Math.PI / 2, model, "Уголок опорный");
         } else {
-          add(G.cyl, fitMat, x, y - 19, 0, 13, 18, 13, 0, model, "Муфта");
+          add(G.cyl, fitMat, x, y - T / 2 - 10, 0, 14.5, 20, 14.5, 0, model, "Муфта");
+          add(G.cyl, fitMat, x, y - T / 2 - 1.5, 0, 15.5, 3, 15.5, 0, model, "Муфта");
+          add(G.cyl, fitMat, x, y - T / 2 - 18.5, 0, 15.5, 3, 15.5, 0, model, "Муфта");
         }
       }
       addButton({
@@ -2192,7 +2754,7 @@ const Calc = (() => {
       });
     }
 
-    // Стена, пол и свет
+    // Комната: стена, пол, плинтус, свет
     const has = S.boards.length > 0;
     let ax1 = has ? minX : -250, ax2 = has ? maxX : 750;
     let ay1 = has ? minY : 0, ay2 = has ? maxY : 0;
@@ -2200,25 +2762,32 @@ const Calc = (() => {
       ax1 = Math.min(ax1, m.x); ax2 = Math.max(ax2, m.x + m.w);
       ay1 = Math.min(ay1, m.y); ay2 = Math.max(ay2, m.y + m.h);
     }
-    const wx1 = ax1 - 1500, wx2 = ax2 + 1500;
-    const wy1 = fl ? fY : ay1 - 1300, wy2 = ay2 + 1300;
-    const wall = add(G.plane, wallMat, (wx1 + wx2) / 2, (wy1 + wy2) / 2, C.wallZ(S) - .5,
+    let floorVis = fl ? fY : r10((has ? minY - MM.cap : 0) - 700);
+    for (const m of marks) floorVis = Math.min(floorVis, r10(m.y - 100));
+    const wallZ0 = C.wallZ(S);
+    const wx1 = ax1 - 2500, wx2 = ax2 + 2500;
+    const wy1 = floorVis, wy2 = Math.max(ay2 + 1300, floorVis + 2800);
+    const wall = add(G.plane, wallMat, (wx1 + wx2) / 2, (wy1 + wy2) / 2, wallZ0 - .5,
       wx2 - wx1, wy2 - wy1, 1, 0, decor, "Стена");
     wall.castShadow = false;
-    if (fl) {
-      const fd = 2600;
-      const floor = add(G.plane, floorMat, (wx1 + wx2) / 2, fY, C.wallZ(S) + fd / 2,
-        wx2 - wx1, fd, 1, -Math.PI / 2, decor, "Пол");
-      floor.castShadow = false;
-    }
+    wallTex.repeat.set((wx2 - wx1) / 1500, (wy2 - wy1) / 1500);
+    const fd = 3200;
+    const floor = add(G.plane, floorMat, (wx1 + wx2) / 2, floorVis, wallZ0 + fd / 2,
+      wx2 - wx1, fd, 1, -Math.PI / 2, decor, "Пол");
+    floor.castShadow = false;
+    floorTex.repeat.set((wx2 - wx1) / 1200, fd / 1200);
+    add(G.box, plinthMat, (wx1 + wx2) / 2, floorVis + 40, wallZ0 + 7, wx2 - wx1, 80, 14, 0, decor, "Плинтус");
+
     const cx = (ax1 + ax2) / 2, cy = (ay1 + ay2) / 2;
-    light.position.set(cx + 450, cy + 900, 900);
-    light.target.position.set(cx, cy, 0);
-    const ext = Math.max(ax2 - ax1, ay2 - ay1, 1000) / 2 + 700;
-    const sc = light.shadow.camera;
+    sun.position.set(cx + 900, cy + 1600, 1700);
+    sun.target.position.set(cx, cy, wallZ0);
+    const ext = Math.max(ax2 - ax1, ay2 - ay1, cy - floorVis, 1000) / 2 + 900;
+    const sc = sun.shadow.camera;
     sc.left = -ext; sc.right = ext; sc.top = ext; sc.bottom = -ext;
-    sc.near = 10; sc.far = 5000;
+    sc.near = 10; sc.far = 8000;
     sc.updateProjectionMatrix();
+
+    buildDecor([...cols.keys()], floorVis, minX, maxX);
 
     // Кнопки щитов
     for (const b of S.boards) {
@@ -2287,7 +2856,7 @@ const Calc = (() => {
       addLeader(V(totX, yBot, fz), V(minX, yBot, fz), "total");
       addLeader(V(totX, yTop, fz), V(minX, yTop, fz), "total");
 
-      const wy = yBot - 220;
+      const wy = Math.max(yBot - 220, floorVis + 40);
       addDim(V(minX, wy, fz), V(maxX, wy, fz), (L.small ? "Ш " : "Ширина ") + mm(W), "total",
         { always: true, tick: 6 });
       const leftB = S.boards.reduce((p, c) => c.x1 < p.x1 ? c : p);
@@ -2346,18 +2915,30 @@ const Calc = (() => {
     }
 
     // Стоимость
-    const pr = C.computePrice(S);
-    $("area").textContent = pr.area.toLocaleString("ru-RU",
-      { minimumFractionDigits: 2, maximumFractionDigits: 3 }) + " м²";
-    $("wood-price").textContent = money(pr.wood);
-    $("pipe-price").textContent = money(pr.pipe);
-    $("pipe-count").textContent = String(pr.tubes);
-    $("total").textContent = money(pr.total);
-    $("bar-total").textContent = money(pr.total);
-    $("size").textContent = has ? `${fmtNum(W)} × ${fmtNum(H)} мм` : "—";
+    const P = prices();
+    const cost = C.computeCost(S, P);
+    lastCost = cost;
+    const priceText = cost ? money(cost.price) : (has && !P ? "по запросу" : "—");
+    $("total").textContent = priceText;
+    $("bar-total").textContent = priceText;
+    $("size").textContent = has ? `${fmtNum(W)} × ${fmtNum(H)} × ${d} мм` : "—";
+    $("fin-summary").textContent = C.finishText(S);
 
-    renderBOM();
-    renderPanels(pan);
+    let toneExtra = 0;
+    if (cost && S.tone === "wenge") {
+      const alt = C.computeCost({ ...S, tone: "none" }, P);
+      if (alt) toneExtra = cost.price - alt.price;
+    }
+    $("tone-note").textContent = toneExtra > 0 ? `в т.ч. колеровка венге +${money(toneExtra)}` : "";
+    $("tone-hint").textContent = S.tone === "wenge"
+      ? (toneExtra > 0 ? `Доплата за колеровку: +${money(toneExtra)}` : "Колеровка маслом Osmo венге — за доплату.")
+      : "Колеровка маслом Osmo венге — за доплату.";
+
+    if (OWNER) {
+      renderCost(cost);
+      renderBOM();
+      renderPanels(pan);
+    }
 
     if (document.activeElement !== $("first")) {
       const fs = C.firstSpan(S);
@@ -2367,11 +2948,77 @@ const Calc = (() => {
     requestRender();
   }
 
+  // ---------- Себестоимость (только владелец) ----------
+  function renderCost(cost) {
+    const box = $("cost-box");
+    if (!box) return;
+    box.replaceChildren();
+    if (!prices()) {
+      const w = document.createElement("div");
+      w.className = "warn";
+      w.textContent = "Файл prices.js не загружен — цены не считаются. Положите его рядом с constructor.html.";
+      box.appendChild(w);
+      return;
+    }
+    if (!cost) {
+      const p = document.createElement("p");
+      p.className = "muted";
+      p.textContent = "Соберите стеллаж — появится расчёт.";
+      box.appendChild(p);
+      return;
+    }
+    const fq = q => Number.isInteger(q) ? fmtNum(q) : C.fmtDec(q);
+    const t = document.createElement("table");
+    t.className = "cost";
+    const row = (cls, name, val, sub) => {
+      const tr = document.createElement("tr");
+      if (cls) tr.className = cls;
+      const a = document.createElement("td");
+      a.textContent = name;
+      if (sub) { const u = document.createElement("span"); u.className = "u"; u.textContent = sub; a.appendChild(u); }
+      const b = document.createElement("td");
+      b.className = "r";
+      b.textContent = val;
+      tr.append(a, b);
+      t.appendChild(tr);
+    };
+    const groupRow = text => {
+      const tr = document.createElement("tr");
+      tr.className = "group";
+      const td = document.createElement("td");
+      td.colSpan = 2;
+      td.textContent = text;
+      tr.appendChild(td);
+      t.appendChild(tr);
+    };
+    let grp = "";
+    for (const l of cost.lines) {
+      if (!l.qty) continue;
+      if (l.group !== grp) {
+        grp = l.group;
+        groupRow(grp === "Работа" && cost.workOff ? "Работа — не учитывается (workEnabled: false)" : grp);
+      }
+      row(l.off ? "off" : "", l.name, money(l.sum), `${fq(l.qty)} ${l.unit} × ${money(l.price)}`);
+    }
+    row("sum", "Себестоимость", money(cost.cost));
+    row("", `Наценка ×${C.fmtDec(cost.markup)}`, "+" + money(cost.raw - cost.cost));
+    if (Math.round(cost.rounded) !== Math.round(cost.raw))
+      row("", `Округление до ${fmtNum(cost.step)} ₽`, "+" + money(cost.rounded - cost.raw));
+    if (cost.minApplied)
+      row("", `Минимальный заказ ${money(cost.minOrder)}`, "+" + money(cost.price - cost.rounded));
+    row("final", "Цена продажи", money(cost.price));
+    const margin = cost.price - cost.cost;
+    const pct = cost.price ? Math.round(margin / cost.price * 100) : 0;
+    row("margin", "Маржа", `${money(margin)} · ${pct}%`);
+    box.appendChild(t);
+  }
+
   // ---------- Комплектация ----------
   function renderBOM() {
+    const t = $("bom");
+    if (!t) return;
     const bom = C.computeBOM(S);
     lastBOM = bom;
-    const t = $("bom");
     t.replaceChildren();
     const tr = (cells, cls) => {
       const r = document.createElement("tr");
@@ -2402,7 +3049,8 @@ const Calc = (() => {
       if (r.custom) name.appendChild(cell("span", "на заказ", "custom"));
       tr([name, cell("td", r.qty + " шт", "q")]);
     }
-    group("Мебельный щит");
+    group("Мебельный щит — дуб, масло Osmo " + (C.FINISH[S.finish] || "") +
+      (S.tone === "wenge" ? ", венге" : ""));
     for (const r of bom.shelves) tr([cell("td", r.name), cell("td", r.qty + " шт", "q")]);
     $("bom-note").textContent =
       "Длина трубы между полками равна шагу полок; просвет меньше на толщину щита.";
@@ -2418,13 +3066,11 @@ const Calc = (() => {
     const e = [];
     const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;");
     e.push(`<rect x="${padX}" y="${top}" width="${inner}" height="${h}" fill="#f6efe4" stroke="#9a7445" stroke-width="1.5"/>`);
-    // отверстия
     const hy = top + h * (p.back / p.depth);
     for (const o of p.holes) {
       e.push(`<circle cx="${X(o).toFixed(1)}" cy="${hy.toFixed(1)}" r="5" fill="#fff" stroke="#2c3b42" stroke-width="1.5"/>`);
       e.push(`<line x1="${X(o).toFixed(1)}" y1="${top}" x2="${X(o).toFixed(1)}" y2="${bot}" stroke="#c9b48f" stroke-width=".8" stroke-dasharray="4 4"/>`);
     }
-    // цепочка снизу
     const cy = bot + 22;
     const pts = [0, ...p.holes, p.len];
     e.push(`<line x1="${padX}" y1="${cy}" x2="${padX + inner}" y2="${cy}" stroke="#245971" stroke-width="1"/>`);
@@ -2434,7 +3080,6 @@ const Calc = (() => {
       e.push(`<text x="${((a + b) / 2).toFixed(1)}" y="${cy + 16}" text-anchor="middle" font-size="11" fill="#213d4b">${esc(Math.round(pts[i] - pts[i - 1]))}</text>`);
     }
     e.push(`<line x1="${(padX + inner).toFixed(1)}" y1="${cy - 5}" x2="${(padX + inner).toFixed(1)}" y2="${cy + 5}" stroke="#245971" stroke-width="1"/>`);
-    // нарастающим итогом сверху
     const uy = top - 24;
     e.push(`<line x1="${padX}" y1="${uy}" x2="${padX + inner}" y2="${uy}" stroke="#168050" stroke-width="1"/>`);
     e.push(`<text x="${padX}" y="${uy - 6}" font-size="10" fill="#12683d">от левого торца, мм</text>`);
@@ -2442,7 +3087,6 @@ const Calc = (() => {
       e.push(`<line x1="${X(o).toFixed(1)}" y1="${uy - 4}" x2="${X(o).toFixed(1)}" y2="${(uy + 4).toFixed(1)}" stroke="#168050" stroke-width="1"/>`);
       e.push(`<text x="${X(o).toFixed(1)}" y="${uy + 15}" text-anchor="middle" font-size="10.5" fill="#12683d">${esc(Math.round(o))}</text>`);
     }
-    // отступ от задней кромки справа
     e.push(`<line x1="${(padX + inner + 10).toFixed(1)}" y1="${top}" x2="${(padX + inner + 10).toFixed(1)}" y2="${hy.toFixed(1)}" stroke="#245971" stroke-width="1"/>`);
     e.push(`<text x="${(padX + inner + 14).toFixed(1)}" y="${((top + hy) / 2 + 4).toFixed(1)}" font-size="10.5" fill="#213d4b">${esc(p.back)}</text>`);
     e.push(`<text x="${padX}" y="${bot + 44}" font-size="11" fill="#66757b">Щит ${p.no} · ${esc(fmtNum(p.len))} × ${p.depth} × ${p.thickness} мм · отв. ⌀${p.dia} мм · ${p.qty} шт</text>`);
@@ -2451,6 +3095,7 @@ const Calc = (() => {
 
   function renderPanels(pan) {
     const box = $("panels");
+    if (!box) return;
     box.replaceChildren();
     const ps = pan.panels;
     $("pan-print").disabled = !ps.length;
@@ -2460,7 +3105,6 @@ const Calc = (() => {
     for (const p of ps) {
       const card = document.createElement("div");
       card.className = "pan-card";
-
       const head = document.createElement("div");
       head.className = "pan-head";
       const h1 = document.createElement("span");
@@ -2469,34 +3113,40 @@ const Calc = (() => {
       h2.className = "q";
       h2.textContent = p.qty + " шт";
       head.append(h1, h2);
-
       const sub = document.createElement("p");
       sub.className = "pan-sub";
       sub.textContent = `Ярусы: ${p.tiers.join(", ")} · отверстий ${p.holes.length} · ⌀${p.dia} мм · от задней кромки ${p.back} мм`;
-
       const r1 = document.createElement("div");
       r1.className = "pan-row";
-      r1.innerHTML = "<b>От левого торца:</b> " +
-        p.holes.map(v => fmtNum(v)).join(" · ") + " мм";
-
+      r1.innerHTML = "<b>От левого торца:</b> " + p.holes.map(v => fmtNum(v)).join(" · ") + " мм";
       const r2 = document.createElement("div");
       r2.className = "pan-row";
       r2.innerHTML = "<b>Цепочка:</b> " + p.steps.map(v => fmtNum(v)).join(" + ") + " мм";
-
       const sch = document.createElement("div");
       sch.className = "pan-schema";
       sch.innerHTML = panelSchemaSVG(p);
-
       card.append(head, sub, r1, r2, sch);
       box.appendChild(card);
     }
+  }
+
+  function download(name, text, type) {
+    const blob = new Blob([text], { type });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1500);
   }
 
   function printPanels() {
     const ps = lastPanels ? lastPanels.panels : [];
     if (!ps.length) return;
     const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;");
-    const head = `Стеллаж ${esc($("size").textContent)} · ${C.isFloor(S) ? "напольный" : "настенный"} · глубина ${C.depthOf(S)} мм`;
+    const head = `Стеллаж ${esc($("size").textContent)} · ${C.isFloor(S) ? "напольный" : "настенный"} · ${esc(C.finishText(S))}`;
     const pages = ps.map(p => `
       <section>
         <h1>Щит ${p.no}</h1>
@@ -2523,15 +3173,7 @@ const Calc = (() => {
       th{background:#f3f6f7;text-align:left;white-space:nowrap}
       @media print{body{padding:0}}
       </style></head><body><header>${head}</header>${pages}</body></html>`;
-    const blob = new Blob([html], { type: "text/html;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "raskroy-i-prisadka.html";
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 1500);
+    download("raskroy-i-prisadka.html", html, "text/html;charset=utf-8");
     toast("Файл скачан — откройте его и отправьте на печать");
   }
 
@@ -2547,7 +3189,8 @@ const Calc = (() => {
       ["Комплектация стеллажа"],
       ["Тип", C.isFloor(S) ? "Напольный" : "Настенный"],
       ["Глубина полок, мм", C.depthOf(S)],
-      ["Габариты (Ш × В)", $("size").textContent],
+      ["Габариты (Ш × В × Г)", $("size").textContent],
+      ["Отделка", C.finishText(S)],
       [],
       ["Деталь", "Количество, шт", "Примечание"],
       ...bom.rows.map(r => [r.name, r.qty, r.custom ? "на заказ" : ""]),
@@ -2558,19 +3201,17 @@ const Calc = (() => {
       ["Раскрой и присадка"],
       ["Щит", "Длина, мм", "Глубина, мм", "Толщина, мм", "Кол-во, шт",
        "От задней кромки, мм", "Диаметр, мм", "Отверстия от левого торца, мм"],
-      ...ps.map(p => [p.no, p.len, p.depth, p.thickness, p.qty, p.back, p.dia,
-        p.holes.join(", ")])
+      ...ps.map(p => [p.no, p.len, p.depth, p.thickness, p.qty, p.back, p.dia, p.holes.join(", ")])
     ];
+    if (lastCost) {
+      lines.push([], ["Себестоимость"], ["Статья", "Кол-во", "Цена", "Сумма", "Учитывается"]);
+      for (const l of lastCost.lines)
+        if (l.qty) lines.push([l.name, C.fmtDec(l.qty) + " " + l.unit, Math.round(l.price), Math.round(l.sum), l.off ? "нет" : "да"]);
+      lines.push(["Себестоимость", "", "", Math.round(lastCost.cost), ""]);
+      lines.push(["Цена продажи", "", "", Math.round(lastCost.price), ""]);
+    }
     const text = "\uFEFF" + lines.map(l => l.map(esc).join(";")).join("\r\n");
-    const blob = new Blob([text], { type: "text/csv;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "komplektaciya.csv";
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 1500);
+    download("komplektaciya.csv", text, "text/csv;charset=utf-8");
   }
 
   // ---------- Камера ----------
@@ -2597,7 +3238,7 @@ const Calc = (() => {
     const distH = (h / 2) / (tan * (availH / innerHeight));
     const distW = (w / 2) / (tan * camera.aspect * (availW / innerWidth));
     const dist = Math.max(distH, distW) * 1.12 + 200;
-    const dir = front ? V(0, 0, 1) : V(.32, .22, 1).normalize();
+    const dir = front ? V(0, 0, 1) : V(.32, .2, 1).normalize();
     controls.target.set(cx, cy, 0);
     camera.position.set(cx + dir.x * dist, cy + dir.y * dist, dir.z * dist);
     controls.update();
@@ -2679,7 +3320,7 @@ const Calc = (() => {
     requestRender();
   }
 
-  // ---------- Копирование кода модели ----------
+  // ---------- Копирование кода модели (владелец) ----------
   function copyModelCode() {
     if (!S.boards.length) { toast("Сначала соберите стеллаж"); return; }
     const name = prompt("Название модели латиницей, без пробелов (например liniya):", "liniya");
@@ -2720,6 +3361,13 @@ const Calc = (() => {
     syncFromForm();
     rebuild();
   }));
+  for (const name of ["finish", "tone", "pipecolor", "fit"])
+    document.querySelectorAll(`input[name="${name}"]`).forEach(r => r.addEventListener("change", () => {
+      syncFromForm();
+      applyFinish();
+      rebuild();
+    }));
+  $("decor").addEventListener("change", () => { decorOn = $("decor").checked; rebuild(); });
   $("height").addEventListener("change", () => { syncFromForm(); updateHeightHint(); rebuild(); });
   $("first").addEventListener("change", () => {
     const len = readNum("first", 500, MM.minSpan, MM.maxSpan);
@@ -2744,9 +3392,11 @@ const Calc = (() => {
     rebuild();
     fitCamera();
   });
-  $("bom-csv").addEventListener("click", downloadCSV);
-  $("pan-print").addEventListener("click", printPanels);
-  $("copy-model").addEventListener("click", copyModelCode);
+  if (OWNER) {
+    $("bom-csv").addEventListener("click", downloadCSV);
+    $("pan-print").addEventListener("click", printPanels);
+    $("copy-model").addEventListener("click", copyModelCode);
+  }
   $("toggle").addEventListener("click", () => setUiVisible(!uiVisible));
   $("fit").addEventListener("click", () => fitCamera(markMode));
   $("mark").addEventListener("click", () => setMarkMode(!markMode));
@@ -2803,11 +3453,13 @@ const Calc = (() => {
   } else {
     C.createInitial(S, 500);
   }
+  applyFinish();
   updateHeightHint();
   rebuild();
   renderMarkList();
   fitCamera();
   animate();
+  if (OWNER && !prices()) toast("prices.js не найден — цены не считаются");
 })();
 </script>
 </body>
