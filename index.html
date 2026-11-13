@@ -379,6 +379,76 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
 .hero:not(.ready) .on-shelf::after,
 .hero:not(.ready) .shelf-btns{animation-play-state:paused}
 
+/* о мастерской: фото */
+.about-main{position:relative;overflow:hidden;border-radius:var(--radius);background:var(--paper-2)}
+.about-main img{width:100%;height:100%;object-fit:cover;display:block}
+
+.about-gallery{display:grid;grid-template-columns:1fr;gap:14px}
+.about-shot{position:relative;aspect-ratio:4/3;overflow:hidden;border-radius:var(--radius);background:var(--paper-2)}
+.about-shot img{width:100%;height:100%;object-fit:cover;display:block}
+@media (min-width:640px){
+  .about-gallery{grid-template-columns:repeat(3,1fr)}
+}
+
+/* designers */
+.dsg-list{display:grid;gap:0;border-top:1px solid var(--line)}
+.dsg-list li{display:grid;grid-template-columns:auto 1fr;gap:16px;padding:22px 0;border-bottom:1px solid var(--line);align-items:start}
+.dsg-list .n{font-family:var(--serif);font-size:13px;color:var(--brass);letter-spacing:.1em;padding-top:5px}
+.dsg-list b{display:block;font-family:var(--serif);font-size:22px;font-weight:400;margin-bottom:6px;line-height:1.1}
+.dsg-list p{color:var(--ink-2);font-size:15px}
+.dsg-note{margin-top:clamp(28px,5vw,44px);padding:26px;background:var(--paper-2);border-radius:var(--radius);display:grid;gap:18px}
+.dsg-note p{font-family:var(--serif);font-size:clamp(20px,3.2vw,26px);line-height:1.25}
+.dsg-note p span{display:block;font-family:var(--sans);font-size:14px;color:var(--ink-2);margin-top:8px;line-height:1.5}
+@media (min-width:640px){
+  .dsg-note{grid-template-columns:1fr auto;align-items:center}
+}
+@media (min-width:960px){
+  .dsg-list{grid-template-columns:repeat(3,1fr);column-gap:40px}
+}
+<a href="#designers">Дизайнерам</a>
+
+/* ===== карусель интерьеров ===== */
+.slider{position:relative}
+.s-track{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;
+  margin-inline:calc(var(--gutter)*-1);padding-inline:var(--gutter);padding-bottom:4px;
+  scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.s-track::-webkit-scrollbar{display:none}
+
+.s-item{position:relative;flex:0 0 86%;scroll-snap-align:center;margin:0;
+  aspect-ratio:3/4;border-radius:var(--radius);overflow:hidden;background:var(--paper-2)}
+.s-item img{width:100%;height:100%;object-fit:cover;display:block;transition:transform 1.4s var(--ease)}
+.s-item:hover img{transform:scale(1.05)}
+
+.s-item .cap{position:absolute;left:0;right:0;bottom:0;padding:22px 18px;color:var(--paper);
+  background:linear-gradient(0deg,rgba(28,26,23,.9),rgba(28,26,23,.45) 55%,transparent)}
+.s-item .cap small{display:block;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--brass-2);margin-bottom:6px}
+.s-item .cap b{display:block;font-family:var(--serif);font-size:26px;font-weight:400;line-height:1.1}
+.s-cta{margin-top:14px;min-height:44px;padding:0 20px;font-size:14px}
+
+/* точки */
+.s-dots{display:flex;justify-content:center;gap:8px;margin-top:18px}
+.s-dots button{width:7px;height:7px;border-radius:50%;background:var(--line);transition:.3s;padding:0}
+.s-dots button.on{background:var(--brass);transform:scale(1.5)}
+
+/* стрелки */
+.s-arrow{display:none;position:absolute;top:50%;z-index:3;width:48px;height:48px;border-radius:50%;
+  background:rgba(243,239,231,.92);color:var(--ink);font-size:18px;
+  box-shadow:0 10px 24px -12px rgba(28,26,23,.5);transition:.3s;transform:translateY(-50%)}
+.s-arrow:hover{background:var(--ink);color:var(--paper)}
+.s-arrow.prev{left:-10px}
+.s-arrow.next{right:-10px}
+.s-arrow[disabled]{opacity:.25;pointer-events:none}
+
+@media (min-width:640px){
+  .s-item{flex-basis:46%;aspect-ratio:4/5}
+}
+@media (min-width:960px){
+  .s-item{flex-basis:calc((100% - 28px)/3)}
+  .s-track{margin-inline:0;padding-inline:0}
+  .s-arrow{display:grid;place-items:center}
+  .s-dots{display:none}
+}
+
 </style>
 
 </head>
@@ -391,6 +461,7 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
     <nav class="nav" aria-label="Основная навигация">
       <a href="#collection">Модели</a>
       <a href="#constructor">Конструктор</a>
+      <a href="#designers">Дизайнерам</a>
       <a href="#materials">Материалы</a>
       <a href="#about">О мастерской</a>
       <a href="#process">Как заказать</a>
@@ -404,6 +475,7 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
 <div class="menu" id="menu" aria-hidden="true">
   <a class="big" href="#collection" style="transition-delay:.05s">Модели <small>01</small></a>
   <a class="big" href="constructor.html" style="transition-delay:.1s">Конструктор <small>3D</small></a>
+  <a class="big" href="#designers" style="transition-delay:.15s">Дизайнерам <small>03</small></a>
   <a class="big" href="#materials" style="transition-delay:.15s">Материалы <small>03</small></a>
   <a class="big" href="#about" style="transition-delay:.2s">О мастерской <small>05</small></a>
   <a class="big" href="#process" style="transition-delay:.25s">Как заказать <small>06</small></a>
@@ -518,6 +590,8 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
           <div class="foot"><span>Цена по запросу</span><span class="acts"><a href="constructor.html?model=duat" class="edit" aria-label="Изменить модель Дуэт в конструкторе">Изменить</a><a href="#contact" data-model="Дуэт">Заказать →</a></span></div>
         </div>
       </article>
+
+
     </div>
 
   
@@ -550,6 +624,32 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
     </div>
   </div>
 </section>
+
+<!-- ДИЗАЙНЕРАМ -->
+<section class="sec" id="designers">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <div>
+        <p class="eyebrow">03 / Дизайнерам</p>
+        <h2 class="serif h2" style="margin-top:16px">Дизайнерам<br>и архитекторам.</h2>
+      </div>
+      <p class="lead">Всё, что нужно, чтобы заложить стеллаж в проект и смету без лишней переписки.</p>
+    </div>
+
+    <ul class="dsg-list rv">
+      <li><span class="n">01</span><div><b>Файлы для проекта</b><p>DWG, SKP и визуализация любой конфигурации из конструктора.</p></div></li>
+      <li><span class="n">02</span><div><b>Цена и спецификация сразу в смету</b><p>Окончательная цена и полный состав деталей без ожидания расчёта.</p></div></li>
+      <li><span class="n">03</span><div><b>Проект закреплён за вами на 12 месяцев</b><p>Цена на этот срок фиксируется, даже если прайс изменится.</p></div></li>
+    </ul>
+
+    <div class="dsg-note rv">
+      <p>Цена на сайте едина для всех.<span>Дизайнер не может продать дороже — только со скидкой от себя.</span></p>
+      <a href="designers.html" class="btn btn-brass">Получить доступ <span class="arr">→</span></a>
+    </div>
+  </div>
+</section>
+
+
 
 <!-- 5. МАТЕРИАЛЫ -->
 <section class="sec" id="materials">
@@ -587,11 +687,43 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
         <p class="eyebrow">04 / В интерьере</p>
         <h2 class="serif h2" style="margin-top:16px">Как это выглядит<br>в комнате.</h2>
       </div>
-      <p class="lead">Два примера: стеллаж в гостиной и полки над рабочим столом.</p>
+      <p class="lead">Примеры заказов. Любой из них можно открыть в конструкторе и изменить под свои размеры.</p>
     </div>
-    <div class="int">
-      <a href="#contact" class="rv"><img src="img/interior-living.png" alt="Стеллаж в гостиной" loading="lazy"><span class="cap"><small>Гостиная</small><b>Стеллаж для книг и декора</b></span></a>
-      <a href="#contact" class="rv"><img src="img/interior-workspace.png" alt="Полки над рабочим столом" loading="lazy"><span class="cap"><small>Рабочее место</small><b>Полки над столом</b></span></a>
+
+    <div class="slider rv">
+      <button class="s-arrow prev" aria-label="Назад">←</button>
+      <button class="s-arrow next" aria-label="Вперёд">→</button>
+
+      <div class="s-track" id="intTrack">
+        <figure class="s-item">
+          <img src="img/interior-living.png" alt="Стеллаж в гостиной" loading="lazy">
+          <figcaption class="cap">
+            <small>Гостиная</small>
+            <b>Стеллаж для книг и декора</b>
+            <a href="constructor.html?model=countrylibrary" class="btn btn-brass s-cta">Посмотреть в конструкторе <span class="arr">→</span></a>
+          </figcaption>
+        </figure>
+
+        <figure class="s-item">
+          <img src="img/interior-workspace.png" alt="Полки в бар" loading="lazy">
+          <figcaption class="cap">
+            <small>Horeca</small>
+            <b>Полки в баре</b>
+            <a href="constructor.html?model=shelvesinthebar" class="btn btn-brass s-cta">Посмотреть в конструкторе <span class="arr">→</span></a>
+          </figcaption>
+        </figure>
+
+ <figure class="s-item">
+          <img src="img/interior-coffee.png" alt="Авторский стеллаж в кофейню" loading="lazy">
+          <figcaption class="cap">
+            <small>Horeca</small>
+            <b>Полки для кофе</b>
+            <a href="constructor.html?model=shelvesforacoffeeshop" class="btn btn-brass s-cta">Посмотреть в конструкторе <span class="arr">→</span></a>
+          </figcaption>
+        </figure>
+      </div>
+
+      <div class="s-dots" id="intDots" aria-hidden="true"></div>
     </div>
   </div>
 </section>
@@ -608,8 +740,7 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
     </div>
 
     <div class="about-grid">
-      <!-- Замените заглушку на: <img src="img/about-main.png" alt="Мастерская ПОЛКИ" loading="lazy"> -->
-      <div class="about-main ph rv">Фото мастерской</div>
+      <div class="about-main rv"><img src="img/about-main.png" alt="Мастерская ПОЛКИ" loading="lazy"></div>
 
       <div class="about-text rv">
         <h3>Заголовок о мастерской</h3>
@@ -624,10 +755,9 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
     </div>
 
     <div class="about-gallery rv">
-      <!-- Замените заглушки на: <img src="img/about-1.png" alt="..." loading="lazy"> -->
-      <div class="ph">Фото процесса 1</div>
-      <div class="ph">Фото процесса 2</div>
-      <div class="ph">Фото процесса 3</div>
+      <div class="about-shot"><img src="img/about-1.png" alt="Напил и обработка мебельного щита" loading="lazy"></div>
+      <div class="about-shot"><img src="img/about-2.png" alt="Шлифовка и покрытие маслом" loading="lazy"></div>
+      <div class="about-shot"><img src="img/about-3.png" alt="Сборка стеллажа" loading="lazy"></div>
     </div>
   </div>
 </section>
@@ -782,6 +912,42 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
     img.addEventListener('error',go);
     setTimeout(go,2500); /* запасной запуск, если картинка грузится долго */
   }
+})();
+</script>
+<script>
+(function(){
+  const track=document.getElementById('intTrack');
+  if(!track)return;
+  const dots=document.getElementById('intDots');
+  const items=[...track.children];
+  const slider=track.closest('.slider');
+  const prev=slider.querySelector('.s-arrow.prev');
+  const next=slider.querySelector('.s-arrow.next');
+
+  items.forEach((_,i)=>{
+    const b=document.createElement('button');
+    b.addEventListener('click',()=>items[i].scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'}));
+    dots.appendChild(b);
+  });
+
+  const step=()=>items[0].getBoundingClientRect().width+14;
+  prev.addEventListener('click',()=>track.scrollBy({left:-step(),behavior:'smooth'}));
+  next.addEventListener('click',()=>track.scrollBy({left:step(),behavior:'smooth'}));
+
+  const sync=()=>{
+    const c=track.scrollLeft+track.clientWidth/2;
+    let near=0,min=Infinity;
+    items.forEach((el,i)=>{
+      const d=Math.abs(el.offsetLeft+el.offsetWidth/2-c);
+      if(d<min){min=d;near=i}
+    });
+    [...dots.children].forEach((d,i)=>d.classList.toggle('on',i===near));
+    prev.disabled=track.scrollLeft<=2;
+    next.disabled=track.scrollLeft>=track.scrollWidth-track.clientWidth-2;
+  };
+  track.addEventListener('scroll',sync,{passive:true});
+  addEventListener('resize',sync);
+  sync();
 })();
 </script>
 </body>
