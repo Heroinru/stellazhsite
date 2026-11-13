@@ -535,16 +535,25 @@ const Calc = (() => {
 
   // Глубина полки → труба от поворотного уголка до фланца (wall),
   // поддерживающая труба (support, 0 — нет) и отступ центра отверстия
-  // от задней кромки щита (hole)
+  // от задней кромки щита (hole). Ось стойки стоит от стены ровно на hole:
+  // фланец + труба wall (по 15 мм в резьбе с каждой стороны) + уголок.
   const DEPTHS = {
-    200: { wall: 150, support: 0,   hole: 130 },
+    200: { wall: 110, support: 0,   hole: 130 },
     300: { wall: 200, support: 0,   hole: 220 },
     400: { wall: 300, support: 300, hole: 320 },
     500: { wall: 400, support: 400, hole: 420 },
     600: { wall: 500, support: 500, hole: 520 }
   };
 
-  const PART = { endPipe: 110 };
+  const PART = { endPipe: 110 };   // труба от уголка к полке (сверху и снизу стойки)
+  // Размеры фитингов, влияющие на положение уголков, мм
+  const FG = {
+    thread: 15,    // насколько трубка вкручивается в фитинг с каждого конца
+    elbArm: 28.5,  // уголок: от центра до торца (длина 40, Ø23)
+    elbR: 11.5,    // уголок: наружный радиус
+    cpl: 30,       // муфта: высота
+    tee: 44        // тройник: длина по проходу
+  };
   const STD_PIPES = [110, 150, 200, 300, 400, 500];
   const BLUE_PIPES = [150, 200, 300, 400, 500];
   const MAX_STD = 500;
@@ -584,19 +593,15 @@ const Calc = (() => {
       {"y":0,"x1":-900,"x2":600,"sup":[-800,500]}
     ],"breaks":[]},
 
-    "library": {"mount":"floor","deep":true,"pipe":300,"overhang":100,"boards":[
-      {"y":0,"x1":-600,"x2":1200,"sup":[-500,100,500,1100]},
-      {"y":460,"x1":-600,"x2":1200,"sup":[-500,100,500,1100]},
-      {"y":720,"x1":-600,"x2":1200,"sup":[-500,100,500,1100]},
-      {"y":980,"x1":-600,"x2":1200,"sup":[-500,100,500,1100]},
-      {"y":1340,"x1":-600,"x2":1200,"sup":[-500,100,500,1100]},
-      {"y":1600,"x1":-600,"x2":1400,"sup":[-500,100,500,1100]}
-    ],"breaks":[]},
+        "library": {"v":2,"mount":"floor","depth":400,"pipe":300,"overhang":100,"finish":"silk","tone":"none","pipeColor":"black","fit":"brass","boards":[{"y":0,"x1":-600,"x2":1200,"sup":[-500,100,500,1100]},{"y":500,"x1":-600,"x2":1200,"sup":[-500,100,500,1100]},{"y":800,"x1":-600,"x2":1200,"sup":[-500,100,500,1100]},{"y":1100,"x1":-600,"x2":1200,"sup":[-500,100,500,1100]},{"y":1500,"x1":-600,"x2":1200,"sup":[-500,100,500,1100]},{"y":1800,"x1":-600,"x2":1200,"sup":[-500,100,500,1100]}],"breaks":[]},
 
-    "duat": {"mount":"wall","deep":true,"pipe":300,"overhang":100,"boards":[
-      {"y":0,"x1":-200,"x2":700,"sup":[-100,600]},
-      {"y":260,"x1":-200,"x2":700,"sup":[-100,600]}
-    ],"breaks":[]}
+    "countrylibrary": {"v":2,"mount":"floor","depth":400,"pipe":300,"overhang":200,"finish":"silk","tone":"none","pipeColor":"black","fit":"brass","boards":[{"y":0,"x1":-1500,"x2":2500,"sup":[-1000,0,1000,2000]},{"y":500,"x1":-1500,"x2":2500,"sup":[-1000,0,1000,2000]},{"y":1000,"x1":-1500,"x2":2500,"sup":[-1000,0,1000,2000]},{"y":1500,"x1":-1500,"x2":2490,"sup":[-1000,0,1000,2000]},{"y":2000,"x1":-1500,"x2":2500,"sup":[-1000,0,1000,2000]}],"breaks":[]},
+
+       "shelvesinthebar": {"v":2,"mount":"wall","depth":200,"pipe":300,"overhang":200,"finish":"silk","tone":"none","pipeColor":"black","fit":"brass","boards":[{"y":0,"x1":-200,"x2":2000,"sup":[0,600,1200,1800]},{"y":300,"x1":-200,"x2":2000,"sup":[0,600,1200,1800]}],"breaks":[]},
+
+    "shelvesforacoffeeshop": {"v":2,"mount":"wall","depth":300,"pipe":300,"overhang":100,"finish":"silk","tone":"none","pipeColor":"black","fit":"brass","boards":[{"y":0,"x1":20,"x2":1120,"sup":[120,990]},{"y":500,"x1":-230,"x2":800,"sup":[120,520]},{"y":300,"x1":370,"x2":1330,"sup":[520,990]},{"y":800,"x1":-200,"x2":2400,"sup":[-100,520,1900]},{"y":1100,"x1":320,"x2":2100,"sup":[520,1900]}],"breaks":[]},
+
+        "duat": {"v":2,"mount":"wall","depth":400,"pipe":300,"overhang":100,"finish":"silk","tone":"wenge","pipeColor":"black","fit":"brass","boards":[{"y":0,"x1":-200,"x2":700,"sup":[-100,600]},{"y":300,"x1":-200,"x2":700,"sup":[-100,600]}],"breaks":[]},
   };
 
   // ---------- Мелкие помощники ----------
@@ -634,7 +639,7 @@ const Calc = (() => {
   const D = S => DEPTHS[depthOf(S)];
   const isFloor = S => S.mount === "floor";
   const deep = S => D(S).support > 0;
-  const wallZ = S => -D(S).wall;
+  const wallZ = S => -D(S).hole;                    // ось стойки от стены = отступ отверстия
   const supportReach = S => D(S).wall - 100;
   const woodZ = S => wallZ(S) + depthOf(S) / 2;
   const frontZ = S => woodZ(S) + depthOf(S) / 2;
@@ -644,6 +649,26 @@ const Calc = (() => {
   const ov = S => S.overhang;
   const floorLevel = S => S.boards.length ? Math.min(...S.boards.map(b => b.y)) : 0;
   const floorY = S => floorLevel(S) - MM.thickness / 2 - MM.foot;
+
+  // Центр верхнего уголка над серединой верхнего щита (труба 110 мм).
+  // 200–300: муфта 30 над щитом, труба в неё и в уголок по 15 мм.
+  // 400–600: труба начинается в тройнике под щитом и проходит сквозь щит.
+  const capTop = S => {
+    const T = MM.thickness, e = FG.thread, L = PART.endPipe;
+    return deep(S) ? -T / 2 - 2 * e + L + FG.elbArm
+                   : T / 2 + FG.cpl - 2 * e + L + FG.elbArm;
+  };
+  // Центр нижнего уголка под серединой нижнего щита (труба 110 мм).
+  // 200–300: труба проходит контргайку и щит и вкручивается в муфту над щитом.
+  // 400–600: труба вкручивается в тройник под щитом.
+  const capBot = S => {
+    const T = MM.thickness, e = FG.thread, L = PART.endPipe;
+    return deep(S) ? T / 2 + FG.tee - 2 * e + L + FG.elbArm
+                   : L - 2 * e + FG.elbArm - T / 2;
+  };
+  // Минимальный промежуток, в котором трубу можно разрезать:
+  // должны поместиться два узла крепления к стене
+  const breakMin = S => capTop(S) + capBot(S) + 2 * FG.elbR + 5;
 
   function finishText(S) {
     return `Дуб, масло Osmo, ${FINISH[S.finish] || FINISH.silk}` +
@@ -666,7 +691,7 @@ const Calc = (() => {
   }
 
   function isBroken(S, x, y1, y2) {
-    return y2 - y1 > 2 * MM.cap && S.breaks.has(bkey(x, y1, y2));
+    return y2 - y1 > breakMin(S) && S.breaks.has(bkey(x, y1, y2));
   }
 
   function groupsOf(S, cols) {
@@ -723,8 +748,8 @@ const Calc = (() => {
       if (g.x !== x) continue;
       const lv = g.levels, low = lv[0], high = lv[lv.length - 1];
       if (lv.includes(y)) { st = "through"; continue; }
-      const bottom = fl && low === fLevel ? low - MM.thickness / 2 - MM.foot : low - MM.cap - 15;
-      const top = high + MM.cap + 15;
+      const bottom = fl && low === fLevel ? low - MM.thickness / 2 - MM.foot : low - capBot(S) - 15;
+      const top = high + capTop(S) + 15;
       if (y + 30 < bottom || y - MM.gap > top) continue;
       let ok = false;
       for (let i = 1; i < lv.length; i++)
@@ -750,11 +775,12 @@ const Calc = (() => {
       const a = Math.min(near, y), c = Math.max(near, y);
       if (S.boards.some(o => o.y > a && o.y < c && x > o.x1 - MM.gap && x < o.x2 + MM.gap)) return false;
     }
-    const caps = [];
-    if (upper === undefined) caps.push(y + MM.cap);
-    if (lower === undefined && !(isFloor(S) && y <= floorLevel(S))) caps.push(y - MM.cap);
-    for (const cy of caps)
-      if (S.boards.some(o => Math.abs(o.y - cy) < 45 && x > o.x1 - MM.gap && x < o.x2 + MM.gap)) return false;
+    // Труба 110 мм и уголок над/под новым крайним щитом не должны упираться в другие щиты
+    const zones = [];
+    if (upper === undefined) zones.push([y, y + capTop(S) + 25]);
+    if (lower === undefined && !(isFloor(S) && y <= floorLevel(S))) zones.push([y - capBot(S) - 25, y]);
+    for (const [a, c] of zones)
+      if (S.boards.some(o => o.y > a && o.y < c && x > o.x1 - MM.gap && x < o.x2 + MM.gap)) return false;
     return true;
   }
 
@@ -784,6 +810,7 @@ const Calc = (() => {
     }
     S.boards = merged;
 
+    const bm = breakMin(S);
     for (let guard = 0; guard < 40; guard++) {
       let changed = false;
       const cols = columns(S);
@@ -797,7 +824,7 @@ const Calc = (() => {
               if (pipeOk(b.y - y1) && pipeOk(y2 - b.y)) {
                 b.sup.push(x);
                 b.sup.sort((a, c) => a - c);
-              } else if (y2 - y1 > 2 * MM.cap) {
+              } else if (y2 - y1 > bm) {
                 S.breaks.add(bkey(x, y1, y2));
               } else continue;
               changed = true;
@@ -812,7 +839,7 @@ const Calc = (() => {
     const valid = new Set();
     for (const [x, lv] of columns(S))
       for (let i = 1; i < lv.length; i++)
-        if (lv[i] - lv[i - 1] > 2 * MM.cap) valid.add(bkey(x, lv[i - 1], lv[i]));
+        if (lv[i] - lv[i - 1] > bm) valid.add(bkey(x, lv[i - 1], lv[i]));
     S.breaks = new Set([...S.breaks].filter(k => valid.has(k)));
   }
 
@@ -1038,7 +1065,7 @@ const Calc = (() => {
     const covered = S.boards.some(o => o.y === y && x > o.x1 + MM.pipeR && x < o.x2 - MM.pipeR);
     const bad = !pipeOk(upper - lower);
     if (wasBroken || covered || bad) S.breaks.add(bkey(x, lower, upper));
-    return bad && !wasBroken && !covered && upper - lower > 2 * MM.cap;
+    return bad && !wasBroken && !covered && upper - lower > breakMin(S);
   }
 
   function removeSpan(S, id, a, c) {
@@ -1160,7 +1187,7 @@ const Calc = (() => {
     const fw = S.fit === "black" ? "чёрный" : "латунь";
     const pw = S.pipeColor === "white" ? "белая" : "чёрная матовая";
     const rows = [];
-    if (parts.flange) rows.push({ name: `Фланец настенный — ${fw}`, qty: parts.flange });
+    if (parts.flange) rows.push({ name: "Фланец настенный — чугун, чёрный", qty: parts.flange });
     for (const len of [...pipes.keys()].sort((a, c) => a - c))
       rows.push({ name: `Труба ${fmtNum(len)} мм — ${pw}`, qty: pipes.get(len), custom: !STD_PIPES.includes(len) });
     if (parts.elbowTurn) rows.push({ name: `Уголок поворотный — ${fw}`, qty: parts.elbowTurn });
@@ -1259,13 +1286,15 @@ const Calc = (() => {
              minApplied: price > rounded, workOff: off };
   }
 
+  // Габариты: по внешнему краю верхних и нижних уголков (или от пола)
   function sizeOf(S) {
     if (!S.boards.length) return null;
     const minX = Math.min(...S.boards.map(b => b.x1));
     const maxX = Math.max(...S.boards.map(b => b.x2));
     const minY = Math.min(...S.boards.map(b => b.y));
     const maxY = Math.max(...S.boards.map(b => b.y));
-    const yBot = isFloor(S) ? floorY(S) : minY - MM.cap, yTop = maxY + MM.cap;
+    const yBot = isFloor(S) ? floorY(S) : minY - capBot(S) - FG.elbR;
+    const yTop = maxY + capTop(S) + FG.elbR;
     return { minX, maxX, minY, maxY, yBot, yTop, W: maxX - minX, H: yTop - yBot };
   }
 
@@ -1317,12 +1346,12 @@ const Calc = (() => {
   }
 
   return {
-    MM, DEPTHS, PART, STD_PIPES, BLUE_PIPES, MAX_STD, HOLE_DIA, PRESETS,
+    MM, DEPTHS, PART, FG, STD_PIPES, BLUE_PIPES, MAX_STD, HOLE_DIA, PRESETS,
     FINISH, TONE, PIPE_COLOR, FIT,
     r10, clamp, fmtNum, fmtDec, money, bkey, uniqSort, pipeOk, minGap,
     newState, snapshot, restore,
     depthOf, isFloor, deep, wallZ, supportReach, woodZ, frontZ, holeBack,
-    stepH, clearH, ov, floorLevel, floorY, finishText,
+    stepH, clearH, ov, floorLevel, floorY, capTop, capBot, breakMin, finishText,
     byId, columns, isBroken, groupsOf, groupBoards, neighborLimit, neighborBoard,
     blocked, firstSpan, pipeStatus, mergeOk,
     normalize, detach, attachKeys, dodge, divide, extContext, planExtension, setEdge,
@@ -1402,6 +1431,21 @@ const Calc = (() => {
   }
   const hash = (...v) => v.reduce((h, x) => Math.imul(h ^ Math.round(x), 2654435761) >>> 0, 2166136261);
   const canvas = (w, h) => { const c = document.createElement("canvas"); c.width = w; c.height = h; return c; };
+
+  // ---------- Размеры фурнитуры (мм, по реальным деталям ½″) ----------
+  const FD = {
+    // Тройник: длина по проходу 44, наружный Ø25, ширина 35 (от торца отвода до тыла прохода)
+    tee: { half: 22, rBody: 12, rRim: 12.5, branch: 22.5, rim: 4 },
+    // Муфта: высота 30, наружный Ø23, кольца по краям
+    cpl: { h: 30, rBody: 11, rRim: 11.5, rim: 3.5 },
+    // Контргайка: высота 7 (шестигранник 5 + шайба 2), ширина 35
+    nut: { r: 17.5, hex: 5, collarR: 16, collar: 2 },
+    // Угольник: длина 40 (от торца до тыла), наружный Ø23 → плечо от центра 28,5
+    elb: { arm: 28.5, rBody: 11, rRim: 11.5, rim: 4 },
+    // Фланец чугунный: Ø72, толщина 6, патрубок Ø30 × 15, три отверстия
+    fl: { r: 36, base: 6, hubR: 15, hub: 15, holeR: 25.5, holeD: 4.6 }
+  };
+  const FL_FACE_R = FD.fl.r * .92;
 
   // ---------- Three.js ----------
   const BG = "#d9d4cc";
@@ -1549,20 +1593,17 @@ const Calc = (() => {
       a1: 2 + rnd() * 12, a2: .5 + rnd() * 3, p1: rnd() * TAU, p2: rnd() * TAU
     });
 
-    // широкие полосы тона
     for (let i = 0; i < 16; i++) {
       const q = params(), y0 = rnd() * H;
       g.lineWidth = 14 + rnd() * 50;
       g.strokeStyle = rnd() < .5 ? rgba(p.light, .05 + rnd() * .06) : rgba(p.band, .05 + rnd() * .08);
       wavy(g, y0, q);
     }
-    // волокна
     for (let i = 0; i < 300; i++) {
       const q = params(), y0 = rnd() * H, w = .6 + rnd() * 2.2, a = .07 + rnd() * .3;
       g.lineWidth = w; g.strokeStyle = rgba(p.dark, a); wavy(g, y0, q);
       bg.lineWidth = w; bg.strokeStyle = `rgba(0,0,0,${a * .9})`; wavy(bg, y0, q);
     }
-    // поры
     for (let i = 0; i < 7000; i++) {
       const x = rnd() * W, y = rnd() * H, len = 3 + rnd() * 14, a = .12 + rnd() * .25;
       for (const off of [0, -W]) {
@@ -1570,7 +1611,6 @@ const Calc = (() => {
         bg.fillStyle = `rgba(0,0,0,${a * 1.4})`; bg.fillRect(x + off, y, len, 1.2);
       }
     }
-    // сердцевинные лучи — светлые «искры» дуба
     for (let i = 0; i < 420; i++) {
       const x = rnd() * W, y = rnd() * H, rw = 5 + rnd() * 26, rh = 1 + rnd() * 2.2;
       g.fillStyle = rgba(p.light, .1 + rnd() * .14);
@@ -1646,9 +1686,71 @@ const Calc = (() => {
     return t;
   }
 
+  // Литая поверхность (латунь и чугун): мелкое зерно для карты рельефа
+  function makeCast() {
+    const N = 256, c = canvas(N, N), g = c.getContext("2d"), rnd = mulberry32(42);
+    g.fillStyle = "#808080"; g.fillRect(0, 0, N, N);
+    for (let i = 0; i < 5200; i++) {
+      const x = rnd() * N, y = rnd() * N, r = .4 + rnd() * 1.6;
+      g.fillStyle = rnd() < .5 ? `rgba(0,0,0,${.15 + rnd() * .3})` : `rgba(255,255,255,${.12 + rnd() * .25})`;
+      g.beginPath(); g.arc(x, y, r, 0, 6.283); g.fill();
+    }
+    const t = new THREE.CanvasTexture(c);
+    t.wrapS = t.wrapT = THREE.RepeatWrapping;
+    return t;
+  }
+
+  // Лицевая сторона чугунного фланца: три отверстия и литая надпись «1914»
+  function makeFlangeFace(R) {
+    const N = 512, k = N / 2 / R, rnd = mulberry32(1914);
+    const c = canvas(N, N), g = c.getContext("2d");
+    const bc = canvas(N, N), bg = bc.getContext("2d");
+    g.fillStyle = "#2b2c2e"; g.fillRect(0, 0, N, N);
+    bg.fillStyle = "#808080"; bg.fillRect(0, 0, N, N);
+    for (let i = 0; i < 9000; i++) {
+      const x = rnd() * N, y = rnd() * N, s = .6 + rnd() * 2, dark = rnd() < .55;
+      g.fillStyle = dark ? `rgba(0,0,0,${.15 + rnd() * .25})` : `rgba(95,97,100,${.06 + rnd() * .14})`;
+      g.fillRect(x, y, s, s);
+      bg.fillStyle = dark ? "rgba(0,0,0,.35)" : "rgba(255,255,255,.28)";
+      bg.fillRect(x, y, s, s);
+    }
+    const P = (xm, ym) => [N / 2 + xm * k, N / 2 - ym * k];
+    // кольцевой буртик у края
+    g.strokeStyle = "rgba(80,82,85,.55)"; g.lineWidth = 1.6 * k;
+    g.beginPath(); g.arc(N / 2, N / 2, (R - 2.2) * k, 0, 6.283); g.stroke();
+    bg.strokeStyle = "rgba(255,255,255,.7)"; bg.lineWidth = 1.6 * k;
+    bg.beginPath(); bg.arc(N / 2, N / 2, (R - 2.2) * k, 0, 6.283); bg.stroke();
+    // три отверстия под саморезы
+    for (const deg of [90, 210, 330]) {
+      const a = deg * Math.PI / 180;
+      const [hx, hy] = P(Math.cos(a) * FD.fl.holeR, Math.sin(a) * FD.fl.holeR);
+      g.fillStyle = "#060606";
+      g.beginPath(); g.arc(hx, hy, FD.fl.holeD * k, 0, 6.283); g.fill();
+      g.strokeStyle = "rgba(110,112,115,.6)"; g.lineWidth = .9 * k;
+      g.beginPath(); g.arc(hx, hy, (FD.fl.holeD + .7) * k, 0, 6.283); g.stroke();
+      bg.fillStyle = "#000";
+      bg.beginPath(); bg.arc(hx, hy, FD.fl.holeD * k, 0, 6.283); bg.fill();
+    }
+    // надпись 1914
+    const [tx, ty] = P(0, -21);
+    g.font = `bold ${Math.round(5.6 * k)}px Georgia, "Times New Roman", serif`;
+    g.textAlign = "center"; g.textBaseline = "middle";
+    bg.font = g.font; bg.textAlign = "center"; bg.textBaseline = "middle";
+    g.fillStyle = "rgba(120,122,126,.55)"; g.fillText("1914", tx - 1.5, ty - 1.5);
+    g.fillStyle = "#3e4043"; g.fillText("1914", tx, ty);
+    bg.fillStyle = "#ffffff"; bg.fillText("1914", tx, ty);
+    const map = new THREE.CanvasTexture(c);
+    map.encoding = THREE.sRGBEncoding;
+    map.anisotropy = ANISO;
+    const bump = new THREE.CanvasTexture(bc);
+    return { map, bump };
+  }
+
   const TEX = { oak: makeWood(PAL.oak, 11), wenge: makeWood(PAL.wenge, 23) };
   const floorTex = makeParquet();
   const wallTex = makePlaster();
+  const castTex = makeCast();
+  const FLFACE = makeFlangeFace(FL_FACE_R);
 
   // ---------- Материалы ----------
   const woodMat = new THREE.MeshPhysicalMaterial({
@@ -1656,7 +1758,20 @@ const Calc = (() => {
     roughness: .55, metalness: 0, envMapIntensity: .85
   });
   const pipeMat = new THREE.MeshStandardMaterial({ color: col("#1b1d1f"), metalness: .35, roughness: .6, envMapIntensity: .9 });
-  const fitMat = new THREE.MeshStandardMaterial({ color: col("#d1a65a"), metalness: 1, roughness: .28, envMapIntensity: 1.1 });
+  // Латунь: литое тело (с зерном) и гладкие обточенные буртики
+  const fitMat = new THREE.MeshStandardMaterial({
+    color: col("#c99a4e"), metalness: 1, roughness: .4, bumpMap: castTex, bumpScale: .35, envMapIntensity: 1.15
+  });
+  const fitRimMat = new THREE.MeshStandardMaterial({
+    color: col("#d8ae62"), metalness: 1, roughness: .22, envMapIntensity: 1.2
+  });
+  // Чугун фланца — всегда чёрный
+  const ironMat = new THREE.MeshStandardMaterial({
+    color: col("#232426"), metalness: .4, roughness: .7, bumpMap: castTex, bumpScale: .5, envMapIntensity: .7
+  });
+  const flangeFaceMat = new THREE.MeshStandardMaterial({
+    map: FLFACE.map, bumpMap: FLFACE.bump, bumpScale: 1.4, metalness: .4, roughness: .7, envMapIntensity: .7
+  });
   const screwMat = new THREE.MeshStandardMaterial({ color: col("#8d8f91"), metalness: .9, roughness: .35 });
   const wallMat = new THREE.MeshStandardMaterial({ map: wallTex, roughness: .95, envMapIntensity: .5 });
   const floorMat = new THREE.MeshStandardMaterial({ map: floorTex, roughness: .55, envMapIntensity: .6 });
@@ -1690,9 +1805,11 @@ const Calc = (() => {
       pipeMat.color.copy(col("#1b1d1f")); pipeMat.metalness = .35; pipeMat.roughness = .6;
     }
     if (S.fit === "black") {
-      fitMat.color.copy(col("#202224")); fitMat.metalness = .55; fitMat.roughness = .45;
+      fitMat.color.copy(col("#202224")); fitMat.metalness = .55; fitMat.roughness = .5;
+      fitRimMat.color.copy(col("#26282a")); fitRimMat.metalness = .6; fitRimMat.roughness = .38;
     } else {
-      fitMat.color.copy(col("#d1a65a")); fitMat.metalness = 1; fitMat.roughness = .28;
+      fitMat.color.copy(col("#c99a4e")); fitMat.metalness = 1; fitMat.roughness = .4;
+      fitRimMat.color.copy(col("#d8ae62")); fitRimMat.metalness = 1; fitRimMat.roughness = .22;
     }
   }
 
@@ -1700,6 +1817,10 @@ const Calc = (() => {
     box: new THREE.BoxGeometry(1, 1, 1),
     cyl: new THREE.CylinderGeometry(1, 1, 1, 28),
     hex: new THREE.CylinderGeometry(1, 1, 1, 6),
+    hexCh: new THREE.CylinderGeometry(.9, 1, 1, 6),
+    chamf: new THREE.CylinderGeometry(.94, 1, 1, 28),
+    flCh: new THREE.CylinderGeometry(.92, 1, 1, 40, 1, true),
+    circle: new THREE.CircleGeometry(1, 48),
     sphere: new THREE.SphereGeometry(1, 28, 18),
     plane: new THREE.PlaneGeometry(1, 1)
   };
@@ -2308,37 +2429,144 @@ const Calc = (() => {
     add(G.cyl, pipeMat, x, (y1 + y2) / 2, 0, MM.pipeR, y2 - y1, MM.pipeR, 0, model, "Труба");
   }
 
-  // Узел крепления к стене: уголок, труба к стене, фланец с винтами.
-  // up = +1, если вертикальная труба приходит снизу (верхний конец стойки).
-  function wallMount(x, y, up) {
-    const wz = C.wallZ(S);
-    add(G.sphere, fitMat, x, y, 0, 15.5, 15.5, 15.5, 0, model, "Уголок поворотный");
-    add(G.cyl, fitMat, x, y - up * 11, 0, 14, 14, 14, 0, model, "Уголок поворотный");
-    add(G.cyl, fitMat, x, y, -11, 14, 14, 14, Math.PI / 2, model, "Уголок поворотный");
-    const z1 = -16, z2 = wz + 18;
-    if (z1 > z2) add(G.cyl, pipeMat, x, y, (z1 + z2) / 2, MM.pipeR, z1 - z2, MM.pipeR, Math.PI / 2, model, "Труба к стене");
-    add(G.cyl, fitMat, x, y, wz + 3, 32, 6, 32, Math.PI / 2, model, "Фланец");
-    add(G.cyl, fitMat, x, y, wz + 13, 16, 16, 16, Math.PI / 2, model, "Фланец");
-    for (let k = 0; k < 3; k++) {
-      const a = Math.PI / 2 + k * Math.PI * 2 / 3;
-      add(G.cyl, screwMat, x + Math.cos(a) * 24, y + Math.sin(a) * 24, wz + 6.8, 4, 2.5, 4,
-        Math.PI / 2, model, "Винт");
+  // ---------- Фурнитура по реальным размерам ----------
+  // Цилиндрический участок вдоль направления dir на расстоянии от a до b от центра детали.
+  // У геометрий с фаской сужение приходится на конец b.
+  const DIRS = {
+    "+x": [V(1, 0, 0), [0, 0, -Math.PI / 2]], "-x": [V(-1, 0, 0), [0, 0, Math.PI / 2]],
+    "+y": [V(0, 1, 0), [0, 0, 0]],            "-y": [V(0, -1, 0), [Math.PI, 0, 0]],
+    "+z": [V(0, 0, 1), [Math.PI / 2, 0, 0]],  "-z": [V(0, 0, -1), [-Math.PI / 2, 0, 0]]
+  };
+  function seg(parent, geo, mat, dir, a, b, r) {
+    if (b - a <= .01) return null;
+    const [v, rot] = DIRS[dir];
+    const m = new THREE.Mesh(geo, mat);
+    m.position.copy(v).multiplyScalar((a + b) / 2);
+    m.rotation.set(rot[0], rot[1], rot[2]);
+    m.scale.set(r, b - a, r);
+    m.castShadow = true;
+    m.receiveShadow = true;
+    parent.add(m);
+    return m;
+  }
+  function part(name, x, y, z) {
+    const g = new THREE.Group();
+    g.name = name;
+    g.position.set(x, y, z);
+    model.add(g);
+    return g;
+  }
+
+  // Угольник 90°: плечи dA и dB длиной lA и lB от центра
+  function fitElbow(g, dA, lA, dB, lB) {
+    const E = FD.elb;
+    const s = new THREE.Mesh(G.sphere, fitMat);
+    s.scale.setScalar(E.rBody);
+    s.castShadow = s.receiveShadow = true;
+    g.add(s);
+    for (const [d, l] of [[dA, lA], [dB, lB]]) {
+      if (l > E.rim + 2) {
+        seg(g, G.cyl, fitMat, d, 0, l - E.rim, E.rBody);
+        seg(g, G.chamf, fitRimMat, d, l - E.rim, l, E.rRim);
+      } else seg(g, G.cyl, fitMat, d, 0, l, E.rBody);
     }
   }
 
+  // Тройник: проход вдоль пары направлений run, отвод в brDir длиной brLen
+  function fitTee(g, run, brDir, brLen) {
+    const T = FD.tee;
+    seg(g, G.cyl, fitMat, run[0], -(T.half - T.rim), T.half - T.rim, T.rBody);
+    seg(g, G.chamf, fitRimMat, run[0], T.half - T.rim, T.half, T.rRim);
+    seg(g, G.chamf, fitRimMat, run[1], T.half - T.rim, T.half, T.rRim);
+    const bl = brLen === undefined ? T.branch : brLen;
+    if (bl > T.rim + 1) {
+      seg(g, G.cyl, fitMat, brDir, 0, bl - T.rim, T.rBody);
+      seg(g, G.chamf, fitRimMat, brDir, bl - T.rim, bl, T.rRim);
+    } else seg(g, G.cyl, fitMat, brDir, 0, bl, T.rBody);
+  }
+
+  // Муфта вдоль +y, от 0 до h, с кольцами по краям
+  function fitCoupling(g, h) {
+    const K = FD.cpl;
+    seg(g, G.chamf, fitRimMat, "-y", -K.rim, 0, K.rRim);
+    seg(g, G.cyl, fitMat, "+y", K.rim, h - K.rim, K.rBody);
+    seg(g, G.chamf, fitRimMat, "+y", h - K.rim, h, K.rRim);
+  }
+
+  // Контргайка вдоль +y, от 0 до 7: шестигранник, сверху опорная шайба
+  function fitNut(g) {
+    const N = FD.nut;
+    seg(g, G.hexCh, fitRimMat, "-y", -1.2, 0, N.r);
+    seg(g, G.hex, fitRimMat, "+y", 1.2, N.hex, N.r);
+    seg(g, G.cyl, fitRimMat, "+y", N.hex, N.hex + N.collar, N.collarR);
+  }
+
+  // Чугунный фланец на стене (лицом к комнате)
+  function flange(x, y, wz) {
+    const F = FD.fl;
+    const g = part("Фланец", x, y, 0);
+    seg(g, G.cyl, ironMat, "+z", wz, wz + F.base * .5, F.r);
+    seg(g, G.flCh, ironMat, "+z", wz + F.base * .5, wz + F.base, F.r);
+    const face = new THREE.Mesh(G.circle, flangeFaceMat);
+    face.position.set(0, 0, wz + F.base);
+    face.scale.set(FL_FACE_R, FL_FACE_R, 1);
+    face.receiveShadow = true;
+    g.add(face);
+    seg(g, G.cyl, ironMat, "+z", wz + F.base, wz + F.base + F.hub - 3, F.hubR);
+    seg(g, G.chamf, ironMat, "+z", wz + F.base + F.hub - 3, wz + F.base + F.hub, F.hubR);
+    for (const deg of [90, 210, 330]) {
+      const a = deg * Math.PI / 180;
+      const s = new THREE.Mesh(G.sphere, screwMat);
+      s.position.set(Math.cos(a) * F.holeR, Math.sin(a) * F.holeR, wz + F.base);
+      s.scale.set(F.holeD - .4, F.holeD - .4, 1.8);
+      s.castShadow = true;
+      g.add(s);
+    }
+  }
+
+  // Узел крепления к стене: поворотный уголок, труба к стене, фланец.
+  // vdir — куда смотрит вертикальное плечо уголка ("-y" — стойка снизу, "+y" — сверху).
+  function wallMount(x, y, vdir, vlen) {
+    const wz = C.wallZ(S), F = FD.fl;
+    const e = part("Уголок поворотный", x, y, 0);
+    fitElbow(e, vdir, vlen, "-z", FD.elb.arm);
+    const z1 = 0, z2 = wz + F.base + F.hub - 2;
+    if (z1 > z2) add(G.cyl, pipeMat, x, y, (z1 + z2) / 2, MM.pipeR, z1 - z2, MM.pipeR, Math.PI / 2, model, "Труба к стене");
+    flange(x, y, wz);
+  }
+
+  // Узел под глубокой полкой: тройник, опорная труба к стене, опорный уголок под щитом
+  function supportUnder(x, y) {
+    const Tt = FD.tee, E = FD.elb, bot = y - MM.thickness / 2;
+    const yc = bot - Tt.half;
+    const t = part("Тройник", x, yc, 0);
+    fitTee(t, ["+y", "-y"], "-z", Tt.branch);
+    const reach = C.supportReach(S);
+    const e = part("Уголок опорный", x, yc, -reach);
+    fitElbow(e, "+z", E.arm, "+y", bot - yc);
+    const z1 = -(Tt.branch - 6), z2 = -reach + (E.arm - 6);
+    if (z1 > z2) add(G.cyl, pipeMat, x, yc, (z1 + z2) / 2, MM.pipeR, z1 - z2, MM.pipeR, Math.PI / 2,
+      model, "Труба опорная");
+  }
+
+  // Ножка напольного стеллажа под нижней полкой:
+  // 200–300 — муфта, 400–600 — тройники с опорной трубой
   function floorFoot(x, y) {
-    const yc = y - MM.thickness / 2 - MM.foot / 2;
+    const bot = y - MM.thickness / 2, base = bot - MM.foot;
     if (!C.deep(S)) {
-      add(G.cyl, fitMat, x, yc, 0, 14.5, MM.foot, 14.5, 0, model, "Муфта-ножка");
-      add(G.cyl, fitMat, x, yc - MM.foot / 2 + 1.5, 0, 15.5, 3, 15.5, 0, model, "Муфта-ножка");
+      const cp = part("Муфта-ножка", x, base, 0);
+      fitCoupling(cp, MM.foot);
       return;
     }
+    const Tt = FD.tee, yc = base + Tt.rRim;
     const r = C.supportReach(S);
-    add(G.cyl, fitMat, x, yc, 0, 15, MM.foot, 15, 0, model, "Тройник");
-    add(G.cyl, fitMat, x, yc, -14, 12, 14, 12, Math.PI / 2, model, "Тройник");
-    add(G.cyl, pipeMat, x, yc, -r / 2, MM.pipeR, r - 30, MM.pipeR, Math.PI / 2, model, "Труба опорная");
-    add(G.cyl, fitMat, x, yc, -(r - 14), 12, 14, 12, Math.PI / 2, model, "Тройник");
-    add(G.cyl, fitMat, x, yc, -r, 15, MM.foot, 15, 0, model, "Тройник");
+    const t1 = part("Тройник", x, yc, 0);
+    fitTee(t1, ["+z", "-z"], "+y", bot - yc);
+    const t2 = part("Тройник", x, yc, -r);
+    fitTee(t2, ["+z", "-z"], "+y", bot - yc);
+    const z1 = -(Tt.half - 6), z2 = -r + (Tt.half - 6);
+    if (z1 > z2) add(G.cyl, pipeMat, x, yc, (z1 + z2) / 2, MM.pipeR, z1 - z2, MM.pipeR, Math.PI / 2,
+      model, "Труба опорная");
   }
 
   // ---------- Интерьер и декор ----------
@@ -2690,10 +2918,11 @@ const Calc = (() => {
 
     // Трубы: кнопки разреза
     const cols = C.columns(S);
+    const bm = C.breakMin(S);
     for (const [x, lv] of cols) {
       for (let i = 1; i < lv.length; i++) {
         const y1 = lv[i - 1], y2 = lv[i];
-        if (y2 - y1 <= 2 * MM.cap) continue;
+        if (y2 - y1 <= bm) continue;
         const key = bkey(x, y1, y2);
         const broken = S.breaks.has(key);
         addButton({
@@ -2713,28 +2942,42 @@ const Calc = (() => {
     }
 
     // Стойки и фурнитура
+    const dp = C.deep(S);
+    const NUT_H = FD.nut.hex + FD.nut.collar;
+    const capT = C.capTop(S), capB = C.capBot(S);
     for (const g of C.groupsOf(S, cols)) {
       const { x, levels } = g;
       const low = levels[0], high = levels[levels.length - 1];
       const onFloor = fl && low === fLevel;
-      if (!onFloor) { pipe(x, low - MM.cap + 11, low); wallMount(x, low - MM.cap, -1); }
-      pipe(x, high, high + MM.cap - 11); wallMount(x, high + MM.cap, 1);
+      // Трубы 110 мм к уголкам — снизу (если не на полу) и сверху стойки
+      if (!onFloor) {
+        pipe(x, low - capB, low);
+        wallMount(x, low - capB, "+y", FD.elb.arm);
+      }
+      pipe(x, high, high + capT);
+      wallMount(x, high + capT, "-y", FD.elb.arm);
       for (let i = 1; i < levels.length; i++) pipe(x, levels[i - 1], levels[i]);
       for (const y of levels) {
-        add(G.hex, fitMat, x, y + T / 2 + 4.5, 0, 17, 9, 17, 0, model, "Контргайка");
-        if (onFloor && y === low) { floorFoot(x, y); continue; }
-        if (C.deep(S)) {
-          const reach = C.supportReach(S);
-          add(G.cyl, fitMat, x, y - 22, 0, 15, 26, 15, 0, model, "Тройник");
-          add(G.cyl, fitMat, x, y - 22, -15, 13, 16, 13, Math.PI / 2, model, "Тройник");
-          add(G.cyl, pipeMat, x, y - 22, -(reach + 23) / 2, MM.pipeR, reach - 23, MM.pipeR, Math.PI / 2,
-            model, "Труба опорная");
-          add(G.sphere, fitMat, x, y - 22, -reach, 14.5, 14.5, 14.5, 0, model, "Уголок опорный");
-          add(G.cyl, fitMat, x, y - 22, -reach + 10, 13, 12, 13, Math.PI / 2, model, "Уголок опорный");
+        const top = y + T / 2, bot = y - T / 2;
+        if (onFloor && y === low) {
+          const n = part("Контргайка", x, top + NUT_H, 0);
+          n.rotation.x = Math.PI;
+          fitNut(n);
+          floorFoot(x, y);
+          continue;
+        }
+        if (dp) {
+          // глубокая полка: контргайка сверху, тройник с опорой снизу
+          const n = part("Контргайка", x, top + NUT_H, 0);
+          n.rotation.x = Math.PI;
+          fitNut(n);
+          supportUnder(x, y);
         } else {
-          add(G.cyl, fitMat, x, y - T / 2 - 10, 0, 14.5, 20, 14.5, 0, model, "Муфта");
-          add(G.cyl, fitMat, x, y - T / 2 - 1.5, 0, 15.5, 3, 15.5, 0, model, "Муфта");
-          add(G.cyl, fitMat, x, y - T / 2 - 18.5, 0, 15.5, 3, 15.5, 0, model, "Муфта");
+          // муфта держит полку сверху, контргайка — снизу
+          const cp = part("Муфта", x, top, 0);
+          fitCoupling(cp, FD.cpl.h);
+          const n = part("Контргайка", x, bot - NUT_H, 0);
+          fitNut(n);
         }
       }
       addButton({
@@ -2762,7 +3005,7 @@ const Calc = (() => {
       ax1 = Math.min(ax1, m.x); ax2 = Math.max(ax2, m.x + m.w);
       ay1 = Math.min(ay1, m.y); ay2 = Math.max(ay2, m.y + m.h);
     }
-    let floorVis = fl ? fY : r10((has ? minY - MM.cap : 0) - 700);
+    let floorVis = fl ? fY : r10((has ? minY - capB : 0) - 700);
     for (const m of marks) floorVis = Math.min(floorVis, r10(m.y - 100));
     const wallZ0 = C.wallZ(S);
     const wx1 = ax1 - 2500, wx2 = ax2 + 2500;
@@ -2848,9 +3091,10 @@ const Calc = (() => {
           addLeader(V(chainX, y + T / 2, fz), V(lx, y + T / 2, fz));
         }
       }
-      const yBot = fl ? fY : minY - MM.cap, yTop = maxY + MM.cap;
-      H = yTop - yBot;
-      W = maxX - minX;
+      const sz = C.sizeOf(S);
+      const yBot = sz.yBot, yTop = sz.yTop;
+      H = sz.H;
+      W = sz.W;
       addDim(V(totX, yBot, fz), V(totX, yTop, fz), (L.small ? "В " : "Высота ") + mm(H), "total",
         { vertical: true, always: true, tick: 6 });
       addLeader(V(totX, yBot, fz), V(minX, yBot, fz), "total");
@@ -3220,8 +3464,8 @@ const Calc = (() => {
     if (S.boards.length) {
       minX = Math.min(...S.boards.map(b => b.x1)) - 380;
       maxX = Math.max(...S.boards.map(b => b.x2)) + 80;
-      minY = (C.isFloor(S) ? C.floorY(S) : Math.min(...S.boards.map(b => b.y)) - MM.cap) - 280;
-      maxY = Math.max(...S.boards.map(b => b.y)) + MM.cap + 80;
+      minY = (C.isFloor(S) ? C.floorY(S) : Math.min(...S.boards.map(b => b.y)) - C.capBot(S)) - 280;
+      maxY = Math.max(...S.boards.map(b => b.y)) + C.capTop(S) + 80;
     }
     for (const m of marks) {
       minX = Math.min(minX, m.x - 120); maxX = Math.max(maxX, m.x + m.w + 120);
@@ -3359,6 +3603,7 @@ const Calc = (() => {
   }));
   document.querySelectorAll('input[name="depth"]').forEach(r => r.addEventListener("change", () => {
     syncFromForm();
+    C.normalize(S);
     rebuild();
   }));
   for (const name of ["finish", "tone", "pipecolor", "fit"])
