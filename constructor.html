@@ -3687,12 +3687,64 @@ const Calc = (() => {
     }
   }
 
+  // ---------- Сохранение проекта на сервер ----------
+  let LOADED_CODE = null;
+
+  function saveProject() {
+    if (!S.boards.length) { toast("Сначала соберите стеллаж"); return; }
+    toast("Сохраняем…");
+    fetch("/api/projects", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        state: C.exportState(S),
+        quote: {},
+        parent_code: LOADED_CODE
+      })
+    })
+      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(d => {
+        LOADED_CODE = d.code;
+        history.replaceState(null, "", "/p/" + d.code);
+        const show = () => prompt("Ссылка на ваш проект:", d.url);
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(d.url)
+            .then(() => toast("Ссылка скопирована: " + d.url))
+            .catch(show);
+        } else show();
+      })
+      .catch(() => toast("Не удалось сохранить проект"));
+  }
+
+  const saveBtn = document.createElement("button");
+  saveBtn.textContent = "Сохранить и получить ссылку";
+  saveBtn.style.cssText = "position:fixed;left:12px;bottom:12px;z-index:9999;padding:10px 14px;border:0;border-radius:8px;background:#b58b4c;color:#fff;font:14px sans-serif;cursor:pointer";
+  saveBtn.onclick = saveProject;
+  document.body.appendChild(saveBtn);
+
   // ---------- Старт ----------
   document.body.classList.toggle("compact", compactMQ.matches);
   computeLayout();
   syncFromForm();
-  const presetId = new URLSearchParams(location.search).get("model");
-  if (presetId && C.PRESETS[presetId]) {
+    const q = new URLSearchParams(location.search);
+  const presetId = q.get("model");
+  const projectCode = q.get("p");
+  if (projectCode) {
+    C.createInitial(S, 500);
+    fetch("/api/projects/" + encodeURIComponent(projectCode))
+      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(d => {
+        C.loadState(S, d.state);
+        syncToForm();
+        applyFinish();
+        updateHeightHint();
+        rebuild();
+        renderMarkList();
+        fitCamera();
+        LOADED_CODE = projectCode;
+      })
+      .catch(() => toast("Проект не найден или срок хранения истёк"));
+  } else if (presetId && C.PRESETS[presetId]) {
     C.loadState(S, C.PRESETS[presetId]);
     syncToForm();
   } else {
