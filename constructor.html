@@ -3159,10 +3159,12 @@ const Calc = (() => {
     }
 
     // Стоимость
-    const P = prices();
-    const cost = C.computeCost(S, P);
+        const P = prices();
+    const cost = P ? C.computeCost(S, P) : null;
     lastCost = cost;
-    const priceText = cost ? money(cost.price) : (has && !P ? "по запросу" : "—");
+    if (has) requestQuote();
+        const priceText = cost ? money(cost.price)
+      : (has && SERVER_PRICE != null ? money(SERVER_PRICE) : (has ? "считаем…" : "—"));
     $("total").textContent = priceText;
     $("bar-total").textContent = priceText;
     $("size").textContent = has ? `${fmtNum(W)} × ${fmtNum(H)} × ${d} мм` : "—";
@@ -3721,6 +3723,33 @@ const Calc = (() => {
   saveBtn.style.cssText = "position:fixed;left:12px;bottom:12px;z-index:9999;padding:10px 14px;border:0;border-radius:8px;background:#b58b4c;color:#fff;font:14px sans-serif;cursor:pointer";
   saveBtn.onclick = saveProject;
   document.body.appendChild(saveBtn);
+
+    // ---------- Цена с сервера ----------
+  let SERVER_PRICE = null;
+  let quoteTimer = null;
+  let quoteLast = "";
+
+  function requestQuote() {
+    clearTimeout(quoteTimer);
+    quoteTimer = setTimeout(() => {
+      const body = JSON.stringify({ state: C.exportState(S) });
+      if (body === quoteLast) return;
+      quoteLast = body;
+      fetch("/api/quote", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: body
+      })
+        .then(r => r.ok ? r.json() : Promise.reject())
+        .then(d => {
+          SERVER_PRICE = d.price;
+          const t = d.price != null ? money(d.price) : "по запросу";
+          $("total").textContent = t;
+          $("bar-total").textContent = t;
+        })
+        .catch(() => {});
+    }, 400);
+  }
 
   // ---------- Старт ----------
   document.body.classList.toggle("compact", compactMQ.matches);
