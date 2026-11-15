@@ -3728,7 +3728,9 @@ const Calc = (() => {
   syncFromForm();
     const q = new URLSearchParams(location.search);
   const presetId = q.get("model");
-  const projectCode = q.get("p");
+    let projectCode = q.get("p");
+  const m = location.pathname.match(/^\/p\/([a-z0-9]+)/);
+  if (m) projectCode = m[1];
   if (projectCode) {
     C.createInitial(S, 500);
     fetch("/api/projects/" + encodeURIComponent(projectCode))
