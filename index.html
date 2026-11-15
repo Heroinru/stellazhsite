@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ПОЛКИ — стеллажи и полки на заказ из дерева, стали и латуни</title>
-<meta name="description" content="Делаем настенные полки и напольные стеллажи из дерева, стали и латуни. Шесть готовых моделей или стеллаж по вашим размерам. Онлайн 3D-конструктор.">
+<meta name="description" content="Делаем настенные полки и напольные стеллажи из дерева, стали и латуни. Идеи для каждой комнаты, онлайн 3D-конструктор, доставка СДЭК по России, монтаж в Москве и МО. Работаем с ИП и ООО.">
 <meta name="theme-color" content="#f3efe7">
 <style>
 :root{
@@ -53,15 +53,20 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
 /* header */
 .hdr{position:sticky;top:0;z-index:50;background:rgba(243,239,231,.85);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid transparent;transition:border-color .3s}
 .hdr.scrolled{border-bottom-color:var(--line)}
-.hdr .wrap{display:flex;align-items:center;justify-content:space-between;height:64px}
+.hdr .wrap{display:flex;align-items:center;justify-content:space-between;height:64px;gap:20px}
 .logo{font-family:var(--serif);font-size:22px;letter-spacing:.22em;display:flex;align-items:center;gap:10px}
 .logo i{width:9px;height:9px;border-radius:50%;background:var(--brass);display:inline-block}
-.nav{display:none;gap:30px;font-size:14px;color:var(--ink-2)}
-.nav a{position:relative;padding:4px 0}
+.nav{display:none;gap:24px;font-size:14px;color:var(--ink-2);margin-inline:auto}
+.nav a{position:relative;padding:4px 0;white-space:nowrap}
 .nav a::after{content:"";position:absolute;left:0;bottom:0;height:1px;width:0;background:var(--brass);transition:width .4s var(--ease)}
 .nav a:hover::after{width:100%}
+.nav a.hl{color:var(--brass);font-weight:600}
+.hdr-phone{display:flex;flex-direction:column;line-height:1.2;text-align:right;margin-left:auto}
+.hdr-phone a{font-weight:600;font-size:14px;white-space:nowrap;color:var(--ink)}
+.hdr-phone a:hover{color:var(--brass)}
+.hdr-phone small{font-size:11px;color:var(--mute);white-space:nowrap}
 .hdr-cta{display:none}
-.burger{width:44px;height:44px;display:grid;place-items:center;margin-right:-10px}
+.burger{width:44px;height:44px;display:grid;place-items:center;margin-right:-10px;flex:0 0 auto}
 .burger span{display:block;width:24px;height:1.5px;background:var(--ink);transition:transform .4s var(--ease),opacity .3s;position:relative}
 .burger span+span{margin-top:7px}
 .burger.on span:nth-child(1){transform:translateY(8.5px) rotate(45deg)}
@@ -70,11 +75,12 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
 .menu{position:fixed;inset:0;z-index:45;background:var(--ink);color:var(--paper);padding:100px var(--gutter) 40px;display:flex;flex-direction:column;
   transform:translateY(-100%);transition:transform .6s var(--ease);overflow:auto}
 .menu.on{transform:translateY(0)}
-.menu a.big{font-family:var(--serif);font-size:clamp(36px,10vw,64px);line-height:1.1;display:flex;align-items:baseline;gap:14px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.12);opacity:0;transform:translateY(20px);transition:opacity .5s,transform .6s var(--ease)}
+.menu a.big{font-family:var(--serif);font-size:clamp(32px,9vw,64px);line-height:1.1;display:flex;align-items:baseline;gap:14px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.12);opacity:0;transform:translateY(20px);transition:opacity .5s,transform .6s var(--ease)}
 .menu.on a.big{opacity:1;transform:none}
 .menu a.big small{font-family:var(--sans);font-size:12px;color:var(--brass-2);letter-spacing:.15em}
-.menu .foot{margin-top:auto;padding-top:30px;display:grid;gap:12px;font-size:14px;color:rgba(255,255,255,.6)}
+.menu .foot{margin-top:auto;padding-top:30px;display:grid;gap:10px;font-size:14px;color:rgba(255,255,255,.6)}
 .menu .foot a{color:var(--brass-2)}
+.menu .foot a.ph-big{font-family:var(--serif);font-size:26px;color:var(--paper)}
 
 /* hero */
 .hero{min-height:calc(100svh - 64px);display:grid;align-content:end;padding:40px 0 48px;position:relative;overflow:hidden}
@@ -86,6 +92,17 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
 .hero p{margin:22px 0 28px}
 .hero-actions{display:flex;flex-wrap:wrap;gap:12px}
 .hero-tag{position:absolute;top:24px;right:var(--gutter);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-2);writing-mode:vertical-rl;opacity:.7}
+
+/* hero: строка фактов */
+.hero-facts{background:var(--paper);border-top:1px solid var(--line)}
+.hero-facts .wrap{display:grid;gap:14px;padding-block:16px}
+.hero-facts ul{display:grid;grid-template-columns:1fr 1fr;gap:8px 16px;font-size:13px;color:var(--ink-2)}
+.hero-facts li{display:flex;align-items:center;gap:8px}
+.hero-facts li::before{content:"";flex:0 0 6px;height:6px;border-radius:50%;background:var(--brass)}
+.hero-facts .call{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.hero-facts .call a{font-family:var(--serif);font-size:22px;color:var(--ink);white-space:nowrap}
+.hero-facts .call a:hover{color:var(--brass)}
+.hero-facts .call small{font-size:12px;color:var(--mute)}
 
 /* marquee */
 .marquee{border-top:1px solid var(--ink);border-bottom:1px solid var(--ink);overflow:hidden;background:var(--ink);color:var(--paper);padding:7px 0}
@@ -100,27 +117,7 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
 .chip{flex:0 0 auto;padding:10px 16px;border:1px solid var(--line);border-radius:999px;font-size:13px;color:var(--ink-2);transition:.3s}
 .chip.on,.chip:hover{background:var(--ink);color:var(--paper);border-color:var(--ink)}
 .count{font-size:13px;color:var(--mute);margin-bottom:14px}
-.grid{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;margin-inline:calc(var(--gutter)*-1);padding-inline:var(--gutter);padding-bottom:10px;scrollbar-width:none}
-.grid::-webkit-scrollbar{display:none}
-.card{flex:0 0 82%;scroll-snap-align:start;background:#fff;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column;transition:transform .6s var(--ease),box-shadow .5s}
-.card:hover{transform:translateY(-6px);box-shadow:0 30px 50px -30px rgba(28,26,23,.45)}
-.card.hide{display:none}
-.card .fig{aspect-ratio:4/3;background:var(--paper-2);position:relative;overflow:hidden}
-.card .fig img{width:100%;height:100%;object-fit:cover;transition:transform 1.2s var(--ease)}
-.card:hover .fig img{transform:scale(1.05)}
-.card .tag{position:absolute;top:12px;left:12px;background:rgba(243,239,231,.92);font-size:11px;letter-spacing:.12em;text-transform:uppercase;padding:6px 10px;border-radius:2px}
-.card .body{padding:18px 18px 20px;display:grid;gap:8px;flex:1}
-.card h4{font-family:var(--serif);font-size:30px;font-weight:400;line-height:1}
-.card .spec{font-size:13px;color:var(--ink-2);display:flex;gap:14px;flex-wrap:wrap}
-.card .spec b{font-weight:600;color:var(--ink)}
-.card .foot{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-top:auto;padding-top:12px;border-top:1px solid var(--line);font-size:13px}
-.card .foot a{color:var(--brass);font-weight:600;display:inline-flex;gap:6px;align-items:center}
-.card .foot .acts{display:flex;align-items:center;gap:14px}
-.card .foot a.edit{color:var(--ink);border:1px solid var(--line);padding:7px 14px;border-radius:999px;transition:background .3s,color .3s,border-color .3s}
-.card .foot a.edit:hover{background:var(--brass);border-color:var(--brass);color:#fff}
 .note{font-size:13px;color:var(--mute);margin-top:22px;max-width:60ch}
-.coll-cta{margin-top:36px;padding:28px;background:var(--ink);color:var(--paper);border-radius:var(--radius);display:grid;gap:18px}
-.coll-cta .serif{font-size:clamp(26px,6vw,40px)}
 
 /* ph fallback */
 .ph{background:linear-gradient(135deg,#e6dfd1,#d5cbb8);display:grid;place-items:center;align-content:center;color:var(--mute);font-size:12px;letter-spacing:.1em;text-transform:uppercase;text-align:center;padding:20px}
@@ -150,15 +147,6 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
 .ctor-more{font-size:14px;color:var(--ink-2);margin-top:18px}
 .ctor-more a{color:var(--brass);border-bottom:1px solid var(--brass)}
 
-/* interiors */
-.int{display:grid;gap:18px}
-.int a{position:relative;display:block;border-radius:var(--radius);overflow:hidden;aspect-ratio:3/4;background:var(--paper-2)}
-.int a img{width:100%;height:100%;object-fit:cover;transition:transform 1.4s var(--ease)}
-.int a:hover img{transform:scale(1.06)}
-.int .cap{position:absolute;left:0;right:0;bottom:0;padding:22px 18px;background:linear-gradient(0deg,rgba(28,26,23,.85),transparent);color:var(--paper)}
-.int .cap small{display:block;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--brass-2);margin-bottom:6px}
-.int .cap b{font-family:var(--serif);font-size:26px;font-weight:400}
-
 /* about */
 .about{border-top:1px solid var(--line)}
 .about-grid{display:grid;gap:28px}
@@ -183,6 +171,13 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
 .proc b{display:block;font-family:var(--serif);font-size:28px;font-weight:400;margin:6px 0 8px;line-height:1.05}
 .proc p{color:var(--ink-2);font-size:15px}
 
+/* доставка */
+.dlv{display:grid;gap:14px;margin-top:clamp(36px,6vw,64px)}
+.dlv-item{background:var(--paper-2);border-radius:var(--radius);padding:26px;display:grid;gap:10px;align-content:start}
+.dlv-item small{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--brass);font-weight:600}
+.dlv-item b{font-family:var(--serif);font-size:clamp(24px,4vw,32px);font-weight:400;line-height:1.1}
+.dlv-item p{color:var(--ink-2);font-size:15px}
+
 /* faq */
 .faq details{border-top:1px solid var(--line)}
 .faq details:last-child{border-bottom:1px solid var(--line)}
@@ -200,6 +195,10 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
 .contact{background:var(--ink);color:var(--paper)}
 .contact .eyebrow{color:var(--brass-2)}.contact .eyebrow::before{background:var(--brass-2)}
 .contact .lead{color:rgba(255,255,255,.7)}
+.c-list{margin-top:28px;display:grid;gap:12px;font-size:14px;color:rgba(255,255,255,.6)}
+.c-list a{color:var(--brass-2)}
+.c-list a.ph-big{font-family:var(--serif);font-size:30px;color:var(--paper);line-height:1}
+.c-list a:hover{color:#fff}
 .form{display:grid;gap:14px;margin-top:30px}
 .field{display:grid;gap:6px}
 .field label{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.5)}
@@ -215,11 +214,18 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
 /* footer */
 .ftr{padding:40px 0 100px;font-size:13px;color:var(--mute);display:grid;gap:18px}
 .ftr .big{font-family:var(--serif);font-size:clamp(48px,18vw,200px);line-height:.85;letter-spacing:.06em;color:var(--ink);opacity:.08;user-select:none}
-.ftr .row{display:flex;flex-wrap:wrap;gap:16px 28px;justify-content:space-between;border-top:1px solid var(--line);padding-top:18px}
+.ftr-grid{display:grid;gap:30px;border-top:1px solid var(--line);padding-top:30px}
+.ftr h5{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink);font-weight:600;margin-bottom:12px}
+.ftr-grid li{padding:3px 0;color:var(--ink-2)}
+.ftr-grid a:hover{color:var(--brass)}
+.ftr .ftr-about p{color:var(--ink-2);max-width:32ch;margin-top:10px}
+.ftr .ftr-phone{font-family:var(--serif);font-size:24px;color:var(--ink);line-height:1.1}
+.ftr .row{display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:space-between;border-top:1px solid var(--line);padding-top:18px;margin-top:30px}
 .ftr .row a:hover{color:var(--brass)}
+.ftr .row .links{display:flex;gap:20px;flex-wrap:wrap}
 
 /* sticky mobile bar */
-.mbar{position:fixed;left:12px;right:12px;bottom:12px;z-index:40;display:flex;gap:8px;background:rgba(28,26,23,.92);backdrop-filter:blur(12px);padding:8px;border-radius:999px;transform:translateY(120%);transition:transform .6s var(--ease)}
+.mbar{position:fixed;left:12px;right:12px;bottom:12px;z-index:40;display:flex;gap:6px;background:rgba(28,26,23,.92);backdrop-filter:blur(12px);padding:8px;border-radius:999px;transform:translateY(120%);transition:transform .6s var(--ease)}
 .mbar.on{transform:none}
 .mbar a{flex:1;min-height:44px;display:grid;place-items:center;border-radius:999px;color:var(--paper);font-size:14px;font-weight:600}
 .mbar a.p{background:var(--brass)}
@@ -232,28 +238,28 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
 /* tablet */
 @media (min-width:640px){
   :root{--gutter:32px}
-  .card{flex-basis:46%}
   .mat{grid-template-columns:1fr 1fr;gap:32px}
-  .int{grid-template-columns:1fr 1fr}
   .about-gallery{grid-template-columns:repeat(3,1fr)}
   .about-facts{grid-template-columns:repeat(3,1fr)}
   .proc{grid-template-columns:1fr 1fr;column-gap:40px}
   .proc li::after{display:none}
+  .dlv{grid-template-columns:1fr 1fr}
   .form{grid-template-columns:1fr 1fr}
   .form .full{grid-column:1/-1}
-  .coll-cta{grid-template-columns:1fr auto;align-items:center}
   .ftr{padding-bottom:60px}
+  .ftr-grid{grid-template-columns:1fr 1fr}
+  .hero-facts .wrap{grid-template-columns:1fr auto;align-items:center}
+  .hero-facts ul{display:flex;flex-wrap:wrap;gap:8px 24px}
 }
 /* desktop */
 @media (min-width:960px){
   :root{--gutter:48px}
   .nav,.hdr-cta{display:flex}
+  .hdr-phone{margin-left:0}
   .burger,.menu,.mbar{display:none}
   .hero{grid-template-columns:1.2fr .8fr;align-items:end;min-height:calc(100vh - 64px)}
   .sec-head{grid-template-columns:1fr 1fr;align-items:end}
   .sec-head .lead{justify-self:end;padding-bottom:10px}
-  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;overflow:visible;margin-inline:0;padding-inline:0}
-  .card{flex-basis:auto}
   .mat{gap:60px}
   .mat-item:nth-child(2){margin-top:120px}
   .ctor-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
@@ -263,8 +269,13 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
   .faq-grid .sec-head{display:block;position:sticky;top:90px;margin:0}
   .contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px}
   .contact-grid .form{margin-top:0}
+  .ftr-grid{grid-template-columns:1.4fr 1fr 1fr 1fr 1fr;gap:40px}
 }
-@media (min-width:1280px){.card h4{font-size:34px}}
+/* шапка на ноутбуке: часть пунктов прячем, чтобы поместились телефон и «Дизайнерам» */
+@media (min-width:960px) and (max-width:1279px){
+  .nav .x{display:none}
+  .nav{gap:20px}
+}
 
 /* ===== HERO: текст на полках ===== */
 .hero{display:block;min-height:0;padding:0 0 48px;overflow:visible}
@@ -318,23 +329,17 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
 .frame{width:min(100%, calc((100svh - 64px - var(--strip)) * var(--ratio)))}
 
 /* ===== HERO: тени от надписей на полках ===== */
-
-/* тень от букв на стене */
 .hero .on-shelf{
   text-shadow:
     0.07em 0.08em 0.09em rgba(28,26,23,.20),
     0.08em 0.10em 0.22em rgba(28,26,23,.12);
 }
-
-/* тень у основания букв, на полке */
 .hero .on-shelf::after{
   height:.20em;
   left:2%;right:2%;
   background:radial-gradient(ellipse at center,rgba(28,26,23,.40),transparent 70%);
   filter:blur(4px);
 }
-
-
 
 /* ===== HERO: тень от кнопок на стену ===== */
 .shelf-btns .btn,
@@ -360,21 +365,13 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
   from{opacity:0;scale:.4 1}
   to  {opacity:1;scale:1 1}
 }
-
-/* надписи */
 .hero .on-shelf{animation:shelfDrop .5s ease-out both}
 .hero .s1{animation-delay:.2s}
 .hero .s2{animation-delay:.45s}
-
-/* тень под надписями появляется, когда буквы «встали» */
 .hero .on-shelf::after{animation:shadowIn .6s ease-out both}
 .hero .s1::after{animation-delay:.65s}
 .hero .s2::after{animation-delay:.9s}
-
-/* кнопки */
 .shelf-btns{animation:shelfDrop .9s ease-out .75s both}
-
-/* ждём загрузки картинки, чтобы буквы не падали на пустой фон */
 .hero:not(.ready) .on-shelf,
 .hero:not(.ready) .on-shelf::after,
 .hero:not(.ready) .shelf-btns{animation-play-state:paused}
@@ -382,7 +379,6 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
 /* о мастерской: фото */
 .about-main{position:relative;overflow:hidden;border-radius:var(--radius);background:var(--paper-2)}
 .about-main img{width:100%;height:100%;object-fit:cover;display:block}
-
 .about-gallery{display:grid;grid-template-columns:1fr;gap:14px}
 .about-shot{position:relative;aspect-ratio:4/3;overflow:hidden;border-radius:var(--radius);background:var(--paper-2)}
 .about-shot img{width:100%;height:100%;object-fit:cover;display:block}
@@ -405,7 +401,42 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
 @media (min-width:960px){
   .dsg-list{grid-template-columns:repeat(3,1fr);column-gap:40px}
 }
-<a href="#designers">Дизайнерам</a>
+
+/* ===== ДЛЯ БИЗНЕСА ===== */
+.biz{background:var(--paper-2)}
+.biz-list{display:grid;gap:0;border-top:1px solid var(--line)}
+.biz-list li{display:grid;grid-template-columns:auto 1fr;gap:16px;padding:22px 0;border-bottom:1px solid var(--line);align-items:start}
+.biz-list .n{font-family:var(--serif);font-size:13px;color:var(--brass);letter-spacing:.1em;padding-top:5px}
+.biz-list b{display:block;font-family:var(--serif);font-size:22px;font-weight:400;margin-bottom:6px;line-height:1.1}
+.biz-list p{color:var(--ink-2);font-size:15px}
+.biz-row{display:grid;gap:18px;margin-top:clamp(28px,5vw,48px)}
+.biz-case{position:relative;display:block;border-radius:var(--radius);overflow:hidden;min-height:340px;background:var(--ink)}
+.biz-case img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform 1.4s var(--ease)}
+.biz-case:hover img{transform:scale(1.05)}
+.biz-case .cap{position:absolute;left:0;right:0;bottom:0;padding:24px;color:var(--paper);background:linear-gradient(0deg,rgba(28,26,23,.92),rgba(28,26,23,.5) 60%,transparent)}
+.biz-case .cap small{display:block;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--brass-2);margin-bottom:8px}
+.biz-case .cap b{display:block;font-family:var(--serif);font-size:clamp(24px,3.6vw,32px);font-weight:400;line-height:1.1;margin-bottom:8px}
+.biz-case .cap p{font-size:14px;color:rgba(255,255,255,.75);max-width:44ch}
+.biz-case .cap span{display:inline-block;margin-top:12px;font-size:14px;font-weight:600;color:var(--brass-2)}
+.req{background:var(--ink);color:var(--paper);border-radius:var(--radius);padding:28px;display:grid;gap:18px;align-content:start}
+.req small.k{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--brass-2);font-weight:600}
+.req h3{font-family:var(--serif);font-weight:400;font-size:clamp(26px,4vw,34px);line-height:1.1}
+.req p{color:rgba(255,255,255,.72);font-size:15px}
+.req dl{display:grid;gap:0;border-top:1px solid rgba(255,255,255,.14)}
+.req dl div{display:grid;grid-template-columns:110px 1fr;gap:12px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.14);font-size:14px}
+.req dt{color:rgba(255,255,255,.5)}
+.req dd{color:var(--paper);font-weight:600}
+.req .btns{display:flex;flex-wrap:wrap;gap:10px}
+.req .btns .btn{min-height:46px;padding:0 20px;font-size:14px}
+.req .btn-ghost{border-color:rgba(255,255,255,.4);color:var(--paper)}
+.req .btn-ghost:hover{background:var(--paper);color:var(--ink)}
+@media (min-width:640px){
+  .biz-list{grid-template-columns:1fr 1fr;column-gap:40px}
+}
+@media (min-width:960px){
+  .biz-list{grid-template-columns:repeat(4,1fr)}
+  .biz-row{grid-template-columns:1.2fr 1fr}
+}
 
 /* ===== карусель интерьеров ===== */
 .slider{position:relative}
@@ -413,24 +444,18 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
   margin-inline:calc(var(--gutter)*-1);padding-inline:var(--gutter);padding-bottom:4px;
   scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .s-track::-webkit-scrollbar{display:none}
-
 .s-item{position:relative;flex:0 0 86%;scroll-snap-align:center;margin:0;
   aspect-ratio:3/4;border-radius:var(--radius);overflow:hidden;background:var(--paper-2)}
 .s-item img{width:100%;height:100%;object-fit:cover;display:block;transition:transform 1.4s var(--ease)}
 .s-item:hover img{transform:scale(1.05)}
-
 .s-item .cap{position:absolute;left:0;right:0;bottom:0;padding:22px 18px;color:var(--paper);
   background:linear-gradient(0deg,rgba(28,26,23,.9),rgba(28,26,23,.45) 55%,transparent)}
 .s-item .cap small{display:block;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--brass-2);margin-bottom:6px}
 .s-item .cap b{display:block;font-family:var(--serif);font-size:26px;font-weight:400;line-height:1.1}
 .s-cta{margin-top:14px;min-height:44px;padding:0 20px;font-size:14px}
-
-/* точки */
 .s-dots{display:flex;justify-content:center;gap:8px;margin-top:18px}
 .s-dots button{width:7px;height:7px;border-radius:50%;background:var(--line);transition:.3s;padding:0}
 .s-dots button.on{background:var(--brass);transform:scale(1.5)}
-
-/* стрелки */
 .s-arrow{display:none;position:absolute;top:50%;z-index:3;width:48px;height:48px;border-radius:50%;
   background:rgba(243,239,231,.92);color:var(--ink);font-size:18px;
   box-shadow:0 10px 24px -12px rgba(28,26,23,.5);transition:.3s;transform:translateY(-50%)}
@@ -438,7 +463,6 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
 .s-arrow.prev{left:-10px}
 .s-arrow.next{right:-10px}
 .s-arrow[disabled]{opacity:.25;pointer-events:none}
-
 @media (min-width:640px){
   .s-item{flex-basis:46%;aspect-ratio:4/5}
 }
@@ -449,6 +473,42 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
   .s-dots{display:none}
 }
 
+/* ===== ИДЕИ ===== */
+.ideas{border-top:1px solid var(--line)}
+.ifilters{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;scrollbar-width:none;margin-bottom:22px}
+.ifilters::-webkit-scrollbar{display:none}
+.ichip{flex:0 0 auto;padding:10px 16px;border:1px solid var(--line);border-radius:999px;font-size:13px;color:var(--ink-2);transition:.3s}
+.ichip.on,.ichip:hover{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.ichip sup{font-size:10px;margin-left:4px;opacity:.6}
+.igrid{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;margin-inline:calc(var(--gutter)*-1);padding-inline:var(--gutter);padding-bottom:10px;scrollbar-width:none}
+.igrid::-webkit-scrollbar{display:none}
+.idea{flex:0 0 74%;scroll-snap-align:start;background:#fff;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column;transition:transform .6s var(--ease),box-shadow .5s}
+.idea:hover{transform:translateY(-6px);box-shadow:0 30px 50px -30px rgba(28,26,23,.45)}
+.idea.hide{display:none}
+.idea .fig{position:relative;aspect-ratio:3/2;background:var(--paper-2);overflow:hidden}
+.idea .fig img{width:100%;height:100%;object-fit:cover;transition:transform 1.2s var(--ease)}
+.idea:hover .fig img{transform:scale(1.05)}
+.idea .tag{position:absolute;top:10px;left:10px;z-index:1;background:rgba(243,239,231,.92);font-size:10px;letter-spacing:.12em;text-transform:uppercase;padding:5px 8px;border-radius:2px}
+.idea .body{padding:14px 16px 16px;display:flex;flex-direction:column;gap:6px;flex:1}
+.idea h4{font-family:var(--serif);font-size:21px;font-weight:400;line-height:1.1}
+.idea .cfg{font-size:12px;color:var(--mute);letter-spacing:.02em}
+.idea .d{font-size:13px;color:var(--ink-2);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.idea .meta{margin-top:auto;padding-top:10px;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:baseline;gap:4px 10px;flex-wrap:wrap;font-size:13px;color:var(--ink-2)}
+.idea .meta .pr{display:flex;align-items:baseline;gap:6px;white-space:nowrap}
+.idea .meta .pr b{font-size:15px;font-weight:600;color:var(--ink)}
+.idea .meta .pr .t{font-size:12px;color:var(--mute)}
+.idea .go{margin-top:6px;align-self:flex-start;font-size:13px;font-weight:600;color:var(--ink);border:1px solid var(--line);padding:8px 14px;border-radius:999px;transition:background .3s,color .3s,border-color .3s}
+.idea .go:hover{background:var(--brass);border-color:var(--brass);color:#fff}
+@media (min-width:640px){
+  .idea{flex-basis:44%}
+}
+@media (min-width:960px){
+  .igrid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;overflow:visible;margin-inline:0;padding-inline:0}
+  .idea{flex-basis:auto}
+}
+@media (min-width:1200px){
+  .igrid{grid-template-columns:repeat(4,1fr)}
+}
 </style>
 
 </head>
@@ -459,31 +519,41 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
   <div class="wrap">
     <a href="#top" class="logo" aria-label="ПОЛКИ — на главную"><i></i>ПОЛКИ</a>
     <nav class="nav" aria-label="Основная навигация">
-      <a href="#collection">Модели</a>
+      <a href="#ideas">Идеи</a>
       <a href="#constructor">Конструктор</a>
-      <a href="#designers">Дизайнерам</a>
-      <a href="#materials">Материалы</a>
-      <a href="#about">О мастерской</a>
-      <a href="#process">Как заказать</a>
-      <a href="#faq">Вопросы</a>
+      <a href="#designers" class="hl">Дизайнерам</a>
+      <a href="#business">Для бизнеса</a>
+      <a href="#materials" class="x">Материалы</a>
+      <a href="#about" class="x">О мастерской</a>
+      <a href="#delivery">Доставка</a>
+      <a href="#faq" class="x">Вопросы</a>
     </nav>
+    <div class="hdr-phone">
+      <a href="tel:+79164455131">8-916-445-5131</a>
+      <small>Пн–Сб 10:00–19:00</small>
+    </div>
     <a href="#contact" class="btn btn-dark hdr-cta" style="min-height:42px;padding:0 20px;font-size:14px">Заявка</a>
     <button class="burger" id="burger" aria-label="Меню" aria-expanded="false" aria-controls="menu"><span></span><span></span><span></span></button>
   </div>
 </header>
 
 <div class="menu" id="menu" aria-hidden="true">
-  <a class="big" href="#collection" style="transition-delay:.05s">Модели <small>01</small></a>
-  <a class="big" href="constructor.html" style="transition-delay:.1s">Конструктор <small>3D</small></a>
-  <a class="big" href="#designers" style="transition-delay:.15s">Дизайнерам <small>03</small></a>
-  <a class="big" href="#materials" style="transition-delay:.15s">Материалы <small>03</small></a>
-  <a class="big" href="#about" style="transition-delay:.2s">О мастерской <small>05</small></a>
-  <a class="big" href="#process" style="transition-delay:.25s">Как заказать <small>06</small></a>
-  <a class="big" href="#faq" style="transition-delay:.3s">Вопросы <small>07</small></a>
+  <a class="big" href="#ideas" style="transition-delay:.05s">Идеи <small>01</small></a>
+  <a class="big" href="constructor.html" style="transition-delay:.08s">Конструктор <small>3D</small></a>
+  <a class="big" href="#designers" style="transition-delay:.11s">Дизайнерам <small>03</small></a>
+  <a class="big" href="#business" style="transition-delay:.14s">Для бизнеса <small>04</small></a>
+  <a class="big" href="#materials" style="transition-delay:.17s">Материалы <small>05</small></a>
+  <a class="big" href="#about" style="transition-delay:.2s">О мастерской <small>07</small></a>
+  <a class="big" href="#process" style="transition-delay:.23s">Как заказать <small>08</small></a>
+  <a class="big" href="#delivery" style="transition-delay:.26s">Доставка <small>08</small></a>
+  <a class="big" href="#faq" style="transition-delay:.29s">Вопросы <small>09</small></a>
   <div class="foot">
-    <span>Дерево · сталь · латунь</span>
+    <a href="tel:+79164455131" class="ph-big">8-916-445-5131</a>
+    <span>Пн–Сб 10:00–19:00</span>
+    <a href="mailto:devre2016@yandex.ru">devre2016@yandex.ru</a>
     <!-- Замените USERNAME на ваш Telegram -->
     <a href="https://t.me/USERNAME" target="_blank" rel="noopener">Написать в Telegram ↗</a>
+    <span>ИП Журо · ИНН 410208801286</span>
   </div>
 </div>
 
@@ -501,8 +571,24 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
         <span class="on-shelf s2"><em>под ваши размеры</em></span>
       </h1>
       <div class="shelf-btns">
-        <a href="#collection" class="btn btn-dark">Выбрать модель <span class="arr">→</span></a>
+        <a href="#ideas" class="btn btn-dark">Смотреть идеи <span class="arr">→</span></a>
         <a href="constructor.html" class="btn btn-ghost">Собрать свою</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Строка с ключевыми фактами -->
+  <div class="hero-facts">
+    <div class="wrap">
+      <ul>
+        <li>Дерево, сталь и латунь</li>
+        <li>Доставка СДЭК по всей России</li>
+        <li>Монтаж в Москве и МО</li>
+        <li>Работаем с ИП и ООО</li>
+      </ul>
+      <div class="call">
+        <a href="tel:+79164455131">8-916-445-5131</a>
+        <small>Пн–Сб 10:00–19:00</small>
       </div>
     </div>
   </div>
@@ -516,85 +602,370 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
   </div>
 </section>
 
-<!-- 3. МОДЕЛИ -->
-<section class="sec" id="collection">
+<!-- 3. ИДЕИ (вместо раздела «Готовые модели») -->
+<!-- Срок изготовления «10–14 дней» — замените на ваш реальный. Цены, кроме «Линии», пока «по запросу». -->
+<section class="sec ideas" id="ideas">
   <div class="wrap">
     <div class="sec-head rv">
       <div>
-        <p class="eyebrow">01 / Модели</p>
-        <h2 class="serif h2" style="margin-top:16px">Готовые<br>модели.</h2>
+        <p class="eyebrow">01 / Идеи</p>
+        <h2 class="serif h2" style="margin-top:16px">Идеи<br>для вашей стены.</h2>
       </div>
-      <p class="lead">Шесть моделей: от одной полки до большого стеллажа. Размеры и отделку меняем под ваш интерьер.</p>
+      <p class="lead">Популярные конфигурации и решения для каждой комнаты. Цена указана для показанного размера, в конструкторе меняйте его под свою стену.</p>
     </div>
 
-    <div class="filters" role="tablist" aria-label="Фильтр моделей">
-      <button class="chip on" data-f="all">Все модели</button>
-      <button class="chip" data-f="wall">Настенные</button>
-      <button class="chip" data-f="floor">Напольные</button>
-      <button class="chip" data-f="shelf">Полки</button>
+    <div class="ifilters" role="tablist" aria-label="Комнаты">
+      <button class="ichip on" data-room="popular">Популярные<sup></sup></button>
+      <button class="ichip" data-room="living">Гостиная<sup></sup></button>
+      <button class="ichip" data-room="hall">Прихожая<sup></sup></button>
+      <button class="ichip" data-room="kitchen">Кухня<sup></sup></button>
+      <button class="ichip" data-room="kids">Детская<sup></sup></button>
+      <button class="ichip" data-room="bedroom">Спальня<sup></sup></button>
+      <button class="ichip" data-room="horeca">Кофейня и бар<sup></sup></button>
     </div>
-    <p class="count">Показано <span id="cnt">6</span> моделей</p>
+    <p class="count">Показано <span id="icnt">6</span></p>
 
-    <div class="grid" id="grid">
-      <article class="card rv" data-t="wall">
-        <div class="fig"><img src="img/model-linea.png" alt="Настенный стеллаж с тремя полками" loading="lazy"><span class="tag">Настенный стеллаж</span></div>
+    <div class="igrid" id="igrid">
+
+      <!-- ПОПУЛЯРНЫЕ: шесть конфигураций -->
+      <article class="idea rv" data-room="popular">
+        <div class="fig"><img src="img/model-linea.png" alt="Настенный стеллаж с тремя полками над рабочим столом" loading="lazy"><span class="tag">Популярное</span></div>
         <div class="body">
-          <h4>Линия</h4>
-          <div class="spec"><span>Дерево + латунь</span></div>
-          <div class="spec"><span>Ширина <b>1200</b> мм</span><span>Глубина <b>200</b> мм</span></div>
-          <div class="foot"><span>Цена по запросу</span><span class="acts"><a href="constructor.html?model=liniya" class="edit" aria-label="Изменить модель Линия в конструкторе">Изменить</a><a href="#contact" data-model="Линия">Заказать →</a></span></div>
+          <h4>Полки над рабочим столом</h4>
+          <p class="cfg">Конфигурация: Линия</p>
+          <div class="meta"><span>1200 × 200 мм</span><span class="pr"><b>21 000 ₽</b><span class="t">· 10–14 дней</span></span></div>
+          <a href="constructor.html?model=liniya" class="go">Открыть в конструкторе →</a>
         </div>
       </article>
-      <article class="card rv" data-t="wall">
-        <div class="fig"><img src="img/model-frame.png" alt="Стеллаж вокруг телевизора" loading="lazy"><span class="tag">Вокруг телевизора</span></div>
+      <article class="idea rv" data-room="popular">
+        <div class="fig"><img src="img/model-frame.png" alt="Стеллаж вокруг телевизора" loading="lazy"><span class="tag">Популярное</span></div>
         <div class="body">
-          <h4>Контур</h4>
-          <div class="spec"><span>Дерево + латунь</span></div>
-          <div class="spec"><span>Ширина <b>2200</b> мм</span><span>Глубина <b>200</b> мм</span></div>
-          <div class="foot"><span>Цена по запросу</span><span class="acts"><a href="constructor.html?model=kontur" class="edit" aria-label="Изменить модель Контур в конструкторе">Изменить</a><a href="#contact" data-model="Контур">Заказать →</a></span></div>
+          <h4>Стеллаж вокруг телевизора</h4>
+          <p class="cfg">Конфигурация: Контур</p>
+          <div class="meta"><span>2200 × 200 мм</span><span class="pr"><b>по запросу</b><span class="t">· 10–14 дней</span></span></div>
+          <a href="constructor.html?model=kontur" class="go">Открыть в конструкторе →</a>
         </div>
       </article>
-      <article class="card rv" data-t="floor">
-        <div class="fig"><img src="img/model-column.png" alt="Узкий напольный стеллаж" loading="lazy"><span class="tag">Напольный стеллаж</span></div>
+      <article class="idea rv" data-room="popular">
+        <div class="fig"><img src="img/model-column.png" alt="Узкий напольный стеллаж" loading="lazy"><span class="tag">Популярное</span></div>
         <div class="body">
-          <h4>Вертикаль</h4>
-          <div class="spec"><span>Дерево + латунь</span></div>
-          <div class="spec"><span>Ширина <b>700</b> мм</span><span>Глубина <b>200</b> мм</span></div>
-          <div class="foot"><span>Цена по запросу</span><span class="acts"><a href="constructor.html?model=vertikal" class="edit" aria-label="Изменить модель Вертикаль в конструкторе">Изменить</a><a href="#contact" data-model="Вертикаль">Заказать →</a></span></div>
+          <h4>Узкий стеллаж в простенок</h4>
+          <p class="cfg">Конфигурация: Вертикаль</p>
+          <div class="meta"><span>700 × 200 мм</span><span class="pr"><b>по запросу</b><span class="t">· 10–14 дней</span></span></div>
+          <a href="constructor.html?model=vertikal" class="go">Открыть в конструкторе →</a>
         </div>
       </article>
-      <article class="card rv" data-t="shelf wall">
-        <div class="fig"><img src="img/model-horizon.png" alt="Одна длинная настенная полка" loading="lazy"><span class="tag">Настенная полка</span></div>
+      <article class="idea rv" data-room="popular">
+        <div class="fig"><img src="img/model-horizon.png" alt="Одна длинная настенная полка" loading="lazy"><span class="tag">Популярное</span></div>
         <div class="body">
-          <h4>Горизонт</h4>
-          <div class="spec"><span>Дерево + латунь</span></div>
-          <div class="spec"><span>Ширина <b>1500</b> мм</span><span>Глубина <b>200</b> мм</span></div>
-          <div class="foot"><span>Цена по запросу</span><span class="acts"><a href="constructor.html?model=horizon" class="edit" aria-label="Изменить модель Горизонт в конструкторе">Изменить</a><a href="#contact" data-model="Горизонт">Заказать →</a></span></div>
+          <h4>Длинная полка над диваном</h4>
+          <p class="cfg">Конфигурация: Горизонт</p>
+          <div class="meta"><span>1500 × 200 мм</span><span class="pr"><b>по запросу</b><span class="t">· 10–14 дней</span></span></div>
+          <a href="constructor.html?model=horizon" class="go">Открыть в конструкторе →</a>
         </div>
       </article>
-      <article class="card rv" data-t="wall floor">
-        <div class="fig"><img src="img/model-library.png" alt="Глубокий стеллаж для книг" loading="lazy"><span class="tag">Глубина 400 мм</span></div>
+      <article class="idea rv" data-room="popular">
+        <div class="fig"><img src="img/model-library.png" alt="Глубокий стеллаж для книг" loading="lazy"><span class="tag">Популярное</span></div>
         <div class="body">
-          <h4>Библиотека</h4>
-          <div class="spec"><span>Дерево + латунь</span></div>
-          <div class="spec"><span>Ширина <b>1800</b> мм</span><span>Глубина <b>400</b> мм</span></div>
-          <div class="foot"><span>Цена по запросу</span><span class="acts"><a href="constructor.html?model=library" class="edit" aria-label="Изменить модель Библиотека в конструкторе">Изменить</a><a href="#contact" data-model="Библиотека">Заказать →</a></span></div>
+          <h4>Домашняя библиотека</h4>
+          <p class="cfg">Конфигурация: Библиотека</p>
+          <div class="meta"><span>1800 × 400 мм</span><span class="pr"><b>по запросу</b><span class="t">· 10–14 дней</span></span></div>
+          <a href="constructor.html?model=library" class="go">Открыть в конструкторе →</a>
         </div>
       </article>
-      <article class="card rv" data-t="shelf wall">
-        <div class="fig"><img src="img/model-duo.png" alt="Две полки на общих стойках" loading="lazy"><span class="tag">Две полки</span></div>
+      <article class="idea rv" data-room="popular">
+        <div class="fig"><img src="img/model-duo.png" alt="Две полки на общих стойках" loading="lazy"><span class="tag">Популярное</span></div>
         <div class="body">
-          <h4>Дуэт</h4>
-          <div class="spec"><span>Дерево + латунь</span></div>
-          <div class="spec"><span>Ширина <b>900</b> мм</span><span>Глубина <b>200</b> мм</span></div>
-          <div class="foot"><span>Цена по запросу</span><span class="acts"><a href="constructor.html?model=duat" class="edit" aria-label="Изменить модель Дуэт в конструкторе">Изменить</a><a href="#contact" data-model="Дуэт">Заказать →</a></span></div>
+          <h4>Две полки над комодом</h4>
+          <p class="cfg">Конфигурация: Дуэт</p>
+          <div class="meta"><span>900 × 200 мм</span><span class="pr"><b>по запросу</b><span class="t">· 10–14 дней</span></span></div>
+          <a href="constructor.html?model=duat" class="go">Открыть в конструкторе →</a>
         </div>
       </article>
 
+      <!-- ГОСТИНАЯ -->
+      <article class="idea rv" data-room="living">
+        <div class="fig"><img src="img/idea-living-1.png" alt="Стеллаж под книги на всю стену" loading="lazy"><span class="tag">Гостиная</span></div>
+        <div class="body">
+          <h4>Стеллаж под книги на всю стену</h4>
+          <p class="cfg">Конфигурация: Библиотека</p>
+          <p class="d">Глубокие полки 400 мм для домашней библиотеки и крупных альбомов.</p>
+          <div class="meta"><span>2400 × 400 мм</span><span class="pr"><b>по запросу</b><span class="t">· 10–14 дней</span></span></div>
+          <a href="constructor.html?model=library" class="go">Открыть в конструкторе →</a>
+        </div>
+      </article>
+      <article class="idea rv" data-room="living">
+        <div class="fig"><img src="img/idea-living-2.png" alt="Полки вокруг телевизора" loading="lazy"><span class="tag">Гостиная</span></div>
+        <div class="body">
+          <h4>Полки вокруг телевизора</h4>
+          <p class="cfg">Конфигурация: Контур</p>
+          <p class="d">Стеллаж обрамляет телевизор, по бокам остаётся место для книг и колонок.</p>
+          <div class="meta"><span>2200 × 200 мм</span><span class="pr"><b>по запросу</b><span class="t">· 10–14 дней</span></span></div>
+          <a href="constructor.html?model=kontur" class="go">Открыть в конструкторе →</a>
+        </div>
+      </article>
+      <article class="idea rv" data-room="living">
+        <div class="fig"><img src="img/idea-living-3.png" alt="Полка над диваном" loading="lazy"><span class="tag">Гостиная</span></div>
+        <div class="body">
+          <h4>Полка над диваном</h4>
+          <p class="cfg">Конфигурация: Горизонт</p>
+          <p class="d">Одна длинная полка для картин, свечей и растений.</p>
+          <div class="meta"><span>1500 × 200 мм</span><span class="pr"><b>по запросу</b><span class="t">· 10–14 дней</span></span></div>
+          <a href="constructor.html?model=horizon" class="go">Открыть в конструкторе →</a>
+        </div>
+      </article>
+      <article class="idea rv" data-room="living">
+        <div class="fig"><img src="img/idea-living-4.png" alt="Узкий стеллаж у окна" loading="lazy"><span class="tag">Гостиная</span></div>
+        <div class="body">
+          <h4>Узкий стеллаж у окна</h4>
+          <p class="cfg">Конфигурация: Вертикаль</p>
+          <p class="d">Занимает простенок шириной от 700 мм. Подходит для растений и декора.</p>
+          <div class="meta"><span>700 × 200 мм</span><span class="pr"><b>по запросу</b><span class="t">· 10–14 дней</span></span></div>
+          <a href="constructor.html?model=vertikal" class="go">Открыть в конструкторе →</a>
+        </div>
+      </article>
+      <article class="idea rv" data-room="living">
+        <div class="fig"><img src="img/idea-living-5.png" alt="Полки для пластинок и проигрывателя" loading="lazy"><span class="tag">Гостиная</span></div>
+        <div class="body">
+          <h4>Полки для пластинок</h4>
+          <p class="cfg">Конфигурация: Линия</p>
+          <p class="d">Глубина 400 мм вмещает пластинки и проигрыватель на одной полке.</p>
+          <div class="meta"><span>1200 × 400 мм</span><span class="pr"><b>по запросу</b><span class="t">· 10–14 дней</span></span></div>
+          <a href="constructor.html?model=liniya" class="go">Открыть в конструкторе →</a>
+        </div>
+      </article>
+
+      <!-- ПРИХОЖАЯ -->
+      <article class="idea rv" data-room="hall">
+        <div class="fig"><img src="img/idea-hall-1.png" alt="Открытый гардероб в прихожей" loading="lazy"><span class="tag">Прихожая</span></div>
+        <div class="body">
+          <h4>Открытый гардероб</h4>
+          <p class="cfg">Конфигурация: Библиотека</p>
+          <p class="d">Полки для сумок и шапок сверху, место для одежды снизу.</p>
+          <div class="meta"><span>1500 × 400 мм</span><span class="pr"><b>по запросу</b><span class="t">· 10–14 дней</span></span></div>
+          <a href="constructor.html?model=library" class="go">Открыть в конструкторе →</a>
+        </div>
+      </article>
+      <article class="idea rv" data-room="hall">
+        <div class="fig"><img src="img/idea-hall-2.png" alt="Полка над скамьёй" loading="lazy"><span class="tag">Прихожая</span></div>
+        <div class="body">
+          <h4>Полка над скамьёй</h4>
+          <p class="cfg">Конфигурация: Линия</p>
+          <p class="d">Для перчаток, шапок и сумки, которую берёте каждый день.</p>
+          <div class="meta"><span>1200 × 200 мм</span><span class="pr"><b>по запросу</b><span class="t">· 10–14 дней</span></span></div>
+          <a href="constructor.html?model=liniya" class="go">Открыть в конструкторе →</a>
+        </div>
+      </article>
+      <article class="idea rv" data-room="hall">
+        <div class="fig"><img src="img/idea-hall-3.png" alt="Полка для ключей и мелочей" loading="lazy"><span class="tag">Прихожая</span></div>
+        <div class="body">
+          <h4>Полка для ключей и мелочей</h4>
+          <p class="cfg">Конфигурация: Дуэт</p>
+          <p class="d">Небольшая полка у двери: ключи, очки и почта всегда на месте.</p>
+          <div class="meta"><span>600 × 200 мм</span><span class="pr"><b>по запросу</b><span class="t">· 10–14 дней</span></span></div>
+          <a href="constructor.html?model=duat" class="go">Открыть в конструкторе →</a>
+        </div>
+      </article>
+      <article class="idea rv" data-room="hall">
+        <div class="fig"><img src="img/idea-hall-4.png" alt="Полки для обуви" loading="lazy"><span class="tag">Прихожая</span></div>
+        <div class="body">
+          <h4>Полки для обуви</h4>
+          <p class="cfg">Конфигурация: Дуэт</p>
+          <p class="d">Нижние полки 400 мм для обуви, верхняя для мелочей.</p>
+          <div class="meta"><span>900 × 400 мм</span><span class="pr"><b>по запросу</b><span class="t">· 10–14 дней</span></span></div>
+          <a href="constructor.html?model=duat" class="go">Открыть в конструкторе →</a>
+        </div>
+      </article>
+      <article class="idea rv" data-room="hall">
+        <div class="fig"><img src="img/idea-hall-5.png" alt="Узкий стеллаж в нишу" loading="lazy"><span class="tag">Прихожая</span></div>
+        <div class="body">
+          <h4>Узкий стеллаж в нишу</h4>
+          <p class="cfg">Конфигурация: Вертикаль</p>
+          <p class="d">Использует нишу или угол, который обычно пустует.</p>
+          <div class="meta"><span>700 × 200 мм</span><span class="pr"><b>по запросу</b><span class="t">· 10–14 дней</span></span></div>
+          <a href="constructor.html?model=vertikal" class="go">Открыть в конструкторе →</a>
+        </div>
+      </article>
+
+      <!-- КУХНЯ -->
+      <article class="idea rv" data-room="kitchen">
+        <div class="fig"><img src="img/idea-kitchen-1.png" alt="Полки для посуды вместо верхних шкафов" loading="lazy"><span class="tag">Кухня</span></div>
+        <div class="body">
+          <h4>Полки вместо верхних шкафов</h4>
+          <p class="cfg">Конфигурация: Горизонт</p>
+          <p class="d">Открытые полки для посуды: всё под рукой, кухня выглядит легче.</p>
+          <div class="meta"><span>1500 × 200 мм</span><span class="pr"><b>по запросу</b><span class="t">· 10–14 дней</span></span></div>
+          <a href="constructor.html?model=horizon" class="go">Открыть в конструкторе →</a>
+        </div>
+      </article>
+      <article class="idea rv" data-room="kitchen">
+        <div class="fig"><img src="img/idea-kitchen-2.png" alt="Полка для специй" loading="lazy"><span class="tag">Кухня</span></div>
+        <div class="body">
+          <h4>Полка для специй</h4>
+          <p class="cfg">Конфигурация: Дуэт</p>
+          <p class="d">Две короткие полки у плиты для баночек и масел.</p>
+          <div class="meta"><span>600 × 200 мм</span><span class="pr"><b>по запросу</b><span class="t">· 10–14 дней</span></span></div>
+          <a href="constructor.html?model=duat" class="go">Открыть в конструкторе →</a>
+        </div>
+      </article>
+      <article class="idea rv" data-room="kitchen">
+        <div class="fig"><img src="img/idea-kitchen-3.png" alt="Стеллаж для банок и круп" loading="lazy"><span class="tag">Кухня</span></div>
+        <div class="body">
+          <h4>Стеллаж для банок и круп</h4>
+          <p class="cfg">Конфигурация: Линия</p>
+          <p class="d">Стеклянные банки на открытых полках вместо закрытого шкафа.</p>
+          <div class="meta"><span>900 × 200 мм</span><span class="pr"><b>по запросу</b><span class="t">· 10–14 дней</span></span></div>
+          <a href="constructor.html?model=liniya" class="go">Открыть в конструкторе →</a>
+        </div>
+      </article>
+      <article class="idea rv" data-room="kitchen">
+        <div class="fig"><img src="img/idea-kitchen-4.png" alt="Полка над обеденным столом" loading="lazy"><span class="tag">Кухня</span></div>
+        <div class="body">
+          <h4>Полка над обеденным столом</h4>
+          <p class="cfg">Конфигурация: Горизонт</p>
+          <p class="d">Для чайника, кружек и пары кулинарных книг.</p>
+          <div class="meta"><span>1200 × 200 мм</span><span class="pr"><b>по запросу</b><span class="t">· 10–14 дней</span></span></div>
+          <a href="constructor.html?model=horizon" class="go">Открыть в конструкторе →</a>
+        </div>
+      </article>
+      <article class="idea rv" data-room="kitchen">
+        <div class="fig"><img src="img/idea-kitchen-5.png" alt="Винный стеллаж" loading="lazy"><span class="tag">Кухня</span></div>
+        <div class="body">
+          <h4>Винный стеллаж</h4>
+          <p class="cfg">Конфигурация: Библиотека</p>
+          <p class="d">Полки 400 мм для бутылок и бокалов. Делали такой для винного погреба.</p>
+          <div class="meta"><span>900 × 400 мм</span><span class="pr"><b>по запросу</b><span class="t">· 10–14 дней</span></span></div>
+          <a href="constructor.html?model=library" class="go">Открыть в конструкторе →</a>
+        </div>
+      </article>
+
+      <!-- ДЕТСКАЯ -->
+      <article class="idea rv" data-room="kids">
+        <div class="fig"><img src="img/idea-kids-1.png" alt="Полки для книг обложкой вперёд" loading="lazy"><span class="tag">Детская</span></div>
+        <div class="body">
+          <h4>Книги обложкой вперёд</h4>
+          <p class="cfg">Конфигурация: Линия</p>
+          <p class="d">Ребёнок видит обложки и сам выбирает, что читать.</p>
+          <div class="meta"><span>1200 × 200 мм</span><span class="pr"><b>по запросу</b><span class="t">· 10–14 дней</span></span></div>
+          <a href="constructor.html?model=liniya" class="go">Открыть в конструкторе →</a>
+        </div>
+      </article>
+      <article class="idea rv" data-room="kids">
+        <div class="fig"><img src="img/idea-kids-2.png" alt="Стеллаж для игрушек и коробок" loading="lazy"><span class="tag">Детская</span></div>
+        <div class="body">
+          <h4>Стеллаж для игрушек</h4>
+          <p class="cfg">Конфигурация: Библиотека</p>
+          <p class="d">Глубокие полки под коробки и корзины с игрушками.</p>
+          <div class="meta"><span>1200 × 400 мм</span><span class="pr"><b>по запросу</b><span class="t">· 10–14 дней</span></span></div>
+          <a href="constructor.html?model=library" class="go">Открыть в конструкторе →</a>
+        </div>
+      </article>
+      <article class="idea rv" data-room="kids">
+        <div class="fig"><img src="img/idea-kids-3.png" alt="Полки над столом школьника" loading="lazy"><span class="tag">Детская</span></div>
+        <div class="body">
+          <h4>Полки над столом школьника</h4>
+          <p class="cfg">Конфигурация: Дуэт</p>
+          <p class="d">Учебники и тетради над столом, на столе остаётся свободное место.</p>
+          <div class="meta"><span>1500 × 200 мм</span><span class="pr"><b>по запросу</b><span class="t">· 10–14 дней</span></span></div>
+          <a href="constructor.html?model=duat" class="go">Открыть в конструкторе →</a>
+        </div>
+      </article>
+      <article class="idea rv" data-room="kids">
+        <div class="fig"><img src="img/idea-kids-4.png" alt="Полка для коллекций" loading="lazy"><span class="tag">Детская</span></div>
+        <div class="body">
+          <h4>Полка для коллекций</h4>
+          <p class="cfg">Конфигурация: Горизонт</p>
+          <p class="d">Для конструкторов, фигурок и наград.</p>
+          <div class="meta"><span>900 × 200 мм</span><span class="pr"><b>по запросу</b><span class="t">· 10–14 дней</span></span></div>
+          <a href="constructor.html?model=horizon" class="go">Открыть в конструкторе →</a>
+        </div>
+      </article>
+      <article class="idea rv" data-room="kids">
+        <div class="fig"><img src="img/idea-kids-5.png" alt="Невысокий стеллаж" loading="lazy"><span class="tag">Детская</span></div>
+        <div class="body">
+          <h4>Невысокий стеллаж</h4>
+          <p class="cfg">Конфигурация: Вертикаль</p>
+          <p class="d">Высота под рост ребёнка. Крепится к стене, поэтому не опрокинется.</p>
+          <div class="meta"><span>900 × 400 мм</span><span class="pr"><b>по запросу</b><span class="t">· 10–14 дней</span></span></div>
+          <a href="constructor.html?model=vertikal" class="go">Открыть в конструкторе →</a>
+        </div>
+      </article>
+
+      <!-- СПАЛЬНЯ -->
+      <article class="idea rv" data-room="bedroom">
+        <div class="fig"><img src="img/idea-bedroom-1.png" alt="Полки вместо прикроватных тумб" loading="lazy"><span class="tag">Спальня</span></div>
+        <div class="body">
+          <h4>Полки вместо тумб</h4>
+          <p class="cfg">Конфигурация: Дуэт</p>
+          <p class="d">Две полки у кровати освобождают пол и облегчают уборку.</p>
+          <div class="meta"><span>600 × 200 мм</span><span class="pr"><b>по запросу</b><span class="t">· 10–14 дней</span></span></div>
+          <a href="constructor.html?model=duat" class="go">Открыть в конструкторе →</a>
+        </div>
+      </article>
+      <article class="idea rv" data-room="bedroom">
+        <div class="fig"><img src="img/idea-bedroom-2.png" alt="Полка над изголовьем" loading="lazy"><span class="tag">Спальня</span></div>
+        <div class="body">
+          <h4>Полка над изголовьем</h4>
+          <p class="cfg">Конфигурация: Горизонт</p>
+          <p class="d">Длинная полка по ширине кровати для книг, ламп и фотографий.</p>
+          <div class="meta"><span>1800 × 200 мм</span><span class="pr"><b>по запросу</b><span class="t">· 10–14 дней</span></span></div>
+          <a href="constructor.html?model=horizon" class="go">Открыть в конструкторе →</a>
+        </div>
+      </article>
+      <article class="idea rv" data-room="bedroom">
+        <div class="fig"><img src="img/idea-bedroom-3.png" alt="Открытый гардероб в спальне" loading="lazy"><span class="tag">Спальня</span></div>
+        <div class="body">
+          <h4>Открытый гардероб</h4>
+          <p class="cfg">Конфигурация: Библиотека</p>
+          <p class="d">Глубокие полки для сложенной одежды и коробок.</p>
+          <div class="meta"><span>1800 × 400 мм</span><span class="pr"><b>по запросу</b><span class="t">· 10–14 дней</span></span></div>
+          <a href="constructor.html?model=library" class="go">Открыть в конструкторе →</a>
+        </div>
+      </article>
+      <article class="idea rv" data-room="bedroom">
+        <div class="fig"><img src="img/idea-bedroom-4.png" alt="Стеллаж для книг у кровати" loading="lazy"><span class="tag">Спальня</span></div>
+        <div class="body">
+          <h4>Книжный стеллаж у кровати</h4>
+          <p class="cfg">Конфигурация: Вертикаль</p>
+          <p class="d">Узкий стеллаж для книг, которые читаете сейчас.</p>
+          <div class="meta"><span>700 × 200 мм</span><span class="pr"><b>по запросу</b><span class="t">· 10–14 дней</span></span></div>
+          <a href="constructor.html?model=vertikal" class="go">Открыть в конструкторе →</a>
+        </div>
+      </article>
+      <article class="idea rv" data-room="bedroom">
+        <div class="fig"><img src="img/idea-bedroom-5.png" alt="Полка над комодом" loading="lazy"><span class="tag">Спальня</span></div>
+        <div class="body">
+          <h4>Полка над комодом</h4>
+          <p class="cfg">Конфигурация: Линия</p>
+          <p class="d">Для зеркала, украшений и мелочей.</p>
+          <div class="meta"><span>1200 × 200 мм</span><span class="pr"><b>по запросу</b><span class="t">· 10–14 дней</span></span></div>
+          <a href="constructor.html?model=liniya" class="go">Открыть в конструкторе →</a>
+        </div>
+      </article>
+
+      <!-- КОФЕЙНЯ И БАР -->
+      <article class="idea rv" data-room="horeca">
+        <div class="fig"><img src="img/interior-coffee.png" alt="Полки в кофейне" loading="lazy"><span class="tag">Кофейня</span></div>
+        <div class="body">
+          <h4>Полки для кофе и зерна</h4>
+          <p class="cfg">Конфигурация: Кофейня</p>
+          <p class="d">Открытые полки за стойкой для пачек зерна, посуды и мерча.</p>
+          <div class="meta"><span>по размеру стены</span><span class="pr"><b>по запросу</b><span class="t">· 10–14 дней</span></span></div>
+          <a href="constructor.html?model=shelvesforacoffeeshop" class="go">Открыть в конструкторе →</a>
+        </div>
+      </article>
+      <article class="idea rv" data-room="horeca">
+        <div class="fig"><img src="img/interior-workspace.png" alt="Полки в баре" loading="lazy"><span class="tag">Бар</span></div>
+        <div class="body">
+          <h4>Полки за барной стойкой</h4>
+          <p class="cfg">Конфигурация: Бар</p>
+          <p class="d">Полки под бутылки и бокалы с латунными соединениями на виду.</p>
+          <div class="meta"><span>по размеру стены</span><span class="pr"><b>по запросу</b><span class="t">· 10–14 дней</span></span></div>
+          <a href="constructor.html?model=shelvesinthebar" class="go">Открыть в конструкторе →</a>
+        </div>
+      </article>
 
     </div>
-
-  
   </div>
 </section>
 
@@ -649,14 +1020,60 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
   </div>
 </section>
 
+<!-- ДЛЯ БИЗНЕСА -->
+<section class="sec biz" id="business">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <div>
+        <p class="eyebrow">04 / Для бизнеса</p>
+        <h2 class="serif h2" style="margin-top:16px">Кофейням, барам<br>и франшизам.</h2>
+      </div>
+      <p class="lead">Делаем стеллажи для заведений, от одной точки до сети. Работаем по договору, оплата по счёту.</p>
+    </div>
 
+    <ul class="biz-list rv">
+      <li><span class="n">01</span><div><b>Типовые конфигурации</b><p>Подбираем конфигурацию под формат заведения и закрепляем её как стандарт для всех точек.</p></div></li>
+      <li><span class="n">02</span><div><b>Поставка в несколько точек</b><p>Отправляем СДЭК в любой город России. В Москве и МО монтируем сами.</p></div></li>
+      <li><span class="n">03</span><div><b>Повторяемость заказа</b><p>Сохраняем спецификацию: следующая точка получит тот же стеллаж в той же отделке.</p></div></li>
+      <li><span class="n">04</span><div><b>Оплата по счёту</b><p>Договор, счёт и закрывающие документы. Отсрочка платежа — по договорённости.</p></div></li>
+    </ul>
+
+    <div class="biz-row">
+      <a href="constructor.html?model=shelvesforacoffeeshop" class="biz-case rv">
+        <img src="img/interior-coffee.png" alt="Стеллаж в кофейне" loading="lazy">
+        <div class="cap">
+          <small>Кейс · Кофейни</small>
+          <b>Полки для кофеен</b>
+          <p>Уже делали полки для кофеен: под зерно, посуду и мерч. Эту конфигурацию можно открыть в конструкторе и повторить для своей точки.</p>
+          <span>Открыть в конструкторе →</span>
+        </div>
+      </a>
+
+      <div class="req rv" id="requisites">
+        <small class="k">Реквизиты и работа с юрлицами</small>
+        <h3>Работаем с ИП и ООО.</h3>
+        <p>Работаем как индивидуальный предприниматель. Заключаем договор, выставляем счёт и передаём закрывающие документы. Для организаций возможна отсрочка платежа — условия обсуждаем при заказе.</p>
+        <dl>
+          <div><dt>Исполнитель</dt><dd>ИП Журо</dd></div>
+          <div><dt>ИНН</dt><dd>410208801286</dd></div>
+          <div><dt>Клиенты</dt><dd>ИП и ООО</dd></div>
+          <div><dt>Оплата</dt><dd>По счёту, договор, отсрочка</dd></div>
+        </dl>
+        <div class="btns">
+          <a href="mailto:devre2016@yandex.ru?subject=Запрос счёта и договора" class="btn btn-brass">Запросить счёт <span class="arr">→</span></a>
+          <a href="tel:+79164455131" class="btn btn-ghost">8-916-445-5131</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
 <!-- 5. МАТЕРИАЛЫ -->
 <section class="sec" id="materials">
   <div class="wrap">
     <div class="sec-head rv">
       <div>
-        <p class="eyebrow">03 / Материалы</p>
+        <p class="eyebrow">05 / Материалы</p>
         <h2 class="serif h2" style="margin-top:16px">Из чего<br>делаем.</h2>
       </div>
       <p class="lead">Три материала: дерево, сталь и латунь. Все они на виду — ничего не закрыто декором.</p>
@@ -684,7 +1101,7 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
   <div class="wrap">
     <div class="sec-head rv">
       <div>
-        <p class="eyebrow">04 / В интерьере</p>
+        <p class="eyebrow">06 / В интерьере</p>
         <h2 class="serif h2" style="margin-top:16px">Как это выглядит<br>в комнате.</h2>
       </div>
       <p class="lead">Примеры заказов. Любой из них можно открыть в конструкторе и изменить под свои размеры.</p>
@@ -713,7 +1130,7 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
           </figcaption>
         </figure>
 
- <figure class="s-item">
+        <figure class="s-item">
           <img src="img/interior-coffee.png" alt="Авторский стеллаж в кофейню" loading="lazy">
           <figcaption class="cap">
             <small>Horeca</small>
@@ -733,7 +1150,7 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
   <div class="wrap">
     <div class="sec-head rv">
       <div>
-        <p class="eyebrow">05 / О мастерской</p>
+        <p class="eyebrow">07 / О мастерской</p>
         <h2 class="serif h2" style="margin-top:16px">Кто делает<br>стеллажи.</h2>
       </div>
       <p class="lead">Короткое описание мастерской: кто вы, где работаете и почему делаете стеллажи именно так.</p>
@@ -762,21 +1179,34 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
   </div>
 </section>
 
-<!-- 8. КАК ЗАКАЗАТЬ -->
+<!-- 8. КАК ЗАКАЗАТЬ + ДОСТАВКА -->
 <section class="sec" id="process" style="padding-top:0">
   <div class="wrap">
     <div class="sec-head rv">
       <div>
-        <p class="eyebrow">06 / Как заказать</p>
+        <p class="eyebrow">08 / Как заказать</p>
         <h2 class="serif h2" style="margin-top:16px">Четыре шага<br>до стеллажа.</h2>
       </div>
     </div>
     <ol class="proc rv">
-      <li><small>Выбор</small><b>Выберите модель</b><p>Выберите модель из коллекции или соберите свою в конструкторе.</p></li>
+      <li><small>Выбор</small><b>Выберите идею</b><p>Выберите идею или популярную конфигурацию либо соберите свою в конструкторе.</p></li>
       <li><small>Согласование</small><b>Согласуем детали</b><p>Обсудим размеры, отделку, тип стены, цену и сроки. После этого подтверждаем заказ.</p></li>
       <li><small>Изготовление</small><b>Изготовим стеллаж</b><p>Сделаем полки и подберём стойки и соединения под согласованные размеры.</p></li>
-      <li><small>Доставка</small><b>Доставим стеллаж</b><p>Способ доставки, комплектацию и монтаж согласуем отдельно для каждого заказа.</p></li>
+      <li><small>Доставка</small><b>Доставим и установим</b><p>Отправим СДЭК в любую точку России. По Москве и МО можем смонтировать.</p></li>
     </ol>
+
+    <div class="dlv" id="delivery">
+      <div class="dlv-item rv">
+        <small>Доставка</small>
+        <b>СДЭК в любую точку России</b>
+        <p>Упаковываем стеллаж для транспортировки и отправляем СДЭК до пункта выдачи или до двери. Стоимость доставки рассчитываем при оформлении заказа.</p>
+      </div>
+      <div class="dlv-item rv">
+        <small>Монтаж</small>
+        <b>Установка в Москве и МО</b>
+        <p>Приедем, повесим стеллаж и подберём крепёж под вашу стену. Стоимость монтажа согласуем заранее.</p>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -785,18 +1215,20 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
   <div class="wrap">
     <div class="faq-grid">
       <div class="sec-head rv">
-        <p class="eyebrow">07 / Вопросы</p>
+        <p class="eyebrow">09 / Вопросы</p>
         <h2 class="serif h2" style="margin-top:16px">Частые<br>вопросы.</h2>
-        <p class="lead" style="margin-top:18px">Не нашли ответ? Напишите нам — ответим до заказа.</p>
+        <p class="lead" style="margin-top:18px">Не нашли ответ? Позвоните <a href="tel:+79164455131" style="color:var(--brass)">8-916-445-5131</a> или напишите нам — ответим до заказа.</p>
         <a href="#contact" class="btn btn-ghost faq-ask">Задать вопрос</a>
       </div>
       <div class="faq rv">
-        <details><summary>Можно ли изменить размеры готовой модели?<i></i></summary><div class="a">Да. Можно изменить ширину, число полок и расстояние между ними. Мы проверим, подходит ли новый размер по длине пролётов и креплениям.</div></details>
+        <details><summary>Можно ли изменить размеры конфигурации?<i></i></summary><div class="a">Да. Можно изменить ширину, число полок и расстояние между ними. Мы проверим, подходит ли новый размер по длине пролётов и креплениям.</div></details>
         <details><summary>Напольный стеллаж нужно крепить к стене?<i></i></summary><div class="a">Да. Напольный стеллаж стоит на полу, но сверху крепится к стене. Поставить его посреди комнаты нельзя.</div></details>
         <details><summary>Какая глубина у полок?<i></i></summary><div class="a">200 или 400 мм. У полок глубиной 400 мм есть дополнительные поперечные опоры. Что и как ставить на полки, согласуем для вашей конструкции.</div></details>
         <details><summary>Подойдёт ли моя стена?<i></i></summary><div class="a">Зависит от материала стены и нагрузки. Напишите нам, из чего сделана стена. Для гипсокартона и пустотелых стен нужна отдельная проверка и специальный крепёж.</div></details>
-        <details><summary>Сколько веса выдерживает полка?<i></i></summary><div class="a">У каждой модели по-разному. Нагрузка зависит от длины полки, толщины щита, числа опор и типа стены. Точную цифру назовём для вашей конструкции.</div></details>
-        <details><summary>Как узнать цену и сроки?<i></i></summary><div class="a">Выберите модель и отправьте заявку с размерами. Цену и сроки назовём после проверки конструкции, отделки и условий доставки. Онлайн-оплаты на сайте пока нет.</div></details>
+        <details><summary>Сколько веса выдерживает полка?<i></i></summary><div class="a">У каждой конфигурации по-разному. Нагрузка зависит от длины полки, толщины щита, числа опор и типа стены. Точную цифру назовём для вашей конструкции.</div></details>
+        <details><summary>Как узнать цену и сроки?<i></i></summary><div class="a">У популярных конфигураций цена и срок указаны в карточке. Для своих размеров отправьте заявку — цену и сроки назовём после проверки конструкции, отделки и условий доставки. Онлайн-оплаты на сайте пока нет.</div></details>
+        <details><summary>Как вы доставляете?<i></i></summary><div class="a">Отправляем СДЭК в любую точку России. По Москве и Московской области можем привезти и смонтировать стеллаж сами.</div></details>
+        <details><summary>Работаете с юрлицами?<i></i></summary><div class="a">Да, работаем с ИП и ООО: договор, оплата по счёту, закрывающие документы, отсрочка — по договорённости. Исполнитель — ИП Журо, ИНН 410208801286.</div></details>
       </div>
     </div>
   </div>
@@ -807,13 +1239,19 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
   <div class="wrap">
     <div class="contact-grid">
       <div class="rv">
-        <p class="eyebrow">08 / Заявка</p>
+        <p class="eyebrow">10 / Заявка</p>
         <h2 class="serif h2" style="margin-top:16px">Напишите нам.<br>Рассчитаем стеллаж.</h2>
         <p class="lead" style="margin-top:18px">Укажите место, размеры и что будет стоять на полках. Можно заказать одну полку или стеллаж на всю стену.</p>
+        <ul class="c-list">
+          <li><a href="tel:+79164455131" class="ph-big">8-916-445-5131</a></li>
+          <li>Пн–Сб 10:00–19:00</li>
+          <li><a href="mailto:devre2016@yandex.ru">devre2016@yandex.ru</a></li>
+          <li>ИП Журо · ИНН 410208801286 · работаем с ИП и ООО</li>
+        </ul>
       </div>
       <form class="form rv" id="form" novalidate>
-        <div class="field"><label for="f-model">Модель</label>
-          <select id="f-model"><option>Своя композиция</option><option>Линия</option><option>Контур</option><option>Вертикаль</option><option>Горизонт</option><option>Библиотека</option><option>Дуэт</option></select></div>
+        <div class="field"><label for="f-model">Конфигурация</label>
+          <select id="f-model"><option>Своя композиция</option><option>Линия</option><option>Контур</option><option>Вертикаль</option><option>Горизонт</option><option>Библиотека</option><option>Дуэт</option><option>Кофейня / бар</option></select></div>
         <div class="field"><label for="f-type">Вариант</label>
           <select id="f-type"><option>Настенный</option><option>Напольный</option><option>Пока не знаю</option></select></div>
         <div class="field"><label for="f-w">Ширина, мм</label><input id="f-w" type="number" inputmode="numeric" placeholder="1200"></div>
@@ -836,14 +1274,68 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
 <footer class="ftr">
   <div class="wrap">
     <div class="big" aria-hidden="true">ПОЛКИ</div>
+    <div class="ftr-grid">
+      <div class="ftr-about">
+        <a href="#top" class="logo"><i></i>ПОЛКИ</a>
+        <p>Стеллажи и полки на заказ из дерева, стали и латуни.</p>
+      </div>
+      <div>
+        <h5>Разделы</h5>
+        <ul>
+          <li><a href="#ideas">Идеи</a></li>
+          <li><a href="constructor.html">Конструктор</a></li>
+          <li><a href="#designers">Дизайнерам</a></li>
+          <li><a href="#business">Для бизнеса</a></li>
+          <li><a href="#materials">Материалы</a></li>
+          <li><a href="#spaces">В интерьере</a></li>
+          <li><a href="#about">О мастерской</a></li>
+          <li><a href="#process">Как заказать</a></li>
+          <li><a href="#faq">Вопросы</a></li>
+          <li><a href="#contact">Заявка</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Контакты</h5>
+        <ul>
+          <li><a href="tel:+79164455131" class="ftr-phone">8-916-445-5131</a></li>
+          <li>Пн–Сб 10:00–19:00</li>
+          <li><a href="mailto:devre2016@yandex.ru">devre2016@yandex.ru</a></li>
+          <!-- Замените USERNAME на ваш Telegram -->
+          <li><a href="https://t.me/USERNAME" target="_blank" rel="noopener">Telegram ↗</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Реквизиты</h5>
+        <ul>
+          <li>ИП Журо</li>
+          <li>ИНН 410208801286</li>
+          <li>Работаем с ИП и ООО</li>
+          <li>Договор, оплата по счёту</li>
+          <li><a href="#requisites">Для юрлиц →</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Доставка</h5>
+        <ul>
+          <li><a href="#delivery">СДЭК по всей России</a></li>
+          <li><a href="#delivery">Монтаж в Москве и МО</a></li>
+        </ul>
+        <h5 style="margin-top:20px">Партнёрам</h5>
+        <ul>
+          <li><a href="designers.html">Программа для дизайнеров</a></li>
+          <li><a href="partner-offer.html">Оферта партнёрской программы</a></li>
+        </ul>
+      </div>
+    </div>
     <div class="row">
-      <span>Стеллажи и полки на заказ из дерева, стали и латуни</span>
-      <span style="display:flex;gap:20px"><a href="#collection">Модели</a><a href="constructor.html">Конструктор</a><a href="#faq">Вопросы</a><a href="#top">Наверх ↑</a></span>
+      <span>© 2026 ПОЛКИ · ИП Журо, ИНН 410208801286</span>
+      <span class="links"><a href="partner-offer.html">Оферта партнёрской программы</a><a href="#top">Наверх ↑</a></span>
     </div>
   </div>
 </footer>
 
 <div class="mbar" id="mbar">
+  <a href="tel:+79164455131">Позвонить</a>
   <a href="constructor.html">Конструктор</a>
   <a href="#contact" class="p">Заявка</a>
 </div>
@@ -872,14 +1364,6 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
 
   $$('img').forEach(img=>{img.addEventListener('error',()=>{const p=document.createElement('div');p.className='ph';p.style.cssText='position:absolute;inset:0;';p.textContent=img.alt||'Изображение';const par=img.parentElement;if(getComputedStyle(par).position==='static')par.style.position='relative';img.replaceWith(p)})});
 
-  const cards=$$('.card'),cnt=$('#cnt');
-  $$('.chip').forEach(c=>c.addEventListener('click',()=>{
-    $$('.chip').forEach(x=>x.classList.remove('on'));c.classList.add('on');
-    const f=c.dataset.f;let n=0;
-    cards.forEach(k=>{const show=f==='all'||k.dataset.t.split(' ').includes(f);k.classList.toggle('hide',!show);if(show)n++});
-    cnt.textContent=n;$('#grid').scrollTo({left:0,behavior:'smooth'});
-  }));
-
   $$('[data-model]').forEach(a=>a.addEventListener('click',()=>{$('#f-model').value=a.dataset.model}));
 
   const ds=$$('.faq details');
@@ -887,7 +1371,7 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
 
   const build=()=>[
     'Заявка на стеллаж',
-    'Модель: '+$('#f-model').value,
+    'Конфигурация: '+$('#f-model').value,
     'Вариант: '+$('#f-type').value,
     'Ширина: '+($('#f-w').value||'—')+' мм',
     'Глубина: '+$('#f-d').value,
@@ -948,6 +1432,40 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
   track.addEventListener('scroll',sync,{passive:true});
   addEventListener('resize',sync);
   sync();
+})();
+</script>
+
+<!-- ИДЕИ: переключение комнат -->
+<script>
+(function(){
+  const chips=[...document.querySelectorAll('.ichip')];
+  const ideas=[...document.querySelectorAll('.idea')];
+  const grid=document.getElementById('igrid');
+  const cnt=document.getElementById('icnt');
+  if(!chips.length)return;
+
+  const word=n=>{
+    const a=n%10,b=n%100;
+    if(a===1&&b!==11)return 'идея';
+    if(a>=2&&a<=4&&(b<10||b>=20))return 'идеи';
+    return 'идей';
+  };
+
+  chips.forEach(c=>{
+    const n=ideas.filter(i=>i.dataset.room===c.dataset.room).length;
+    c.querySelector('sup').textContent=n;
+  });
+
+  const show=room=>{
+    chips.forEach(c=>c.classList.toggle('on',c.dataset.room===room));
+    let n=0;
+    ideas.forEach(i=>{const s=i.dataset.room===room;i.classList.toggle('hide',!s);if(s)n++});
+    cnt.textContent=n+' '+word(n);
+    grid.scrollTo({left:0,behavior:'smooth'});
+  };
+
+  chips.forEach(c=>c.addEventListener('click',()=>show(c.dataset.room)));
+  show(chips[0].dataset.room);
 })();
 </script>
 </body>
