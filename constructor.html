@@ -481,6 +481,10 @@
   <div id="tone-note"></div>
   <p class="muted">Массив дуба 20 мм, масло Osmo, трубы и фурнитура.
     Доставка и монтаж рассчитываются отдельно.</p>
+  <div id="actions-box" style="margin-top:14px;padding:14px;border-radius:10px;background:#00000008;display:flex;flex-direction:column;gap:9px">
+    <button id="act-lead" type="button" class="btn-secondary">Перезвоните мне</button>
+    <button id="act-save" type="button" class="btn-secondary">Сохранить и получить ссылку</button>
+  </div>
 
   <div class="section owner-only">
     <div class="section-title">Себестоимость</div>
@@ -3782,17 +3786,12 @@ const Calc = (() => {
     };
   }
 
-  const leadBtn = document.createElement("button");
-  leadBtn.textContent = "Перезвоните мне";
-  leadBtn.style.cssText = "position:fixed;left:12px;bottom:60px;z-index:9999;padding:10px 14px;border:0;border-radius:8px;background:#5c6b52;color:#fff;font:14px sans-serif;cursor:pointer";
+ javascript
+  const leadBtn = document.getElementById("act-lead");
   leadBtn.onclick = openLeadForm;
-  document.body.appendChild(leadBtn);
 
-  const saveBtn = document.createElement("button");
-  saveBtn.textContent = "Сохранить и получить ссылку";
-  saveBtn.style.cssText = "position:fixed;left:12px;bottom:12px;z-index:9999;padding:10px 14px;border:0;border-radius:8px;background:#b58b4c;color:#fff;font:14px sans-serif;cursor:pointer";
+  const saveBtn = document.getElementById("act-save");
   saveBtn.onclick = saveProject;
-  document.body.appendChild(saveBtn);
 
     // ---------- Цена с сервера ----------
   let SERVER_PRICE = null;
