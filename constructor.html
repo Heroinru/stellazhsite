@@ -3718,6 +3718,76 @@ const Calc = (() => {
       .catch(() => toast("Не удалось сохранить проект"));
   }
 
+    // ---------- Заявка «Перезвоните мне» ----------
+  function openLeadForm() {
+    if (document.querySelector("#lead-box")) return;
+
+    const box = document.createElement("div");
+    box.id = "lead-box";
+    box.style.cssText = "position:fixed;inset:0;z-index:10000;background:#0007;display:grid;place-items:center";
+
+    box.innerHTML =
+      '<div style="background:#fff;border-radius:14px;padding:26px;width:min(380px,calc(100% - 32px));font:15px Arial,sans-serif;color:#302b25">' +
+      '<h3 style="margin:0 0 6px;font-size:20px">Перезвоните мне</h3>' +
+      '<p style="margin:0 0 16px;color:#71695f;line-height:1.4">Оставьте телефон — обсудим ваш проект и сроки.</p>' +
+      '<input id="lead-name" placeholder="Ваше имя" style="width:100%;padding:11px;margin-bottom:10px;border:1px solid #cfc7bc;border-radius:8px;font-size:15px">' +
+      '<input id="lead-phone" type="tel" placeholder="+7 999 123-45-67" style="width:100%;padding:11px;margin-bottom:10px;border:1px solid #cfc7bc;border-radius:8px;font-size:15px">' +
+      '<textarea id="lead-comment" rows="3" placeholder="Комментарий (необязательно)" style="width:100%;padding:11px;border:1px solid #cfc7bc;border-radius:8px;font-size:15px;resize:vertical"></textarea>' +
+      '<input id="lead-website" style="position:absolute;left:-9999px" tabindex="-1" autocomplete="off">' +
+      '<div id="lead-msg" style="margin-top:10px;color:#71695f;line-height:1.4"></div>' +
+      '<div style="display:flex;gap:10px;margin-top:16px">' +
+      '<button id="lead-send" style="flex:1;padding:12px;border:0;border-radius:8px;background:#9a713e;color:#fff;font-size:15px;cursor:pointer">Отправить</button>' +
+      '<button id="lead-cancel" style="padding:12px 16px;border:0;border-radius:8px;background:#8d8378;color:#fff;font-size:15px;cursor:pointer">Отмена</button>' +
+      '</div></div>';
+
+    document.body.appendChild(box);
+
+    const close = () => box.remove();
+    box.querySelector("#lead-cancel").onclick = close;
+    box.onclick = (e) => { if (e.target === box) close(); };
+
+    box.querySelector("#lead-send").onclick = function () {
+      const btn = this;
+      const phone = box.querySelector("#lead-phone").value.trim();
+      const msg = box.querySelector("#lead-msg");
+
+      if (phone.replace(/\D/g, "").length < 10) {
+        msg.textContent = "Укажите телефон полностью.";
+        return;
+      }
+
+      btn.disabled = true;
+      msg.textContent = "Отправляем…";
+
+      fetch("/api/leads", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: box.querySelector("#lead-name").value.trim(),
+          phone: phone,
+          comment: box.querySelector("#lead-comment").value.trim(),
+          website: box.querySelector("#lead-website").value,
+          code: LOADED_CODE
+        })
+      })
+        .then(r => r.ok ? r.json() : Promise.reject())
+        .then(() => {
+          msg.textContent = "Заявка отправлена. Мы перезвоним в рабочее время.";
+          setTimeout(close, 2200);
+        })
+        .catch(() => {
+          msg.textContent = "Не удалось отправить. Попробуйте позже.";
+          btn.disabled = false;
+        });
+    };
+  }
+
+  const leadBtn = document.createElement("button");
+  leadBtn.textContent = "Перезвоните мне";
+  leadBtn.style.cssText = "position:fixed;left:12px;bottom:60px;z-index:9999;padding:10px 14px;border:0;border-radius:8px;background:#5c6b52;color:#fff;font:14px sans-serif;cursor:pointer";
+  leadBtn.onclick = openLeadForm;
+  document.body.appendChild(leadBtn);
+
   const saveBtn = document.createElement("button");
   saveBtn.textContent = "Сохранить и получить ссылку";
   saveBtn.style.cssText = "position:fixed;left:12px;bottom:12px;z-index:9999;padding:10px 14px;border:0;border-radius:8px;background:#b58b4c;color:#fff;font:14px sans-serif;cursor:pointer";
