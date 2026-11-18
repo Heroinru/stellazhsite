@@ -3787,7 +3787,16 @@ const Calc = (() => {
   renderMarkList();
   fitCamera();
   animate();
-  if (OWNER && !prices()) toast("prices.js не найден — цены не считаются");
+  if (OWNER) {
+    fetch("/api/owner/prices", { credentials: "same-origin" })
+      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(d => {
+        window.PRICES = d.prices;
+        rebuild();
+        toast("Режим владельца: смета и раскрой доступны");
+      })
+      .catch(() => toast("Войдите как владелец — смета недоступна"));
+  }
 })();
 </script>
 </body>
