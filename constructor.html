@@ -1890,6 +1890,182 @@ const Calc = (() => {
   }
   scene.add(preview);
 
+    // ---------- Экспорт стеллажа: OBJ + MTL в ZIP ----------
+  const RU2LAT = { а:"a",б:"b",в:"v",г:"g",д:"d",е:"e",ё:"e",ж:"zh",з:"z",и:"i",й:"y",
+    к:"k",л:"l",м:"m",н:"n",о:"o",п:"p",р:"r",с:"s",т:"t",у:"u",ф:"f",х:"h",ц:"c",
+    ч:"ch",ш:"sh",щ:"sch",ъ:"",ы:"y",ь:"",э:"e",ю:"yu",я:"ya" };
+  const WORDS = [["Стеллаж","Rack"],["Труба","Pipe"],["Щит","Shelf"],["Уголок","Elbow"],
+    ["Тройник","Tee"],["Фланец","Flange"],["Крестовина","Cross"],["Муфта","Coupling"],
+    ["Заглушка","Cap"],["Ниппель","Nipple"],["Отметка","Mark"]];
+  function lat(s) {
+    s = String(s || "Part");
+    for (const [ru, en] of WORDS) s = s.split(ru).join(en);
+    let out = "";
+    for (const ch of s) {
+      const low = ch.toLowerCase(), m = RU2LAT[low];
+      out += (m === undefined) ? ch : (ch === low ? m : m.toUpperCase());
+    }
+    return out.replace(/[^A-Za-z0-9._-]+/g, "_").replace(/^_+|_+$/g, "") || "Part";
+  }
+
+  function exportMatName(mat) {
+    try {
+      if (mat === woodMat) return "Oak";
+      if (mat === pipeMat) return "Pipe";
+      if (mat === fitMat) return "Fitting";
+      if (mat === fitRimMat) return "Fitting_Rim";
+      if (mat === ironMat) return "Iron";
+      if (mat === flangeFaceMat) return "Flange_Face";
+      if (mat === screwMat) return "Screw";
+    } catch (e) {}
+    return null;
+  }
+
+  function buildOBJ(root, mtlFile) {
+    const obj = ["# Stella rack, units: millimeters", "mtllib " + mtlFile];
+    const mats = new Map(), used = new Set();
+    let vOff = 1, tOff = 1, nOff = 1;
+    const nm = new THREE.Matrix3(), p = new THREE.Vector3(), n = new THREE.Vector3();
+
+    root.updateWorldMatrix(true, true);
+    root.traverse(o => {
+      if (!o.isMesh || !o.geometry || o.visible === false) return;
+      const pos = o.geometry.attributes.position;
+      if (!pos) return;
+      const nor = o.geometry.attributes.normal, uv = o.geometry.attributes.uv;
+
+      let base = lat(o.name || (o.parent && o.parent.name) || "Part"), nme = base, k = 2;
+      while (used.has(nme)) nme = base + "_" + (k++);
+      used.add(nme);
+
+      const mat = Array.isArray(o.material) ? o.material[0] : o.material;
+      if (!mats.has(mat)) mats.set(mat, exportMatName(mat) || ("Material_" + (mats.size + 1)));
+
+      obj.push("g " + nme, "usemtl " + mats.get(mat));
+      nm.getNormalMatrix(o.matrixWorld);
+
+      for (let i = 0; i < pos.count; i++) {
+        p.fromBufferAttribute(pos, i).applyMatrix4(o.matrixWorld);
+        obj.push("v " + p.x.toFixed(3) + " " + p.y.toFixed(3) + " " + p.z.toFixed(3));
+      }
+      if (uv) for (let i = 0; i < uv.count; i++)
+        obj.push("vt " + uv.getX(i).toFixed(5) + " " + uv.getY(i).toFixed(5));
+      if (nor) for (let i = 0; i < nor.count; i++) {
+        n.fromBufferAttribute(nor, i).applyMatrix3(nm).normalize();
+        obj.push("vn " + n.x.toFixed(4) + " " + n.y.toFixed(4) + " " + n.z.toFixed(4));
+      }
+
+      const ref = i => (vOff + i) +
+        ((uv || nor) ? "/" + (uv ? (tOff + i) : "") : "") +
+        (nor ? "/" + (nOff + i) : "");
+      const idx = o.geometry.index, cnt = idx ? idx.count : pos.count;
+      for (let i = 0; i < cnt; i += 3) {
+        const a = idx ? idx.getX(i) : i,
+              b = idx ? idx.getX(i + 1) : i + 1,
+              c = idx ? idx.getX(i + 2) : i + 2;
+        obj.push("f " + ref(a) + " " + ref(b) + " " + ref(c));
+      }
+      vOff += pos.count;
+      if (uv) tOff += uv.count;
+      if (nor) nOff += nor.count;
+    });
+
+    const mtl = ["# Stella materials"];
+    for (const [mat, nme] of mats) {
+      const c = (mat && mat.color) ? mat.color.clone() : new THREE.Color(0xcccccc);
+      if (c.convertLinearToSRGB) c.convertLinearToSRGB();
+      const rough = (mat && mat.roughness !== undefined) ? mat.roughness : .6;
+      const metal = (mat && mat.metalness !== undefined) ? mat.metalness : 0;
+      const ns = Math.max(2, Math.round((1 - rough) * (1 - rough) * 900));
+      const ks = .1 + metal * .8;
+      mtl.push("newmtl " + nme,
+        "Ka 0.000 0.000 0.000",
+        "Kd " + c.r.toFixed(4) + " " + c.g.toFixed(4) + " " + c.b.toFixed(4),
+        "Ks " + ks.toFixed(3) + " " + ks.toFixed(3) + " " + ks.toFixed(3),
+        "Ns " + ns, "d 1.000", "illum 2", "");
+    }
+    return { obj: obj.join("\n") + "\n", mtl: mtl.join("\n") + "\n" };
+  }
+
+  const CRC_TBL = (() => {
+    const t = new Uint32Array(256);
+    for (let i = 0; i < 256; i++) {
+      let c = i;
+      for (let k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+      t[i] = c >>> 0;
+    }
+    return t;
+  })();
+  function crc32(buf) {
+    let c = 0xFFFFFFFF;
+    for (let i = 0; i < buf.length; i++) c = CRC_TBL[(c ^ buf[i]) & 0xFF] ^ (c >>> 8);
+    return (c ^ 0xFFFFFFFF) >>> 0;
+  }
+
+  function zipStore(files) {
+    const enc = new TextEncoder(), parts = [], central = [];
+    let offset = 0;
+    for (const f of files) {
+      const nameB = enc.encode(f.name), data = f.data, crc = crc32(data);
+      const lh = new Uint8Array(30 + nameB.length), lv = new DataView(lh.buffer);
+      lv.setUint32(0, 0x04034b50, true); lv.setUint16(4, 20, true);
+      lv.setUint16(6, 0x0800, true); lv.setUint16(8, 0, true);
+      lv.setUint16(10, 0, true); lv.setUint16(12, 0x2821, true);
+      lv.setUint32(14, crc, true); lv.setUint32(18, data.length, true);
+      lv.setUint32(22, data.length, true); lv.setUint16(26, nameB.length, true);
+      lh.set(nameB, 30);
+      parts.push(lh, data);
+
+      const ch = new Uint8Array(46 + nameB.length), cv = new DataView(ch.buffer);
+      cv.setUint32(0, 0x02014b50, true); cv.setUint16(4, 20, true);
+      cv.setUint16(6, 20, true); cv.setUint16(8, 0x0800, true);
+      cv.setUint16(10, 0, true); cv.setUint16(12, 0, true);
+      cv.setUint16(14, 0x2821, true); cv.setUint32(16, crc, true);
+      cv.setUint32(20, data.length, true); cv.setUint32(24, data.length, true);
+      cv.setUint16(28, nameB.length, true); cv.setUint32(42, offset, true);
+      ch.set(nameB, 46);
+      central.push(ch);
+      offset += lh.length + data.length;
+    }
+    let cdSize = 0;
+    for (const c of central) cdSize += c.length;
+    const end = new Uint8Array(22), ev = new DataView(end.buffer);
+    ev.setUint32(0, 0x06054b50, true);
+    ev.setUint16(8, files.length, true); ev.setUint16(10, files.length, true);
+    ev.setUint32(12, cdSize, true); ev.setUint32(16, offset, true);
+    return new Blob(parts.concat(central, [end]), { type: "application/zip" });
+  }
+
+  function downloadBlob(blob, name) {
+    const url = URL.createObjectURL(blob), a = document.createElement("a");
+    a.href = url; a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+  }
+
+  function exportRackOBJ() {
+    const code = (typeof LOADED_CODE === "string" && LOADED_CODE) ? LOADED_CODE : "model";
+    const base = "stella_" + code;
+    const { obj, mtl } = buildOBJ(model, base + ".mtl");
+    const enc = new TextEncoder();
+    const zip = zipStore([
+      { name: base + ".obj", data: enc.encode(obj) },
+      { name: base + ".mtl", data: enc.encode(mtl) }
+    ]);
+    downloadBlob(zip, base + "_obj.zip");
+  }
+
+  {
+    const objBtn = document.getElementById("act-obj");
+    if (objBtn) {
+      if (ROLE !== "designer" && ROLE !== "owner") objBtn.remove();
+      else objBtn.addEventListener("click", () => {
+        try { exportRackOBJ(); }
+        catch (e) { console.error(e); alert("Не удалось собрать файл модели"); }
+      });
+    }
+  }
+
   function requestRender() { needsRender = true; }
 
   // ---------- Связь страницы и состояния ----------
