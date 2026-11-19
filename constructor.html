@@ -1404,6 +1404,7 @@ const Calc = (() => {
       a.href = d.designer.is_owner ? "/owner.html" : "/cabinet.html";
       a.textContent = d.designer.is_owner ? "Панель владельца" : "Мой кабинет";
       $("role-badge").textContent = d.designer.is_owner ? "Владелец" : "Дизайнер";
+      if (window.__showObjBtn) window.__showObjBtn();
     })
     .catch(() => {});
 
@@ -2058,7 +2059,9 @@ const Calc = (() => {
   {
     const objBtn = document.getElementById("act-obj");
     if (objBtn) {
-      if (ROLE !== "designer" && ROLE !== "owner") objBtn.remove();
+     objBtn.hidden = true;
+window.__showObjBtn = () => { objBtn.hidden = false; };
+if (ROLE === "designer" || ROLE === "owner") objBtn.hidden = false;
       else objBtn.addEventListener("click", () => {
         try { exportRackOBJ(); }
         catch (e) { console.error(e); alert("Не удалось собрать файл модели"); }
