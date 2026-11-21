@@ -486,6 +486,7 @@
     <button id="act-lead" type="button" class="btn-secondary">Перезвоните мне</button>
     <button id="act-save" type="button" class="btn-secondary">Сохранить и получить ссылку</button>
     <button id="act-obj" type="button" class="btn-secondary">Скачать 3D-модель (OBJ)</button>
+    <button id="act-dxf" type="button" class="btn-secondary">Скачать чертёж (DXF)</button>
   </div>
 
   <div class="section owner-only">
@@ -2069,6 +2070,268 @@ if (ROLE === "designer" || ROLE === "owner") objBtn.hidden = false;
     }
   }
 
+  // ---------- Экспорт чертежа: DXF (виды + 3D) ----------
+  const DXF_LAYERS = [
+    ["SHELVES", 42], ["PIPES", 5], ["FITTINGS", 2], ["HOLES", 1],
+    ["WALL", 8], ["DIMENSIONS", 3], ["TEXT", 7],
+    ["SHELVES_3D", 42], ["PIPES_3D", 5]
+  ];
+
+  function dxfWriter() {
+    const a = [];
+    const g = (c, v) => { a.push(String(c), String(v)); };
+    const nd = v => (Math.round(v * 1000) / 1000).toFixed(3);
+    let minx = 1e9, miny = 1e9, maxx = -1e9, maxy = -1e9;
+    const bump = (x, y) => {
+      if (x < minx) minx = x;
+      if (y < miny) miny = y;
+      if (x > maxx) maxx = x;
+      if (y > maxy) maxy = y;
+    };
+    const W = {
+      line(layer, x1, y1, x2, y2) {
+        g(0, "LINE"); g(8, layer);
+        g(10, nd(x1)); g(20, nd(y1)); g(30, "0.0");
+        g(11, nd(x2)); g(21, nd(y2)); g(31, "0.0");
+        bump(x1, y1); bump(x2, y2);
+      },
+      rect(layer, x1, y1, x2, y2) {
+        W.line(layer, x1, y1, x2, y1);
+        W.line(layer, x2, y1, x2, y2);
+        W.line(layer, x2, y2, x1, y2);
+        W.line(layer, x1, y2, x1, y1);
+      },
+      circle(layer, cx, cy, r) {
+        g(0, "CIRCLE"); g(8, layer);
+        g(10, nd(cx)); g(20, nd(cy)); g(30, "0.0"); g(40, nd(r));
+        bump(cx - r, cy - r); bump(cx + r, cy + r);
+      },
+      text(layer, x, y, h, s, rot) {
+        g(0, "TEXT"); g(8, layer);
+        g(10, nd(x)); g(20, nd(y)); g(30, "0.0"); g(40, nd(h));
+        g(1, s); g(50, nd(rot || 0)); g(72, 1); g(73, 2);
+        g(11, nd(x)); g(21, nd(y)); g(31, "0.0");
+        bump(x, y);
+      },
+      face(layer, p0, p1, p2) {
+        g(0, "3DFACE"); g(8, layer);
+        g(10, nd(p0[0])); g(20, nd(p0[1])); g(30, nd(p0[2]));
+        g(11, nd(p1[0])); g(21, nd(p1[1])); g(31, nd(p1[2]));
+        g(12, nd(p2[0])); g(22, nd(p2[1])); g(32, nd(p2[2]));
+        g(13, nd(p2[0])); g(23, nd(p2[1])); g(33, nd(p2[2]));
+      },
+      build() {
+        if (minx > maxx) { minx = miny = 0; maxx = maxy = 1000; }
+        const h = [];
+        const hg = (c, v) => h.push(String(c), String(v));
+        hg(0, "SECTION"); hg(2, "HEADER");
+        hg(9, "$ACADVER"); hg(1, "AC1009");
+        hg(9, "$INSUNITS"); hg(70, 4);
+        hg(9, "$MEASUREMENT"); hg(70, 1);
+        hg(9, "$EXTMIN"); hg(10, nd(minx)); hg(20, nd(miny)); hg(30, "0.0");
+        hg(9, "$EXTMAX"); hg(10, nd(maxx)); hg(20, nd(maxy)); hg(30, "0.0");
+        hg(0, "ENDSEC");
+        hg(0, "SECTION"); hg(2, "TABLES");
+        hg(0, "TABLE"); hg(2, "LAYER"); hg(70, DXF_LAYERS.length);
+        for (const [nme, clr] of DXF_LAYERS) {
+          hg(0, "LAYER"); hg(2, nme); hg(70, 0); hg(62, clr); hg(6, "CONTINUOUS");
+        }
+        hg(0, "ENDTAB"); hg(0, "ENDSEC");
+        hg(0, "SECTION"); hg(2, "ENTITIES");
+        return h.concat(a, ["0", "ENDSEC", "0", "EOF"]).join("\r\n") + "\r\n";
+      }
+    };
+    return W;
+  }
+
+  function dimH(W, x1, x2, y, text, yRef) {
+    if (Math.abs(x2 - x1) < 1) return;
+    const t = 30;
+    W.line("DIMENSIONS", x1, y, x2, y);
+    W.line("DIMENSIONS", x1, y - t, x1, y + t);
+    W.line("DIMENSIONS", x2, y - t, x2, y + t);
+    if (yRef !== undefined) {
+      W.line("DIMENSIONS", x1, yRef, x1, y);
+      W.line("DIMENSIONS", x2, yRef, x2, y);
+    }
+    W.text("DIMENSIONS", (x1 + x2) / 2, y + 50, 40, text, 0);
+  }
+
+  function dimV(W, y1, y2, x, text, xRef) {
+    if (Math.abs(y2 - y1) < 1) return;
+    const t = 30;
+    W.line("DIMENSIONS", x, y1, x, y2);
+    W.line("DIMENSIONS", x - t, y1, x + t, y1);
+    W.line("DIMENSIONS", x - t, y2, x + t, y2);
+    if (xRef !== undefined) {
+      W.line("DIMENSIONS", xRef, y1, x, y1);
+      W.line("DIMENSIONS", xRef, y2, x, y2);
+    }
+    W.text("DIMENSIONS", x - 50, (y1 + y2) / 2, 40, text, 90);
+  }
+
+  function buildViewsDXF() {
+    const W = dxfWriter();
+    const txt = v => String(Math.round(v));
+    const T = MM.thickness, R = MM.pipeR;
+    const d = C.depthOf(S), hole = C.holeBack(S);
+    const cols = C.columns(S), groups = C.groupsOf(S, cols);
+    const sz = C.sizeOf(S);
+    const fl = C.isFloor(S), fLevel = C.floorLevel(S), fY = C.floorY(S);
+    const capT = C.capTop(S), capB = C.capBot(S);
+    const pan = C.computePanels(S);
+    const levels = uniqSort(S.boards.map(b => b.y));
+
+    // ---- Фасад ----
+    W.text("TEXT", (sz.minX + sz.maxX) / 2, sz.yTop + 300, 80, "FRONT VIEW", 0);
+    if (fl) W.line("WALL", sz.minX - 400, fY, sz.maxX + 400, fY);
+    for (const b of S.boards) {
+      W.rect("SHELVES", b.x1, b.y - T / 2, b.x2, b.y + T / 2);
+      const no = pan.byBoard.get(b.id);
+      if (no) W.text("TEXT", (b.x1 + b.x2) / 2, b.y, 34, "S" + no, 0);
+    }
+    for (const gr of groups) {
+      const x = gr.x, lv = gr.levels;
+      const low = lv[0], high = lv[lv.length - 1];
+      const onFloor = fl && low === fLevel;
+      for (let i = 1; i < lv.length; i++) {
+        const y1 = lv[i - 1] + T / 2, y2 = lv[i] - T / 2;
+        if (y2 > y1) {
+          W.line("PIPES", x - R, y1, x - R, y2);
+          W.line("PIPES", x + R, y1, x + R, y2);
+        }
+      }
+      W.line("PIPES", x - R, high + T / 2, x - R, high + capT);
+      W.line("PIPES", x + R, high + T / 2, x + R, high + capT);
+      W.circle("FITTINGS", x, high + capT, 18);
+      if (onFloor) {
+        W.line("PIPES", x - R, low - T / 2, x - R, fY);
+        W.line("PIPES", x + R, low - T / 2, x + R, fY);
+        W.line("FITTINGS", x - 22, fY, x + 22, fY);
+      } else {
+        W.line("PIPES", x - R, low - T / 2, x - R, low - capB);
+        W.line("PIPES", x + R, low - T / 2, x + R, low - capB);
+        W.circle("FITTINGS", x, low - capB, 18);
+      }
+    }
+    for (const b of S.boards) {
+      const pts = [b.x1, ...b.sup, b.x2];
+      const dy = b.y - T / 2 - 150;
+      for (let i = 1; i < pts.length; i++)
+        if (pts[i] - pts[i - 1] > 0)
+          dimH(W, pts[i - 1], pts[i], dy, txt(pts[i] - pts[i - 1]), b.y - T / 2);
+    }
+    if (levels.length > 1)
+      for (let i = 1; i < levels.length; i++)
+        dimV(W, levels[i - 1] + T / 2, levels[i] + T / 2, sz.minX - 380,
+          txt(levels[i] - levels[i - 1]));
+    dimV(W, sz.yBot, sz.yTop, sz.minX - 760, txt(sz.H));
+    dimH(W, sz.minX, sz.maxX, sz.yBot - 520, txt(sz.W), sz.yBot);
+
+    // ---- План ----
+    const planY0 = sz.yBot - 1300 - d;
+    W.text("TEXT", (sz.minX + sz.maxX) / 2, planY0 + d + 240, 80, "PLAN VIEW", 0);
+    W.line("WALL", sz.minX - 400, planY0, sz.maxX + 400, planY0);
+    const seen = new Set();
+    for (const b of S.boards) {
+      const k = b.x1 + "|" + b.x2;
+      if (seen.has(k)) continue;
+      seen.add(k);
+      W.rect("SHELVES", b.x1, planY0, b.x2, planY0 + d);
+    }
+    const xs = [...cols.keys()].sort((p, q) => p - q);
+    for (const x of xs) {
+      W.circle("PIPES", x, planY0 + hole, R);
+      W.circle("HOLES", x, planY0 + hole, C.HOLE_DIA / 2);
+    }
+    for (let i = 1; i < xs.length; i++)
+      dimH(W, xs[i - 1], xs[i], planY0 - 220, txt(xs[i] - xs[i - 1]), planY0);
+    dimV(W, planY0, planY0 + d, sz.maxX + 260, txt(d));
+    dimV(W, planY0, planY0 + hole, sz.maxX + 640, txt(hole));
+
+    // ---- Бок ----
+    const sideX0 = sz.maxX + 1300;
+    W.text("TEXT", sideX0 + d / 2, sz.yTop + 300, 80, "SIDE VIEW", 0);
+    W.line("WALL", sideX0, sz.yBot - 250, sideX0, sz.yTop + 250);
+    for (const y of levels) W.rect("SHELVES", sideX0, y - T / 2, sideX0 + d, y + T / 2);
+    const px = sideX0 + hole;
+    W.line("PIPES", px - R, sz.yBot, px - R, sz.yTop);
+    W.line("PIPES", px + R, sz.yBot, px + R, sz.yTop);
+    if (C.deep(S)) {
+      const reach = C.supportReach(S);
+      for (const y of levels) {
+        const yc = y - T / 2 - 22;
+        W.line("PIPES", px, yc, sideX0 + hole - reach, yc);
+      }
+    }
+    if (fl) W.line("WALL", sideX0 - 150, fY, sideX0 + d + 250, fY);
+    dimH(W, sideX0, sideX0 + d, sz.yBot - 520, txt(d), sz.yBot);
+    dimH(W, sideX0, px, sz.yBot - 840, txt(hole), sz.yBot);
+
+    // ---- Подпись ----
+    const code = (typeof LOADED_CODE === "string" && LOADED_CODE) ? LOADED_CODE : "draft";
+    const info = "STELLA RACK | CODE " + code + " | " +
+      txt(sz.W) + " x " + txt(sz.H) + " x " + d + " mm | " +
+      (fl ? "FLOOR" : "WALL") + " | OAK " + T + " mm | UNITS: MILLIMETERS";
+    W.text("TEXT", (sz.minX + sz.maxX) / 2, planY0 - 800, 60, info, 0);
+    return W.build();
+  }
+
+  function build3dDXF() {
+    const W = dxfWriter();
+    const v = new THREE.Vector3();
+    model.updateWorldMatrix(true, true);
+    model.traverse(o => {
+      if (!o.isMesh || !o.geometry) return;
+      const mat = Array.isArray(o.material) ? o.material[0] : o.material;
+      const layer = mat === woodMat ? "SHELVES_3D" : (mat === pipeMat ? "PIPES_3D" : null);
+      if (!layer) return;
+      const pos = o.geometry.attributes.position;
+      if (!pos) return;
+      const idx = o.geometry.index;
+      const cnt = idx ? idx.count : pos.count;
+      const P = i => {
+        v.fromBufferAttribute(pos, i).applyMatrix4(o.matrixWorld);
+        return [v.x, -v.z, v.y];
+      };
+      for (let i = 0; i < cnt; i += 3) {
+        const a = idx ? idx.getX(i) : i,
+              b = idx ? idx.getX(i + 1) : i + 1,
+              c = idx ? idx.getX(i + 2) : i + 2;
+        W.face(layer, P(a), P(b), P(c));
+      }
+    });
+    return W.build();
+  }
+
+  function exportRackDXF() {
+    if (!S.boards.length) { toast("Сначала соберите стеллаж"); return; }
+    const code = (typeof LOADED_CODE === "string" && LOADED_CODE) ? LOADED_CODE : "model";
+    const base = "stella_" + code;
+    const enc = new TextEncoder();
+    const zip = zipStore([
+      { name: base + "_views.dxf", data: enc.encode(buildViewsDXF()) },
+      { name: base + "_3d.dxf", data: enc.encode(build3dDXF()) }
+    ]);
+    downloadBlob(zip, base + "_dxf.zip");
+  }
+
+  {
+    const dxfBtn = document.getElementById("act-dxf");
+    if (dxfBtn) {
+      dxfBtn.hidden = true;
+      const prevShow = window.__showObjBtn;
+      window.__showObjBtn = () => {
+        if (prevShow) prevShow();
+        dxfBtn.hidden = false;
+      };
+      if (ROLE === "designer" || ROLE === "owner") dxfBtn.hidden = false;
+      dxfBtn.addEventListener("click", () => {
+        try { exportRackDXF(); }
+        catch (e) { console.error(e); toast("Не удалось собрать чертёж"); }
+      });
+    }
+  }
   function requestRender() { needsRender = true; }
 
   // ---------- Связь страницы и состояния ----------
