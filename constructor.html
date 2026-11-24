@@ -4398,6 +4398,9 @@ if (ROLE === "designer" || ROLE === "owner") objBtn.hidden = false;
         recalcBtn.disabled = true;
         recalcBtn.textContent = "Пересчитываю…";
         try {
+          const rr = await fetch("/api/owner/projects/" + encodeURIComponent(projectCode) + "/reprice", { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: "{}" });
+          const rd = await rr.json().catch(() => ({}));
+          if (!rr.ok) throw new Error(rd.error || "HTTP " + rr.status);
           const r = await fetch("/api/owner/prices", { credentials: "same-origin", cache: "no-store" });
           if (!r.ok) throw new Error("HTTP " + r.status);
           const d = await r.json();
@@ -4405,7 +4408,7 @@ if (ROLE === "designer" || ROLE === "owner") objBtn.hidden = false;
           window.PRICES = d.prices;
           rebuild();
           const after = totalEl.textContent;
-          toast(before === after ? "Цена не изменилась: " + after : "По текущим ценам: " + before + " → " + after);
+          toast(rd.old_price === rd.price ? "Цена не изменилась: " + after : "Пересчитано и сохранено: " + before + " → " + after);
         } catch (e) {
           toast("Не удалось пересчитать (" + e.message + ")");
         } finally {
