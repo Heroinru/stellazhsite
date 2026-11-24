@@ -4326,7 +4326,7 @@ if (ROLE === "designer" || ROLE === "owner") objBtn.hidden = false;
   function requestQuote() {
     clearTimeout(quoteTimer);
     quoteTimer = setTimeout(() => {
-      const body = JSON.stringify({ state: C.exportState(S) });
+      const body = JSON.stringify({ state: C.exportState(S), code: LOADED_CODE });
       if (body === quoteLast) return;
       quoteLast = body;
       fetch("/api/quote", {
@@ -4382,7 +4382,7 @@ if (ROLE === "designer" || ROLE === "owner") objBtn.hidden = false;
   fitCamera();
   animate();
   if (OWNER) {
-    fetch("/api/owner/prices", { credentials: "same-origin" })
+    fetch("/api/owner/prices" + (projectCode ? "?code=" + encodeURIComponent(projectCode) : ""), { credentials: "same-origin" })
       .then(r => r.ok ? r.json() : Promise.reject())
       .then(d => {
         window.PRICES = d.prices;
