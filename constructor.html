@@ -326,6 +326,7 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+ <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/exporters/GLTFExporter.js"></script> 
 </head>
 <body>
 <div id="scene"></div>
@@ -487,6 +488,7 @@
     <button id="act-save" type="button" class="btn-secondary">Сохранить и получить ссылку</button>
     <button id="act-obj" type="button" class="btn-secondary">Скачать 3D-модель (OBJ)</button>
     <button id="act-dxf" type="button" class="btn-secondary">Скачать чертёж (DXF)</button>
+    <button id="act-glb" type="button" class="btn-secondary">Скачать 3D-модель (GLB)</button>
   </div>
 
   <div class="section owner-only">
@@ -2356,6 +2358,49 @@ if (ROLE === "designer" || ROLE === "owner") objBtn.hidden = false;
       dxfBtn.addEventListener("click", () => {
         try { exportRackDXF(); }
         catch (e) { console.error(e); toast("Не удалось собрать чертёж"); }
+      });
+    }
+  }
+    // ---------- Экспорт стеллажа: GLB ----------
+  function exportRackGLB() {
+    if (typeof THREE.GLTFExporter !== "function") {
+      toast("Экспортёр GLB не загрузился — обновите страницу");
+      return;
+    }
+    const code = (typeof LOADED_CODE === "string" && LOADED_CODE) ? LOADED_CODE : "model";
+    const base = "stella_" + code;
+
+    const wrap = new THREE.Group();
+    wrap.name = "Stella_Rack";
+    wrap.scale.setScalar(0.001);
+    wrap.add(model.clone(true));
+    wrap.updateMatrixWorld(true);
+
+    toast("Собираем файл…");
+    new THREE.GLTFExporter().parse(wrap, result => {
+      if (result instanceof ArrayBuffer) {
+        downloadBlob(new Blob([result], { type: "model/gltf-binary" }), base + ".glb");
+      } else {
+        downloadBlob(new Blob([JSON.stringify(result)], { type: "model/gltf+json" }),
+          base + ".gltf");
+      }
+      toast("Файл готов");
+    }, { binary: true, onlyVisible: true });
+  }
+
+  {
+    const glbBtn = document.getElementById("act-glb");
+    if (glbBtn) {
+      glbBtn.hidden = true;
+      const prevShow = window.__showObjBtn;
+      window.__showObjBtn = () => {
+        if (prevShow) prevShow();
+        glbBtn.hidden = false;
+      };
+      if (ROLE === "designer" || ROLE === "owner") glbBtn.hidden = false;
+      glbBtn.addEventListener("click", () => {
+        try { exportRackGLB(); }
+        catch (e) { console.error(e); toast("Не удалось собрать файл модели"); }
       });
     }
   }
