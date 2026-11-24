@@ -489,6 +489,7 @@
     <button id="act-obj" type="button" class="btn-secondary">Скачать 3D-модель (OBJ)</button>
     <button id="act-dxf" type="button" class="btn-secondary">Скачать чертёж (DXF)</button>
     <button id="act-glb" type="button" class="btn-secondary">Скачать 3D-модель (GLB)</button>
+    <button id="act-recalc" type="button" class="btn-secondary" hidden>Пересчитать по текущим ценам</button>
   </div>
 
   <div class="section owner-only">
@@ -2092,7 +2093,7 @@ const Calc = (() => {
      objBtn.hidden = true;
 window.__showObjBtn = () => { objBtn.hidden = false; };
 if (ROLE === "designer" || ROLE === "owner") objBtn.hidden = false;
-      else objBtn.addEventListener("click", () => {
+      objBtn.addEventListener("click", () => {
         try { exportRackOBJ(); }
         catch (e) { console.error(e); alert("Не удалось собрать файл модели"); }
       });
@@ -4390,6 +4391,31 @@ if (ROLE === "designer" || ROLE === "owner") objBtn.hidden = false;
         toast("Режим владельца: смета и раскрой доступны");
       })
       .catch(() => toast("Войдите как владелец — смета недоступна"));
+    const recalcBtn = document.getElementById("act-recalc");
+    if (recalcBtn && projectCode) {
+      recalcBtn.hidden = false;
+      recalcBtn.addEventListener("click", async () => {
+        const totalEl = document.getElementById("total");
+        const before = totalEl.textContent;
+        recalcBtn.disabled = true;
+        recalcBtn.textContent = "Пересчитываю…";
+        try {
+          const r = await fetch("/api/owner/prices", { credentials: "same-origin", cache: "no-store" });
+          if (!r.ok) throw new Error("HTTP " + r.status);
+          const d = await r.json();
+          if (!d || !d.prices) throw new Error("нет цен");
+          window.PRICES = d.prices;
+          rebuild();
+          const after = totalEl.textContent;
+          toast(before === after ? "Цена не изменилась: " + after : "По текущим ценам: " + before + " → " + after);
+        } catch (e) {
+          toast("Не удалось пересчитать (" + e.message + ")");
+        } finally {
+          recalcBtn.disabled = false;
+          recalcBtn.textContent = "Пересчитать по текущим ценам";
+        }
+      });
+    }
   }
 })();
 </script>
