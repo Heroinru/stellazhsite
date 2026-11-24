@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Цены — Stella</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin:0; background:#f4f1ec; color:#302b25; font:16px Arial, sans-serif; }
+  header { display:flex; justify-content:space-between; align-items:center;
+           padding:18px 24px; background:#fff; box-shadow:0 2px 10px #0001; }
+  h1 { margin:0; font-size:20px; }
+  h2 { font-size:17px; margin:0 0 12px; }
+  main { padding:24px; max-width:900px; margin:0 auto 80px; }
+  .card { background:#fff; border-radius:12px; padding:20px; margin-bottom:22px; }
+  .note { color:#71695f; font-size:14px; line-height:1.5; }
+  .item { display:grid; grid-template-columns:1fr 130px 190px; gap:12px; align-items:center;
+          padding:8px 10px; border-bottom:1px solid #eee5d9; border-radius:6px; }
+  .item:last-child { border-bottom:0; }
+  .item .unit { font-size:13px; color:#8d8378; }
+  .item input[type=text] { width:100%; padding:9px; border:1px solid #cfc7bc; border-radius:8px;
+                           font-size:15px; text-align:right; }
+  .item input[type=checkbox] { width:20px; height:20px; }
+  .item.changed { background:#fff3e0; }
+  .item.bad { background:#fdecea; }
+  .item.bad input { border-color:#c0392b; }
+  table { width:100%; border-collapse:collapse; }
+  th, td { padding:10px 12px; text-align:left; border-bottom:1px solid #eee5d9; font-size:14px; }
+  th { background:#f5eee4; font-size:12px; text-transform:uppercase; color:#71695f; }
+  button { padding:9px 13px; border:0; border-radius:8px; background:#9a713e; color:#fff;
+           font-size:14px; cursor:pointer; }
+  button.grey { background:#8d8378; }
+  button:disabled { opacity:.45; cursor:default; }
+  .row { display:flex; gap:10px; flex-wrap:wrap; }
+  .bar { position:fixed; left:0; right:0; bottom:0; background:#fff; box-shadow:0 -2px 10px #0002;
+         padding:12px 24px; display:flex; gap:10px; justify-content:flex-end; align-items:center; }
+  .bar #msg { margin-right:auto; font-size:14px; color:#71695f; }
+  @media (max-width:600px) { .item { grid-template-columns:1fr 110px; } .item .unit { grid-column:1 / -1; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>Цены</h1>
+  <div class="row">
+    <button class="grey" onclick="location.href='/owner.html'">Панель владельца</button>
+  </div>
+</header>
+<main>
+  <div class="card note">
+    Все суммы в рублях. Дробные числа можно вводить через запятую или точку.<br>
+    Каждое сохранение создаёт новую версию цен. Уже сохранённые проекты остаются по своей версии,
+    и их цена не меняется. Новые цены действуют для новых проектов.
+  </div>
+  <div id="form">Загружаем…</div>
+  <div class="card">
+    <h2>История версий</h2>
+    <div id="history">Загружаем…</div>
+  </div>
+</main>
+<div class="bar">
+  <span id="msg"></span>
+  <button class="grey" id="reset" disabled>Отменить изменения</button>
+  <button id="save" disabled>Сохранить</button>
+</div>
+<script>
+var SECTIONS = [
+  { title: "Материалы", items: [
+    ["pipePerMeter", "Труба стальная ½″", "₽ за погонный метр"],
+    ["pipeWaste", "Коэффициент отхода трубы", "1.15 = +15% в отход"],
+    ["boardPerSqm", "Мебельный щит, массив дуба 20 мм", "₽ за м²"]
+  ]},
+  { title: "Фурнитура", items: [
+    ["fittings.flange", "Фланец настенный", "₽ за шт"],
+    ["fittings.elbowTurn", "Уголок поворотный", "₽ за шт"],
+    ["fittings.elbowSup", "Уголок опорный", "₽ за шт"],
+    ["fittings.nut", "Контргайка", "₽ за шт"],
+    ["fittings.coupling", "Муфта", "₽ за шт"],
+    ["fittings.tee", "Тройник резьбовой", "₽ за шт"]
+  ]},
+  { title: "Отделка и цвет", items: [
+    ["finish.toningPerSqm", "Колеровка маслом Osmo венге", "₽ за м² щита"],
+    ["finish.glossPerSqm", "Доплата за глянцевое покрытие", "₽ за м² щита"],
+    ["colors.whitePipePerMeter", "Доплата за белые трубы", "₽ за погонный метр"],
+    ["colors.blackFittingExtra", "Доплата за чёрные фитинги", "₽ за каждую деталь"]
+  ]},
+  { title: "Работа", items: [
+    ["workEnabled", "Включать работу в себестоимость", "галочка = включать", "bool"],
+    ["work.pipeCut", "Рез одной трубы", "₽ за рез"],
+    ["work.pipeThread", "Нарезка резьбы", "₽ за один конец трубы"],
+    ["work.holeDrill", "Отверстие в щите", "₽ за отверстие"],
+    ["work.boardFinish", "Шлифовка и покрытие щита", "₽ за м²"],
+    ["work.pipeCoat", "Покраска труб", "₽ за погонный метр"],
+    ["work.assembly", "Сборка и проверка", "₽ за ярус"]
+  ]},
+  { title: "Наценка и итоговая цена", items: [
+    ["markup", "Наценка (множитель к себестоимости)", "2.2 = цена в 2,2 раза выше"],
+    ["minOrder", "Минимальная сумма заказа", "₽, 0 = без ограничения"],
+    ["roundTo", "Округлять цену вверх до", "₽, 100 = цена кончается на 00"]
+  ]}
+];
+
+var original = null;
+var dirty = false;
+
+function $(s) { return document.querySelector(s); }
+function msg(t) { $("#msg").textContent = t; }
+
+function getPath(o, p) {
+  return p.split(".").reduce(function (a, k) { return a == null ? undefined : a[k]; }, o);
+}
+function setPath(o, p, v) {
+  var ks = p.split("."), last = ks.pop();
+  var t = ks.reduce(function (a, k) {
+    if (!a[k] || typeof a[k] !== "object") a[k] = {};
+    return a[k];
+  }, o);
+  t[last] = v;
+}
+function parseNum(s) {
+  s = String(s).replace(/\s/g, "").replace(",", ".");
+  if (s === "") return NaN;
+  return Number(s);
+}
+function fmt(x) {
+  if (typeof x === "boolean") return x ? "да" : "нет";
+  if (x === undefined || x === null) return "—";
+  return String(x);
+}
+
+function render() {
+  $("#form").innerHTML = SECTIONS.map(function (s) {
+    return '<div class="card"><h2>' + s.title + '</h2>' + s.items.map(function (it) {
+      var input = it[3] === "bool"
+        ? '<input type="checkbox" data-path="' + it[0] + '" data-type="bool">'
+        : '<input type="text" inputmode="decimal" data-path="' + it[0] + '">';
+      return '<label class="item"><span class="name">' + it[1] + '</span>' + input +
+             '<span class="unit">' + it[2] + '</span></label>';
+    }).join("") + '</div>';
+  }).join("");
+  fill();
+}
+
+function fill() {
+  document.querySelectorAll("#form [data-path]").forEach(function (el) {
+    var v = getPath(original, el.dataset.path);
+    if (el.dataset.type === "bool") el.checked = v === true;
+    else el.value = (v === undefined || v === null) ? "" : String(v);
+  });
+  refresh();
+}
+
+function collect() {
+  var p = JSON.parse(JSON.stringify(original));
+  var changes = [], errors = [];
+  document.querySelectorAll("#form [data-path]").forEach(function (el) {
+    var row = el.closest(".item");
+    var name = row.querySelector(".name").textContent;
+    var path = el.dataset.path;
+    var old = getPath(original, path);
+    var v;
+    if (el.dataset.type === "bool") {
+      v = el.checked;
+    } else {
+      v = parseNum(el.value);
+      if (!isFinite(v) || v < 0) {
+        errors.push(name);
+        row.classList.add("bad");
+        row.classList.remove("changed");
+        return;
+      }
+    }
+    row.classList.remove("bad");
+    setPath(p, path, v);
+    var changed = v !== old && !(old === undefined && v === false);
+    row.classList.toggle("changed", changed);
+    if (changed) changes.push(name + ": " + fmt(old) + " → " + fmt(v));
+  });
+  return { prices: p, changes: changes, errors: errors };
+}
+
+function refresh() {
+  var r = collect();
+  dirty = r.changes.length > 0 || r.errors.length > 0;
+  $("#save").disabled = r.changes.length === 0 || r.errors.length > 0;
+  $("#reset").disabled = !dirty;
+  if (r.errors.length) msg("Проверьте поля (нужно число от 0): " + r.errors.join(", "));
+  else if (r.changes.length) msg("Изменено позиций: " + r.changes.length + ". Не забудьте сохранить.");
+  else msg("");
+}
+
+function save() {
+  var r = collect();
+  if (r.errors.length || !r.changes.length) return;
+  if (!confirm("Сохранить новую версию цен?\n\n" + r.changes.join("\n") +
+               "\n\nУже сохранённые проекты сохранят свою цену.")) return;
+  $("#save").disabled = true;
+  msg("Сохраняем…");
+  fetch("/api/owner/prices", {
+    method: "POST", credentials: "same-origin",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ prices: r.prices })
+  })
+    .then(function (resp) { return resp.json().then(function (j) { return { ok: resp.ok, j: j }; }); })
+    .then(function (x) {
+      if (!x.ok) { msg("Ошибка: " + (x.j.error || "не удалось сохранить")); refresh(); return; }
+      original = r.prices;
+      fill();
+      msg("Сохранено. Текущая версия цен: " + x.j.version);
+      loadHistory();
+    })
+    .catch(function () { msg("Ошибка связи с сервером"); refresh(); });
+}
+
+function loadHistory() {
+  fetch("/api/owner/price-versions", { credentials: "same-origin" })
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (d) {
+      if (!d) { $("#history").textContent = "Не удалось загрузить историю."; return; }
+      var rows = d.items.map(function (v) {
+        return "<tr><td>" + v.id + (Number(v.id) === Number(d.current) ? " (текущая)" : "") + "</td>" +
+          "<td>" + new Date(v.created_at).toLocaleString("ru-RU") + "</td>" +
+          "<td>" + (v.email || "из файла prices.js") + "</td>" +
+          "<td>" + v.projects + "</td></tr>";
+      }).join("");
+      $("#history").innerHTML = "<table><thead><tr><th>Версия</th><th>Дата</th><th>Кто сохранил</th>" +
+        "<th>Проектов</th></tr></thead><tbody>" + rows + "</tbody></table>";
+    });
+}
+
+function load() {
+  fetch("/api/owner/prices", { credentials: "same-origin" })
+    .then(function (r) {
+      if (r.status === 401) { location.href = "/login.html"; return null; }
+      if (r.status === 403) { $("#form").textContent = "Доступ только для владельца."; return null; }
+      return r.json();
+    })
+    .then(function (d) {
+      if (!d) return;
+      original = d.prices;
+      render();
+      loadHistory();
+    })
+    .catch(function () { $("#form").textContent = "Ошибка загрузки цен."; });
+}
+
+$("#form").addEventListener("input", refresh);
+$("#form").addEventListener("change", refresh);
+$("#save").addEventListener("click", save);
+$("#reset").addEventListener("click", function () { fill(); msg("Изменения отменены"); });
+window.addEventListener("beforeunload", function (e) { if (dirty) { e.preventDefault(); e.returnValue = ""; } });
+
+load();
+</script>
+</body>
+</html>
