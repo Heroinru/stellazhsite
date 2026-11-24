@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Кабинет дизайнера — Stella</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin:0; background:#f4f1ec; color:#302b25; font:16px Arial, sans-serif; }
+  header { display:flex; justify-content:space-between; align-items:center;
+           padding:18px 24px; background:#fff; box-shadow:0 2px 10px #0001; }
+  h1 { margin:0; font-size:20px; }
+  .who { font-size:14px; color:#71695f; }
+  button { padding:9px 14px; border:0; border-radius:8px;
+           background:#9a713e; color:#fff; font-size:14px; cursor:pointer; }
+  main { padding:24px; max-width:1000px; margin:0 auto; }
+  table { width:100%; border-collapse:collapse; background:#fff; border-radius:12px; overflow:hidden; }
+  th, td { padding:12px 14px; text-align:left; border-bottom:1px solid #eee5d9; font-size:15px; }
+  th { background:#f5eee4; font-size:13px; text-transform:uppercase; color:#71695f; }
+  a { color:#9a713e; }
+  .muted { color:#71695f; }
+  .empty { padding:40px; text-align:center; color:#71695f; background:#fff; border-radius:12px; }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>Кабинет дизайнера</h1>
+    <div class="who" id="who"></div>
+  </div>
+  <div><button id="owner" style="display:none;margin-right:8px;background:#8d8378" onclick="location.href='/owner.html'">Панель владельца</button><button id="logout">Выйти</button></div>
+</header>
+<main>
+  <div id="content" class="empty">Загружаем…</div>
+</main>
+<script>
+function money(n) {
+  return n == null ? "—" : new Intl.NumberFormat("ru-RU").format(n) + " \u20bd";
+}
+function dt(s) {
+  return new Date(s).toLocaleDateString("ru-RU");
+}
+const STATUS = { draft:"Черновик", lead:"Заявка", paid:"Оплачен", cancelled:"Отменён" };
+
+fetch("/api/designer/projects", { credentials: "same-origin" })
+  .then(function (r) {
+    if (r.status === 401) { location.href = "/login.html"; return null; }
+    return r.json();
+  })
+  .then(function (d) {
+    if (!d) return;
+    document.querySelector("#who").textContent =
+      d.designer.email + " · вознаграждение " + d.designer.rate + "%";
+    if (d.designer.is_owner) document.querySelector("#owner").style.display = "inline-block";
+
+    const box = document.querySelector("#content");
+    if (!d.items.length) {
+      box.textContent = "Пока нет проектов. Соберите стеллаж в конструкторе и сохраните его — он появится здесь.";
+      return;
+    }
+
+    box.className = "";
+    const rows = d.items.map(function (p) {
+      return "<tr><td><a href='" + p.url + "' target='_blank'>" + p.code + "</a></td>" +
+             "<td>" + dt(p.created_at) + "</td>" +
+             "<td>" + (STATUS[p.status] || p.status) + "</td>" +
+             "<td>" + money(p.price) + "</td>" +
+             "<td>" + money(p.reward) + "</td></tr>";
+    }).join("");
+
+    box.innerHTML = "<table><thead><tr><th>Проект</th><th>Дата</th><th>Статус</th>" +
+                    "<th>Сумма</th><th>Вознаграждение</th></tr></thead><tbody>" +
+                    rows + "</tbody></table>";
+  })
+  .catch(function () {
+    document.querySelector("#content").textContent = "Ошибка загрузки. Обновите страницу.";
+  });
+
+document.querySelector("#logout").addEventListener("click", function () {
+  fetch("/api/auth/logout", { method: "POST", credentials: "same-origin" })
+    .then(function () { location.href = "/login.html"; });
+});
+</script>
+</body>
+</html>

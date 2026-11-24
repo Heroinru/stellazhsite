@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Заявки — Stella</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin:0; background:#f4f1ec; color:#302b25; font:16px Arial, sans-serif; }
+  header { display:flex; justify-content:space-between; align-items:center;
+           padding:18px 24px; background:#fff; box-shadow:0 2px 10px #0001; }
+  h1 { margin:0; font-size:20px; }
+  main { padding:24px; max-width:1100px; margin:0 auto; }
+  .card { background:#fff; border-radius:12px; padding:20px; }
+  table { width:100%; border-collapse:collapse; }
+  th, td { padding:11px 12px; text-align:left; border-bottom:1px solid #eee5d9; font-size:15px; vertical-align:top; }
+  th { background:#f5eee4; font-size:12px; text-transform:uppercase; color:#71695f; }
+  button { padding:8px 12px; border:0; border-radius:8px;
+           background:#9a713e; color:#fff; font-size:14px; cursor:pointer; }
+  button.grey { background:#8d8378; }
+  .row { display:flex; gap:10px; flex-wrap:wrap; }
+  a { color:#9a713e; }
+  .new { color:#286b35; font-weight:bold; }
+  .done { color:#71695f; }
+  .spam { color:#9d3028; }
+  .muted { color:#71695f; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Заявки</h1>
+  <div class="row">
+    <button class="grey" onclick="location.href='/owner.html'">Дизайнеры</button>
+    <button class="grey" onclick="location.href='/cabinet.html'">Кабинет</button>
+  </div>
+</header>
+<main>
+  <div class="card" id="list">Загружаем…</div>
+</main>
+<script>
+var STATUS = { "new":"новая", "done":"обработана", "spam":"спам" };
+
+function esc(t) {
+  return String(t == null ? "" : t).replace(/[<>&"]/g, function (c) {
+    return { "<":"&lt;", ">":"&gt;", "&":"&amp;", '"':"&quot;" }[c];
+  });
+}
+
+function dt(s) {
+  return new Date(s).toLocaleString("ru-RU", { dateStyle:"short", timeStyle:"short" });
+}
+
+function load() {
+  fetch("/api/owner/leads", { credentials:"same-origin" })
+    .then(function (r) {
+      if (r.status === 401) { location.href = "/login.html"; return null; }
+      if (r.status === 403) { document.querySelector("#list").textContent = "Доступ только для владельца."; return null; }
+      return r.json();
+    })
+    .then(function (d) {
+      if (!d) return;
+      if (!d.items.length) {
+        document.querySelector("#list").textContent = "Заявок пока нет.";
+        return;
+      }
+      var rows = d.items.map(function (x) {
+        var link = x.code
+          ? "<a href='/constructor.html?p=" + esc(x.code) + "&role=owner' target='_blank'>" + esc(x.code) + "</a>"
+          : "<span class='muted'>—</span>";
+        var next = x.status === "new" ? "done" : "new";
+        return "<tr>" +
+          "<td>" + dt(x.created_at) + "</td>" +
+          "<td><b>" + esc(x.phone) + "</b><br>" + esc(x.name || "без имени") + "</td>" +
+          "<td>" + esc(x.comment || "—") + "</td>" +
+          "<td>" + link + "</td>" +
+          "<td>" + esc(x.designer || "—") + "</td>" +
+          "<td class='" + x.status + "'>" + (STATUS[x.status] || x.status) + "</td>" +
+          "<td class='row'>" +
+            "<button onclick=\"setStatus(" + x.id + ",'" + next + "')\">" +
+              (x.status === "new" ? "Обработана" : "Вернуть в новые") + "</button>" +
+            "<button class='grey' onclick=\"setStatus(" + x.id + ",'spam')\">Спам</button>" +
+          "</td></tr>";
+      }).join("");
+      document.querySelector("#list").innerHTML =
+        "<table><thead><tr><th>Дата</th><th>Контакт</th><th>Комментарий</th>" +
+        "<th>Проект</th><th>Дизайнер</th><th>Статус</th><th></th></tr></thead><tbody>" +
+        rows + "</tbody></table>";
+    });
+}
+
+function setStatus(id, status) {
+  fetch("/api/owner/leads/" + id + "/status", {
+    method:"POST", credentials:"same-origin",
+    headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify({ status: status })
+  }).then(load);
+}
+
+load();
+</script>
+</body>
+</html>

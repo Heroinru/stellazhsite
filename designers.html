@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Доступ для дизайнеров — Stella</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin:0; background:#f4f1ec; color:#302b25; font:16px Arial, sans-serif; }
+  .wrap { max-width:620px; margin:0 auto; padding:34px 18px 60px; }
+  h1 { font-size:28px; margin:0 0 10px; }
+  .lead { color:#71695f; line-height:1.5; margin:0 0 26px; }
+  .card { background:#fff; border-radius:14px; padding:26px; }
+  label { display:block; margin:18px 0 6px; font-weight:bold; font-size:15px; }
+  .req::after { content:" *"; color:#9d3028; }
+  input, select, textarea {
+    width:100%; padding:12px; border:1px solid #cfc7bc;
+    border-radius:8px; font-size:15px; font-family:inherit;
+  }
+  textarea { resize:vertical; }
+  .hint { font-size:13px; color:#8d8378; margin:5px 0 0; line-height:1.4; }
+  button {
+    width:100%; margin-top:24px; padding:14px; border:0; border-radius:8px;
+    background:#9a713e; color:#fff; font-size:16px; cursor:pointer;
+  }
+  button:disabled { opacity:.55; cursor:wait; }
+  .msg { margin-top:16px; padding:13px; border-radius:8px; line-height:1.45; display:none; }
+  .msg.show { display:block; }
+  .err { background:#fbe8e6; color:#9d3028; }
+  .ok { background:#e8f5e9; color:#286b35; }
+  .hp { position:absolute; left:-9999px; }
+  .back { display:inline-block; margin-bottom:18px; color:#9a713e; text-decoration:none; }
+  ul { color:#71695f; line-height:1.6; padding-left:20px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="/index.html">← На сайт</a>
+  <h1>Доступ для дизайнеров</h1>
+  <p class="lead">Заполните заявку — проверим и откроем кабинет. В кабинете доступны расчёт, спецификация и ссылки на проекты для клиентов.</p>
+
+  <div class="card">
+    <form id="f">
+      <label class="req" for="name">Имя и фамилия</label>
+      <input id="name" required maxlength="120">
+
+      <label class="req" for="email">Электронная почта</label>
+      <input id="email" type="email" required maxlength="120">
+      <p class="hint">На неё будет приходить код входа в кабинет.</p>
+
+      <label class="req" for="phone">Телефон</label>
+      <input id="phone" type="tel" required placeholder="+7 999 123-45-67">
+
+      <label for="telegram">Telegram</label>
+      <input id="telegram" maxlength="60" placeholder="@nickname">
+
+      <label for="city">Город</label>
+      <input id="city" maxlength="80">
+
+      <label for="kind">Кто вы</label>
+      <select id="kind">
+        <option>Частный дизайнер</option>
+        <option>Дизайн-студия</option>
+        <option>Архитектурное бюро</option>
+        <option>Мебельный салон</option>
+        <option>Другое</option>
+      </select>
+
+      <label for="company">Название студии или бюро</label>
+      <input id="company" maxlength="120" placeholder="если работаете не один">
+
+      <label class="req" for="portfolio">Ссылка на портфолио</label>
+      <input id="portfolio" required maxlength="300" placeholder="Instagram, Behance, Pinterest, сайт, VK">
+      <p class="hint">Любая ссылка, по которой видно ваши проекты. Это основная проверка.</p>
+
+      <label for="comment">Комментарий</label>
+      <textarea id="comment" rows="3" maxlength="600" placeholder="Сколько проектов в месяц, что планируете заказать"></textarea>
+
+      <input id="website" class="hp" tabindex="-1" autocomplete="off">
+
+      <button id="send" type="submit">Отправить заявку</button>
+      <div class="msg" id="msg"></div>
+    </form>
+  </div>
+</div>
+<script>
+var f = document.getElementById("f");
+var btn = document.getElementById("send");
+var msg = document.getElementById("msg");
+
+function show(text, cls) {
+  msg.textContent = text;
+  msg.className = "msg show " + cls;
+}
+
+function val(id) {
+  return document.getElementById(id).value.trim();
+}
+
+f.addEventListener("submit", function (e) {
+  e.preventDefault();
+
+  if (val("phone").replace(/\D/g, "").length < 10) {
+    show("Укажите телефон полностью.", "err");
+    return;
+  }
+
+  btn.disabled = true;
+  show("Отправляем…", "ok");
+
+  fetch("/api/designer-requests", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      name: val("name"),
+      email: val("email"),
+      phone: val("phone"),
+      telegram: val("telegram"),
+      city: val("city"),
+      kind: val("kind"),
+      company: val("company"),
+      portfolio: val("portfolio"),
+      comment: val("comment"),
+      website: val("website")
+    })
+  })
+    .then(function (r) {
+      return r.json().then(function (j) { return { ok: r.ok, j: j }; });
+    })
+    .then(function (x) {
+      if (!x.ok) {
+        show("Ошибка: " + (x.j.error || "не удалось отправить"), "err");
+        btn.disabled = false;
+        return;
+      }
+      if (x.j.duplicate) {
+        show("Заявка с этой почтой уже на рассмотрении. Мы свяжемся с вами.", "ok");
+      } else {
+        show("Заявка отправлена. Рассмотрим в течение рабочего дня и пришлём доступ на указанную почту.", "ok");
+      }
+      f.querySelectorAll("input, textarea").forEach(function (n) { n.value = ""; });
+    })
+    .catch(function () {
+      show("Не удалось отправить. Попробуйте позже.", "err");
+      btn.disabled = false;
+    });
+});
+</script>
+</body>
+</html>

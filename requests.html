@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Заявки на доступ — Stella</title>
+<style>
+  * { box-sizing:border-box; }
+  body { margin:0; background:#f4f1ec; color:#302b25; font:16px Arial, sans-serif; }
+  header { display:flex; justify-content:space-between; align-items:center;
+           padding:18px 24px; background:#fff; box-shadow:0 2px 10px #0001; }
+  h1 { margin:0; font-size:20px; }
+  main { padding:24px; max-width:900px; margin:0 auto; }
+  .card { background:#fff; border-radius:12px; padding:20px; margin-bottom:16px; }
+  button { padding:9px 13px; border:0; border-radius:8px;
+           background:#9a713e; color:#fff; font-size:14px; cursor:pointer; }
+  button.grey { background:#8d8378; }
+  button.red { background:#9d3028; }
+  .row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+  .rq-head { display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+  .rq-name { font-size:17px; font-weight:bold; }
+  .rq-date { color:#8d8378; font-size:14px; }
+  dl { margin:14px 0 0; display:grid; grid-template-columns:150px 1fr; gap:7px 14px; font-size:15px; }
+  dt { color:#8d8378; }
+  dd { margin:0; }
+  a { color:#9a713e; }
+  .st { font-size:13px; padding:3px 9px; border-radius:20px; }
+  .pending { background:#f5eee4; color:#9a713e; }
+  .approved { background:#e8f5e9; color:#286b35; }
+  .rejected { background:#fbe8e6; color:#9d3028; }
+  .acts { margin-top:16px; padding-top:16px; border-top:1px solid #eee5d9; }
+  input.rate { width:80px; padding:9px; border:1px solid #cfc7bc; border-radius:8px; font-size:15px; }
+  .muted { color:#8d8378; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Заявки на доступ</h1>
+  <div class="row">
+    <button class="grey" onclick="location.href='/leads.html'">Заявки клиентов</button>
+    <button class="grey" onclick="location.href='/owner.html'">Дизайнеры</button>
+  </div>
+</header>
+<main id="list">Загружаем…</main>
+<script>
+var ST = { pending:"на рассмотрении", approved:"одобрена", rejected:"отклонена" };
+var KIND = { };
+
+function esc(t) {
+  return String(t == null ? "" : t).replace(/[<>&"]/g, function (c) {
+    return { "<":"&lt;", ">":"&gt;", "&":"&amp;", '"':"&quot;" }[c];
+  });
+}
+
+function dt(s) {
+  return new Date(s).toLocaleString("ru-RU", { dateStyle:"short", timeStyle:"short" });
+}
+
+function link(u) {
+  if (!u) return "—";
+  var href = /^https?:\/\//.test(u) ? u : "https://" + u;
+  return "<a href='" + esc(href) + "' target='_blank' rel='noopener'>" + esc(u) + "</a>";
+}
+
+function load() {
+  fetch("/api/owner/designer-requests", { credentials:"same-origin" })
+    .then(function (r) {
+      if (r.status === 401) { location.href = "/login.html"; return null; }
+      if (r.status === 403) { document.getElementById("list").innerHTML =
+        "<div class='card'>Доступ только для владельца.</div>"; return null; }
+      return r.json();
+    })
+    .then(function (d) {
+      if (!d) return;
+      if (!d.items.length) {
+        document.getElementById("list").innerHTML = "<div class='card'>Заявок пока нет.</div>";
+        return;
+      }
+      document.getElementById("list").innerHTML = d.items.map(function (x) {
+        var acts = x.status === "pending"
+          ? "<div class='acts row'>" +
+              "<span class='muted'>Процент:</span>" +
+              "<input class='rate' id='rate-" + x.id + "' type='number' min='0' max='100' step='0.5' value='10'>" +
+              "<button onclick=\"decide(" + x.id + ",'approve')\">Одобрить</button>" +
+              "<button class='red' onclick=\"decide(" + x.id + ",'reject')\">Отклонить</button>" +
+            "</div>"
+          : "<div class='acts muted'>Решение принято " + (x.decided_at ? dt(x.decided_at) : "") + "</div>";
+
+        return "<div class='card'>" +
+          "<div class='rq-head'><div>" +
+            "<div class='rq-name'>" + esc(x.name) + "</div>" +
+            "<div class='rq-date'>" + dt(x.created_at) + "</div>" +
+          "</div><span class='st " + x.status + "'>" + (ST[x.status] || x.status) + "</span></div>" +
+          "<dl>" +
+            "<dt>Почта</dt><dd>" + esc(x.email) + "</dd>" +
+            "<dt>Телефон</dt><dd>" + esc(x.phone || "—") + "</dd>" +
+            "<dt>Telegram</dt><dd>" + esc(x.telegram || "—") + "</dd>" +
+            "<dt>Город</dt><dd>" + esc(x.city || "—") + "</dd>" +
+            "<dt>Кто</dt><dd>" + esc(x.kind || "—") + "</dd>" +
+            "<dt>Студия</dt><dd>" + esc(x.company || "—") + "</dd>" +
+            "<dt>Портфолио</dt><dd>" + link(x.portfolio) + "</dd>" +
+            "<dt>Комментарий</dt><dd>" + esc(x.comment || "—") + "</dd>" +
+          "</dl>" + acts + "</div>";
+      }).join("");
+    });
+}
+
+function decide(id, action) {
+  var body = { action: action };
+  if (action === "approve") {
+    body.rate = Number(document.getElementById("rate-" + id).value);
+  }
+  fetch("/api/owner/designer-requests/" + id + "/decide", {
+    method:"POST", credentials:"same-origin",
+    headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify(body)
+  })
+    .then(function (r) { return r.json(); })
+    .then(function () { load(); });
+}
+
+load();
+</script>
+</body>
+</html>

@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Панель владельца — Stella</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin:0; background:#f4f1ec; color:#302b25; font:16px Arial, sans-serif; }
+  header { display:flex; justify-content:space-between; align-items:center;
+           padding:18px 24px; background:#fff; box-shadow:0 2px 10px #0001; }
+  h1 { margin:0; font-size:20px; }
+  h2 { font-size:17px; margin:0 0 12px; }
+  main { padding:24px; max-width:1000px; margin:0 auto; }
+  .card { background:#fff; border-radius:12px; padding:20px; margin-bottom:22px; }
+  table { width:100%; border-collapse:collapse; }
+  th, td { padding:11px 12px; text-align:left; border-bottom:1px solid #eee5d9; font-size:15px; }
+  th { background:#f5eee4; font-size:12px; text-transform:uppercase; color:#71695f; }
+  input { padding:10px; border:1px solid #cfc7bc; border-radius:8px; font-size:15px; }
+  button { padding:9px 13px; border:0; border-radius:8px;
+           background:#9a713e; color:#fff; font-size:14px; cursor:pointer; }
+  button.grey { background:#8d8378; }
+  .row { display:flex; gap:10px; flex-wrap:wrap; }
+  .row input.email { flex:2 1 220px; }
+  .row input.name { flex:1 1 150px; }
+  .row input.rate { width:90px; }
+  .off { color:#9d3028; }
+  .on { color:#286b35; }
+  .msg { margin-top:12px; font-size:14px; color:#71695f; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Панель владельца</h1>
+  <div class="row">
+    <button class="grey" onclick="location.href='/requests.html'">Заявки на доступ</button>
+    <button class="grey" onclick="location.href='/leads.html'">Заявки</button>
+    <button class="grey" onclick="location.href='/cabinet.html'">Кабинет</button>
+    <button class="grey" id="logout">Выйти</button>
+  </div>
+</header>
+<main>
+  <div class="card">
+    <h2>Добавить дизайнера</h2>
+    <form id="addForm" class="row">
+      <input class="email" id="email" type="email" required placeholder="почта дизайнера">
+      <input class="name" id="name" placeholder="имя (необязательно)">
+      <input class="rate" id="rate" type="number" min="0" max="100" step="0.5" value="10">
+      <button type="submit">Добавить</button>
+    </form>
+    <div class="msg" id="msg"></div>
+  </div>
+
+  <div class="card">
+    <h2>Дизайнеры</h2>
+    <div id="list">Загружаем…</div>
+  </div>
+</main>
+<script>
+function msg(t) { document.querySelector("#msg").textContent = t; }
+
+function load() {
+  fetch("/api/owner/designers", { credentials: "same-origin" })
+    .then(function (r) {
+      if (r.status === 401) { location.href = "/login.html"; return null; }
+      if (r.status === 403) { document.querySelector("#list").textContent = "Доступ только для владельца."; return null; }
+      return r.json();
+    })
+    .then(function (d) {
+      if (!d) return;
+      var rows = d.items.map(function (x) {
+        return "<tr><td>" + x.email + (x.is_owner ? " (владелец)" : "") + "</td>" +
+          "<td>" + (x.name || "—") + "</td>" +
+          "<td><input type='number' min='0' max='100' step='0.5' value='" + x.rate +
+          "' style='width:80px' onchange=\"setRate(" + x.id + ", this.value)\"></td>" +
+          "<td>" + x.projects + "</td>" +
+          "<td class='" + (x.is_active ? "on" : "off") + "'>" +
+          (x.is_active ? "активен" : "заблокирован") + "</td>" +
+          "<td>" + (x.is_owner ? "—" :
+            "<button class='grey' onclick=\"setActive(" + x.id + "," + (!x.is_active) + ")\">" +
+            (x.is_active ? "Заблокировать" : "Разблокировать") + "</button>") + "</td></tr>";
+      }).join("");
+      document.querySelector("#list").innerHTML =
+        "<table><thead><tr><th>Почта</th><th>Имя</th><th>Процент</th>" +
+        "<th>Проектов</th><th>Статус</th><th></th></tr></thead><tbody>" + rows + "</tbody></table>";
+    });
+}
+
+function setActive(id, active) {
+  fetch("/api/owner/designers/" + id + "/active", {
+    method: "POST", credentials: "same-origin",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ is_active: active })
+  }).then(load);
+}
+
+function setRate(id, rate) {
+  fetch("/api/owner/designers/" + id + "/rate", {
+    method: "POST", credentials: "same-origin",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ rate: Number(rate) })
+  }).then(function () { msg("Процент сохранён"); load(); });
+}
+
+document.querySelector("#addForm").addEventListener("submit", function (e) {
+  e.preventDefault();
+  msg("Сохраняем…");
+  fetch("/api/owner/designers", {
+    method: "POST", credentials: "same-origin",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      email: document.querySelector("#email").value.trim(),
+      name: document.querySelector("#name").value.trim(),
+      rate: Number(document.querySelector("#rate").value)
+    })
+  })
+    .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+    .then(function (x) {
+      if (!x.ok) { msg("Ошибка: " + (x.j.error || "не удалось")); return; }
+      msg("Дизайнер добавлен");
+      document.querySelector("#email").value = "";
+      document.querySelector("#name").value = "";
+      load();
+    });
+});
+
+document.querySelector("#logout").addEventListener("click", function () {
+  fetch("/api/auth/logout", { method: "POST", credentials: "same-origin" })
+    .then(function () { location.href = "/login.html"; });
+});
+
+load();
+</script>
+</body>
+</html>
