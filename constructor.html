@@ -1972,21 +1972,47 @@ const Calc = (() => {
       if (nor) nOff += nor.count;
     });
 
+      const texFiles = [], texSeen = new Map();
+    function texFile(tex, fileBase) {
+      if (!tex || !tex.image) return null;
+      if (texSeen.has(tex)) return texSeen.get(tex);
+      const img = tex.image;
+      if (typeof img.toDataURL !== "function") { texSeen.set(tex, null); return null; }
+      let url;
+      try { url = img.toDataURL("image/png"); }
+      catch (e) { texSeen.set(tex, null); return null; }
+      const b64 = url.slice(url.indexOf(",") + 1), bin = atob(b64);
+      const bytes = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+      const fname = fileBase + ".png";
+      texSeen.set(tex, fname);
+      texFiles.push({ name: fname, data: bytes });
+      return fname;
+    }
+
     const mtl = ["# Stella materials"];
     for (const [mat, nme] of mats) {
+      const mapName = texFile(mat && mat.map, "tex_" + nme + "_color");
+      const bumpName = texFile(mat && mat.bumpMap, "tex_" + nme + "_bump");
       const c = (mat && mat.color) ? mat.color.clone() : new THREE.Color(0xcccccc);
       if (c.convertLinearToSRGB) c.convertLinearToSRGB();
       const rough = (mat && mat.roughness !== undefined) ? mat.roughness : .6;
       const metal = (mat && mat.metalness !== undefined) ? mat.metalness : 0;
       const ns = Math.max(2, Math.round((1 - rough) * (1 - rough) * 900));
       const ks = .1 + metal * .8;
+      const kd = mapName
+        ? "Kd 1.0000 1.0000 1.0000"
+        : "Kd " + c.r.toFixed(4) + " " + c.g.toFixed(4) + " " + c.b.toFixed(4);
       mtl.push("newmtl " + nme,
         "Ka 0.000 0.000 0.000",
-        "Kd " + c.r.toFixed(4) + " " + c.g.toFixed(4) + " " + c.b.toFixed(4),
+        kd,
         "Ks " + ks.toFixed(3) + " " + ks.toFixed(3) + " " + ks.toFixed(3),
-        "Ns " + ns, "d 1.000", "illum 2", "");
+        "Ns " + ns, "d 1.000", "illum 2");
+      if (mapName) mtl.push("map_Kd " + mapName);
+      if (bumpName) mtl.push("map_Bump -bm 1.000 " + bumpName);
+      mtl.push("");
     }
-    return { obj: obj.join("\n") + "\n", mtl: mtl.join("\n") + "\n" };
+    return { obj: obj.join("\n") + "\n", mtl: mtl.join("\n") + "\n", textures: texFiles };
   }
 
   const CRC_TBL = (() => {
@@ -2045,16 +2071,17 @@ const Calc = (() => {
     setTimeout(() => URL.revokeObjectURL(url), 4000);
   }
 
-  function exportRackOBJ() {
+ function exportRackOBJ() {
     const code = (typeof LOADED_CODE === "string" && LOADED_CODE) ? LOADED_CODE : "model";
     const base = "stella_" + code;
-    const { obj, mtl } = buildOBJ(model, base + ".mtl");
+    const res = buildOBJ(model, base + ".mtl");
     const enc = new TextEncoder();
-    const zip = zipStore([
-      { name: base + ".obj", data: enc.encode(obj) },
-      { name: base + ".mtl", data: enc.encode(mtl) }
-    ]);
-    downloadBlob(zip, base + "_obj.zip");
+    const files = [
+      { name: base + ".obj", data: enc.encode(res.obj) },
+      { name: base + ".mtl", data: enc.encode(res.mtl) }
+    ];
+    for (const t of (res.textures || [])) files.push(t);
+    downloadBlob(zipStore(files), base + "_obj.zip");
   }
 
   {
