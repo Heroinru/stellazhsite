@@ -1583,7 +1583,7 @@ const Calc = (() => {
 
   // ---------- Процедурные текстуры ----------
   const PAL = {
-   oak:   { base: "#a9845f", dark: [70, 46, 26], light: [222, 196, 162], band: [58, 38, 22] },
+       oak:   { base: "#86643f", dark: [50, 32, 18], light: [190, 160, 124], band: [42, 27, 15] },
     wenge: { base: "#4a3324", dark: [22, 12, 6],  light: [150, 112, 82],  band: [15, 8, 4] }
   };
 
@@ -1615,7 +1615,7 @@ const Calc = (() => {
     for (let L = 0; L < N; L++) {
       const y0 = Math.round(L * LH), y1 = Math.round((L + 1) * LH);
       const r = rnd();
-      const type = r < .4 ? "rift" : r < .75 ? "flat" : "slant";
+            const type = r < .6 ? "rift" : r < .75 ? "flat" : "slant";
       const k = 1 + (rnd() - .5) * .06, hs = (rnd() - .5) * .03;
       const tone = [base[0] * k * (1 + hs), base[1] * k, base[2] * k * (1 - hs)];
       const ring = type === "rift" ? 3 + rnd() * 2.5 : 4 + rnd() * 3;
@@ -1638,7 +1638,7 @@ const Calc = (() => {
             F = y + w1[x] + w2[x] * .6 + wob;
           }
           const t = F / ring, fr = t - Math.floor(t), d = fr - .55;
-          let dark = .34 * Math.exp(-d * d / .02) + .05 * Math.sin(t * .9 + bph);
+                    let dark = .24 * Math.exp(-d * d / .02) + .05 * Math.sin(t * .9 + bph);
           if (fr < .35 && hash(x >> 2, y) < .22) dark += .2;
           if (y === y0) dark += .22;
           dark = Math.max(-.1, Math.min(.85, dark));
