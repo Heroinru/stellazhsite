@@ -1890,7 +1890,8 @@ const Calc = (() => {
   const flangeFaceMat = new THREE.MeshStandardMaterial({
     map: FLFACE.map, bumpMap: FLFACE.bump, bumpScale: 1, metalness: 0, roughness: .78, envMapIntensity: .6
   });
-  const screwMat = new THREE.MeshStandardMaterial({ color: col("#8d8f91"), metalness: .9, roughness: .35 });
+  const screwMat = new THREE.MeshStandardMaterial({ color: col("#b89a66"), metalness: 1, roughness: .38, envMapIntensity: .95 });
+  const slotMat = new THREE.MeshStandardMaterial({ color: col("#1a1712"), metalness: .3, roughness: .8 });
   const wallMat = new THREE.MeshStandardMaterial({ map: wallTex, roughness: .95, envMapIntensity: .5 });
   const floorMat = new THREE.MeshStandardMaterial({ map: floorTex, roughness: .55, envMapIntensity: .6 });
   const plinthMat = new THREE.MeshStandardMaterial({ color: col("#f3f0ea"), roughness: .5 });
@@ -2021,6 +2022,7 @@ const Calc = (() => {
       if (mat === ironMat) return "Iron";
       if (mat === flangeFaceMat) return "Flange_Face";
       if (mat === screwMat) return "Screw";
+      if (mat === slotMat) return "Screw_Slot";
     } catch (e) {}
     return null;
   }
@@ -3145,13 +3147,21 @@ if (ROLE === "designer" || ROLE === "owner") objBtn.hidden = false;
     seg(g, G.chamf, ironMat, "+z", wz + F.base + F.hub - 3, wz + F.base + F.hub, F.hubR);
     for (const deg of [90, 210, 330]) {
       const a = deg * Math.PI / 180;
+      const hx = Math.cos(a) * F.holeR, hy = Math.sin(a) * F.holeR, hr = F.holeD - .4;
       const s = new THREE.Mesh(G.sphere, screwMat);
-      s.position.set(Math.cos(a) * F.holeR, Math.sin(a) * F.holeR, wz + F.base);
-      s.scale.set(F.holeD - .4, F.holeD - .4, 1.8);
+      s.position.set(hx, hy, wz + F.base);
+      s.scale.set(hr, hr, 1.8);
       s.castShadow = true;
       g.add(s);
+      // Крестообразный шлиц
+      for (const turn of [0, Math.PI / 2]) {
+        const sl = new THREE.Mesh(G.box, slotMat);
+        sl.position.set(hx, hy, wz + F.base + 1.55);
+        sl.scale.set(hr * 1.2, hr * .22, .6);
+        sl.rotation.z = a + Math.PI / 4 + turn;
+        g.add(sl);
+      }
     }
-  }
 
   // Узел крепления к стене: поворотный уголок, труба к стене, фланец.
   // vdir — куда смотрит вертикальное плечо уголка ("-y" — стойка снизу, "+y" — сверху).
