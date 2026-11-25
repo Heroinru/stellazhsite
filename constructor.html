@@ -1807,6 +1807,64 @@ const Calc = (() => {
   }
 
   const TEX = { oak: makeWood(PAL.oak, 11), wenge: makeWood(PAL.wenge, 23) };
+    // ---------- Фото-текстура щита (img/oak.png) ----------
+  (function loadOakPhoto() {
+    const img = new Image();
+    img.onload = () => {
+      const W = compactMQ.matches ? 2048 : 4096, H = W / 4, B = Math.round(W * .08), n = W * H;
+      // Бесшовная по длине копия фото
+      const src = canvas(W, H), s = src.getContext("2d");
+      s.drawImage(img, 0, 0, W + B, H);
+      const strip = canvas(B, H), t = strip.getContext("2d");
+      t.drawImage(img, -W, 0, W + B, H);
+      t.globalCompositeOperation = "destination-in";
+      const gr = t.createLinearGradient(0, 0, B, 0);
+      gr.addColorStop(0, "rgba(0,0,0,1)");
+      gr.addColorStop(1, "rgba(0,0,0,0)");
+      t.fillStyle = gr;
+      t.fillRect(0, 0, B, H);
+      s.drawImage(strip, 0, 0);
+      const px = s.getImageData(0, 0, W, H).data;
+      const lum = new Float32Array(n);
+      let sum = 0;
+      for (let i = 0; i < n; i++) {
+        const k = i * 4;
+        lum[i] = .299 * px[k] + .587 * px[k + 1] + .114 * px[k + 2];
+        sum += lum[i];
+      }
+      const avg = sum / n || 1;
+      const apply = (tex, tint) => {
+        const mc = tex.map.image, bc = tex.bump.image;
+        mc.width = bc.width = W;
+        mc.height = bc.height = H;
+        const mg = mc.getContext("2d"), bg = bc.getContext("2d");
+        const mi = mg.createImageData(W, H), bi = bg.createImageData(W, H);
+        const M = mi.data, Bd = bi.data;
+        for (let i = 0; i < n; i++) {
+          const k = i * 4;
+          if (tint) {
+            const r = lum[i] / avg;
+            M[k] = tint[0] * r; M[k + 1] = tint[1] * r; M[k + 2] = tint[2] * r;
+          } else {
+            M[k] = px[k]; M[k + 1] = px[k + 1]; M[k + 2] = px[k + 2];
+          }
+          M[k + 3] = 255;
+          Bd[k] = Bd[k + 1] = Bd[k + 2] = 128 + (lum[i] - avg) * 1.6;
+          Bd[k + 3] = 255;
+        }
+        mg.putImageData(mi, 0, 0);
+        bg.putImageData(bi, 0, 0);
+        tex.map.needsUpdate = true;
+        tex.bump.needsUpdate = true;
+      };
+      apply(TEX.oak, null);
+      const hx = parseInt(PAL.wenge.base.slice(1), 16);
+      apply(TEX.wenge, [(hx >> 16) & 255, (hx >> 8) & 255, hx & 255]);
+      requestRender();
+    };
+    img.onerror = () => console.warn("Фото-текстура не загрузилась, используется нарисованная");
+    img.src = "/img/oak.png";
+  })();
   const floorTex = makeParquet();
   const wallTex = makePlaster();
   const castTex = makeCast();
