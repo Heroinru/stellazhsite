@@ -1878,10 +1878,10 @@ const Calc = (() => {
   const pipeMat = new THREE.MeshStandardMaterial({ color: col("#1b1d1f"), metalness: .35, roughness: .6, envMapIntensity: .9 });
   // Латунь: литое тело (с зерном) и гладкие обточенные буртики
   const fitMat = new THREE.MeshStandardMaterial({
-    color: col("#c99a4e"), metalness: 1, roughness: .4, bumpMap: castTex, bumpScale: .35, envMapIntensity: 1.15
+    color: col("#a8895a"), metalness: 1, roughness: .55, bumpMap: castTex, bumpScale: .35, envMapIntensity: .9
   });
   const fitRimMat = new THREE.MeshStandardMaterial({
-    color: col("#d8ae62"), metalness: 1, roughness: .22, envMapIntensity: 1.2
+    color: col("#b89a66"), metalness: 1, roughness: .38, envMapIntensity: .95
   });
   // Чугун фланца — всегда чёрный
   const ironMat = new THREE.MeshStandardMaterial({
@@ -1926,8 +1926,8 @@ const Calc = (() => {
       fitMat.color.copy(col("#202224")); fitMat.metalness = .55; fitMat.roughness = .5;
       fitRimMat.color.copy(col("#26282a")); fitRimMat.metalness = .6; fitRimMat.roughness = .38;
     } else {
-      fitMat.color.copy(col("#c99a4e")); fitMat.metalness = 1; fitMat.roughness = .4;
-      fitRimMat.color.copy(col("#d8ae62")); fitRimMat.metalness = 1; fitRimMat.roughness = .22;
+      fitMat.color.copy(col("#a8895a")); fitMat.metalness = 1; fitMat.roughness = .55;
+      fitRimMat.color.copy(col("#b89a66")); fitRimMat.metalness = 1; fitRimMat.roughness = .38;
     }
   }
 
