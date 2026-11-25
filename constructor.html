@@ -1765,18 +1765,18 @@ const Calc = (() => {
     const N = 512, k = N / 2 / R, rnd = mulberry32(1914);
     const c = canvas(N, N), g = c.getContext("2d");
     const bc = canvas(N, N), bg = bc.getContext("2d");
-    g.fillStyle = "#2b2c2e"; g.fillRect(0, 0, N, N);
+    g.fillStyle = "#161616"; g.fillRect(0, 0, N, N);
     bg.fillStyle = "#808080"; bg.fillRect(0, 0, N, N);
     for (let i = 0; i < 9000; i++) {
       const x = rnd() * N, y = rnd() * N, s = .6 + rnd() * 2, dark = rnd() < .55;
-      g.fillStyle = dark ? `rgba(0,0,0,${.15 + rnd() * .25})` : `rgba(95,97,100,${.06 + rnd() * .14})`;
+     g.fillStyle = dark ? `rgba(0,0,0,${.1 + rnd() * .15})` : `rgba(60,60,60,${.04 + rnd() * .08})`;
       g.fillRect(x, y, s, s);
       bg.fillStyle = dark ? "rgba(0,0,0,.35)" : "rgba(255,255,255,.28)";
       bg.fillRect(x, y, s, s);
     }
     const P = (xm, ym) => [N / 2 + xm * k, N / 2 - ym * k];
     // кольцевой буртик у края
-    g.strokeStyle = "rgba(80,82,85,.55)"; g.lineWidth = 1.6 * k;
+    g.strokeStyle = "rgba(50,50,50,.5)"; g.lineWidth = 1.6 * k;
     g.beginPath(); g.arc(N / 2, N / 2, (R - 2.2) * k, 0, 6.283); g.stroke();
     bg.strokeStyle = "rgba(255,255,255,.7)"; bg.lineWidth = 1.6 * k;
     bg.beginPath(); bg.arc(N / 2, N / 2, (R - 2.2) * k, 0, 6.283); bg.stroke();
@@ -1786,7 +1786,7 @@ const Calc = (() => {
       const [hx, hy] = P(Math.cos(a) * FD.fl.holeR, Math.sin(a) * FD.fl.holeR);
       g.fillStyle = "#060606";
       g.beginPath(); g.arc(hx, hy, FD.fl.holeD * k, 0, 6.283); g.fill();
-      g.strokeStyle = "rgba(110,112,115,.6)"; g.lineWidth = .9 * k;
+      g.strokeStyle = "rgba(55,55,55,.5)"; g.lineWidth = .9 * k;
       g.beginPath(); g.arc(hx, hy, (FD.fl.holeD + .7) * k, 0, 6.283); g.stroke();
       bg.fillStyle = "#000";
       bg.beginPath(); bg.arc(hx, hy, FD.fl.holeD * k, 0, 6.283); bg.fill();
@@ -1796,8 +1796,8 @@ const Calc = (() => {
     g.font = `bold ${Math.round(5.6 * k)}px Georgia, "Times New Roman", serif`;
     g.textAlign = "center"; g.textBaseline = "middle";
     bg.font = g.font; bg.textAlign = "center"; bg.textBaseline = "middle";
-    g.fillStyle = "rgba(120,122,126,.55)"; g.fillText("1914", tx - 1.5, ty - 1.5);
-    g.fillStyle = "#3e4043"; g.fillText("1914", tx, ty);
+   g.fillStyle = "rgba(70,70,70,.4)"; g.fillText("1914", tx - 1.5, ty - 1.5);
+    g.fillStyle = "#262626"; g.fillText("1914", tx, ty);
     bg.fillStyle = "#ffffff"; bg.fillText("1914", tx, ty);
     const map = new THREE.CanvasTexture(c);
     map.encoding = THREE.sRGBEncoding;
@@ -1885,10 +1885,10 @@ const Calc = (() => {
   });
   // Чугун фланца — всегда чёрный
   const ironMat = new THREE.MeshStandardMaterial({
-    color: col("#232426"), metalness: .4, roughness: .7, bumpMap: castTex, bumpScale: .5, envMapIntensity: .7
+    color: col("#161616"), metalness: 0, roughness: .78, bumpMap: castTex, bumpScale: .25, envMapIntensity: .6
   });
   const flangeFaceMat = new THREE.MeshStandardMaterial({
-    map: FLFACE.map, bumpMap: FLFACE.bump, bumpScale: 1.4, metalness: .4, roughness: .7, envMapIntensity: .7
+    map: FLFACE.map, bumpMap: FLFACE.bump, bumpScale: 1, metalness: 0, roughness: .78, envMapIntensity: .6
   });
   const screwMat = new THREE.MeshStandardMaterial({ color: col("#8d8f91"), metalness: .9, roughness: .35 });
   const wallMat = new THREE.MeshStandardMaterial({ map: wallTex, roughness: .95, envMapIntensity: .5 });
