@@ -1587,55 +1587,69 @@ const Calc = (() => {
     wenge: { base: "#4a3324", dark: [22, 12, 6],  light: [150, 112, 82],  band: [15, 8, 4] }
   };
 
-  function makeWood(p, seed) {
-    const W = 2048, H = 512, rnd = mulberry32(seed);
+function makeWood(p, seed) {
+    const W = 2048, H = 512, N = 10, LH = H / N, rnd = mulberry32(seed);
     const c = canvas(W, H), g = c.getContext("2d");
     const bc = canvas(W, H), bg = bc.getContext("2d");
-    g.fillStyle = p.base; g.fillRect(0, 0, W, H);
     bg.fillStyle = "#bdbdbd"; bg.fillRect(0, 0, W, H);
     const rgba = (a, al) => `rgba(${a[0]},${a[1]},${a[2]},${al})`;
     const TAU = Math.PI * 2;
+    const hx = parseInt(p.base.slice(1), 16);
+    const baseRGB = [(hx >> 16) & 255, (hx >> 8) & 255, hx & 255];
 
     const wavy = (ctx, y0, q) => {
-      for (const off of [-H, 0, H]) {
-        ctx.beginPath();
-        for (let x = 0; x <= W; x += 16) {
-          const y = y0 + off + q.a1 * Math.sin(x / W * TAU * q.k1 + q.p1) + q.a2 * Math.sin(x / W * TAU * q.k2 + q.p2);
-          if (x) ctx.lineTo(x, y); else ctx.moveTo(x, y);
-        }
-        ctx.stroke();
+      ctx.beginPath();
+      for (let x = 0; x <= W; x += 16) {
+        const y = y0 + q.a1 * Math.sin(x / W * TAU * q.k1 + q.p1) + q.a2 * Math.sin(x / W * TAU * q.k2 + q.p2);
+        if (x) ctx.lineTo(x, y); else ctx.moveTo(x, y);
       }
+      ctx.stroke();
     };
     const params = () => ({
-      k1: 1 + Math.floor(rnd() * 3), k2: 3 + Math.floor(rnd() * 6),
-      a1: 2 + rnd() * 12, a2: .5 + rnd() * 3, p1: rnd() * TAU, p2: rnd() * TAU
+      k1: 1 + Math.floor(rnd() * 2), k2: 3 + Math.floor(rnd() * 5),
+      a1: 1 + rnd() * 5, a2: .3 + rnd() * 1.2, p1: rnd() * TAU, p2: rnd() * TAU
     });
 
-    for (let i = 0; i < 16; i++) {
-      const q = params(), y0 = rnd() * H;
-      g.lineWidth = 14 + rnd() * 50;
-      g.strokeStyle = rnd() < .5 ? rgba(p.light, .05 + rnd() * .06) : rgba(p.band, .05 + rnd() * .08);
-      wavy(g, y0, q);
-    }
-    for (let i = 0; i < 300; i++) {
-      const q = params(), y0 = rnd() * H, w = .6 + rnd() * 2.2, a = .07 + rnd() * .3;
-      g.lineWidth = w; g.strokeStyle = rgba(p.dark, a); wavy(g, y0, q);
-      bg.lineWidth = w; bg.strokeStyle = `rgba(0,0,0,${a * .9})`; wavy(bg, y0, q);
-    }
-    for (let i = 0; i < 7000; i++) {
-      const x = rnd() * W, y = rnd() * H, len = 3 + rnd() * 14, a = .12 + rnd() * .25;
-      for (const off of [0, -W]) {
-        g.fillStyle = rgba(p.dark, a); g.fillRect(x + off, y, len, 1);
-        bg.fillStyle = `rgba(0,0,0,${a * 1.4})`; bg.fillRect(x + off, y, len, 1.2);
+    // Ламели: ~60 мм каждая, тон подобран, у каждой свой рисунок
+    for (let L = 0; L < N; L++) {
+      const y1 = L * LH;
+      const k = 1 + (rnd() - .5) * .07;
+      const tone = baseRGB.map(v => Math.max(0, Math.min(255, Math.round(v * k))));
+      for (const ctx of [g, bg]) { ctx.save(); ctx.beginPath(); ctx.rect(0, y1, W, LH); ctx.clip(); }
+      g.fillStyle = `rgb(${tone[0]},${tone[1]},${tone[2]})`;
+      g.fillRect(0, y1, W, LH);
+      for (let i = 0; i < 3; i++) {
+        const q = params(), y0 = y1 + rnd() * LH;
+        g.lineWidth = 6 + rnd() * 16;
+        g.strokeStyle = rnd() < .5 ? rgba(p.light, .04 + rnd() * .05) : rgba(p.band, .05 + rnd() * .07);
+        wavy(g, y0, q);
       }
-    }
-    for (let i = 0; i < 420; i++) {
-      const x = rnd() * W, y = rnd() * H, rw = 5 + rnd() * 26, rh = 1 + rnd() * 2.2;
-      g.fillStyle = rgba(p.light, .1 + rnd() * .14);
-      for (const off of [0, -W]) {
-        g.beginPath(); g.ellipse(x + off, y, rw, rh, 0, 0, TAU); g.fill();
+      for (let i = 0; i < 32; i++) {
+        const q = params(), y0 = y1 - 4 + rnd() * (LH + 8), w = .6 + rnd() * 2, a = .07 + rnd() * .26;
+        g.lineWidth = w; g.strokeStyle = rgba(p.dark, a); wavy(g, y0, q);
+        bg.lineWidth = w; bg.strokeStyle = `rgba(0,0,0,${a * .9})`; wavy(bg, y0, q);
       }
+      for (let i = 0; i < 700; i++) {
+        const x = rnd() * W, y = y1 + rnd() * LH, len = 3 + rnd() * 14, a = .12 + rnd() * .25;
+        for (const off of [0, -W]) {
+          g.fillStyle = rgba(p.dark, a); g.fillRect(x + off, y, len, 1);
+          bg.fillStyle = `rgba(0,0,0,${a * 1.4})`; bg.fillRect(x + off, y, len, 1.2);
+        }
+      }
+      for (let i = 0; i < 40; i++) {
+        const x = rnd() * W, y = y1 + rnd() * LH, rw = 5 + rnd() * 22, rh = 1 + rnd() * 2;
+        g.fillStyle = rgba(p.light, .08 + rnd() * .12);
+        for (const off of [0, -W]) { g.beginPath(); g.ellipse(x + off, y, rw, rh, 0, 0, TAU); g.fill(); }
+      }
+      g.restore(); bg.restore();
     }
+    // Едва заметные стыки между ламелями
+    for (let L = 0; L <= N; L++) {
+      const y = L * LH;
+      g.fillStyle = rgba(p.dark, .25); g.fillRect(0, y - .5, W, 1);
+      bg.fillStyle = "rgba(0,0,0,.4)"; bg.fillRect(0, y - .6, W, 1.2);
+    }
+
     const map = new THREE.CanvasTexture(c);
     map.encoding = THREE.sRGBEncoding;
     const bump = new THREE.CanvasTexture(bc);
@@ -1851,6 +1865,7 @@ const Calc = (() => {
     const pos = geo.attributes.position, nor = geo.attributes.normal, uv = geo.attributes.uv;
     const half = [w / 2, h / 2, d / 2], hc = .5 / n, stp = 1 / n;
     const v = [0, 0, 0], dir = [0, 0, 0], p = [0, 0, 0];
+    const lane = (60 * (Math.abs(Math.round(seedOff)) % 10) + 30) / 600;
     for (let i = 0; i < pos.count; i++) {
       v[0] = pos.getX(i); v[1] = pos.getY(i); v[2] = pos.getZ(i);
       for (let k = 0; k < 3; k++) {
@@ -1865,8 +1880,8 @@ const Calc = (() => {
       const ax = Math.abs(nx), ay = Math.abs(ny), az = Math.abs(nz);
       let u, vv;
       if (ay >= ax && ay >= az) { u = (p[0] + seedOff) / 2400; vv = (p[2] + seedOff * .37) / 600; }
-      else if (az >= ax) { u = (p[0] + seedOff) / 2400; vv = (p[1] + seedOff * .61) / 600; }
-      else { u = (p[2] + seedOff) / 2400; vv = (p[1] + seedOff * .61) / 600; }
+      else if (az >= ax) { u = (p[0] + seedOff) / 2400; vv = lane + Math.max(-25, Math.min(25, p[1])) / 600; }
+      else { u = (p[2] + seedOff) / 2400; vv = lane + Math.max(-25, Math.min(25, p[1])) / 600; }
       uv.setXY(i, u, vv);
     }
     return geo;
