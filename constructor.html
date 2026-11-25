@@ -1875,7 +1875,7 @@ const Calc = (() => {
     map: TEX.oak.map, bumpMap: TEX.oak.bump, bumpScale: .9,
     roughness: .55, metalness: 0, envMapIntensity: .85
   });
-  const pipeMat = new THREE.MeshStandardMaterial({ color: col("#1b1d1f"), metalness: .35, roughness: .6, envMapIntensity: .9 });
+   const pipeMat = new THREE.MeshStandardMaterial({ color: col("#161616"), metalness: 0, roughness: .78, envMapIntensity: .6 });
   // Латунь: литое тело (с зерном) и гладкие обточенные буртики
   const fitMat = new THREE.MeshStandardMaterial({
     color: col("#a8895a"), metalness: 1, roughness: .55, bumpMap: castTex, bumpScale: .35, envMapIntensity: .9
@@ -1920,7 +1920,7 @@ const Calc = (() => {
     if (S.pipeColor === "white") {
       pipeMat.color.copy(col("#ebe8e2")); pipeMat.metalness = .05; pipeMat.roughness = .45;
     } else {
-      pipeMat.color.copy(col("#1b1d1f")); pipeMat.metalness = .35; pipeMat.roughness = .6;
+            pipeMat.color.copy(col("#161616")); pipeMat.metalness = 0; pipeMat.roughness = .78;
     }
     if (S.fit === "black") {
       fitMat.color.copy(col("#202224")); fitMat.metalness = .55; fitMat.roughness = .5;
