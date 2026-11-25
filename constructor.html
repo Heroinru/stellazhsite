@@ -1587,67 +1587,88 @@ const Calc = (() => {
     wenge: { base: "#4a3324", dark: [22, 12, 6],  light: [150, 112, 82],  band: [15, 8, 4] }
   };
 
-function makeWood(p, seed) {
+  function makeWood(p, seed) {
     const W = 2048, H = 512, N = 10, LH = H / N, rnd = mulberry32(seed);
-    const c = canvas(W, H), g = c.getContext("2d");
-    const bc = canvas(W, H), bg = bc.getContext("2d");
-    bg.fillStyle = "#bdbdbd"; bg.fillRect(0, 0, W, H);
-    const rgba = (a, al) => `rgba(${a[0]},${a[1]},${a[2]},${al})`;
     const TAU = Math.PI * 2;
     const hx = parseInt(p.base.slice(1), 16);
-    const baseRGB = [(hx >> 16) & 255, (hx >> 8) & 255, hx & 255];
+    const base = [(hx >> 16) & 255, (hx >> 8) & 255, hx & 255];
+    const rgba = (a, al) => `rgba(${a[0]},${a[1]},${a[2]},${al})`;
+    const c = canvas(W, H), g = c.getContext("2d");
+    const bc = canvas(W, H), bg = bc.getContext("2d");
+    const img = g.createImageData(W, H), bimg = bg.createImageData(W, H);
+    const D = img.data, B = bimg.data;
 
-    const wavy = (ctx, y0, q) => {
-      ctx.beginPath();
-      for (let x = 0; x <= W; x += 16) {
-        const y = y0 + q.a1 * Math.sin(x / W * TAU * q.k1 + q.p1) + q.a2 * Math.sin(x / W * TAU * q.k2 + q.p2);
-        if (x) ctx.lineTo(x, y); else ctx.moveTo(x, y);
-      }
-      ctx.stroke();
+    const hash = (a, b) => {
+      let h = (a * 374761393 + b * 668265263 + seed * 1442695041) | 0;
+      h = Math.imul(h ^ (h >>> 13), 1274126177);
+      return ((h ^ (h >>> 16)) >>> 0) / 4294967296;
     };
-    const params = () => ({
-      k1: 1 + Math.floor(rnd() * 2), k2: 3 + Math.floor(rnd() * 5),
-      a1: 1 + rnd() * 5, a2: .3 + rnd() * 1.2, p1: rnd() * TAU, p2: rnd() * TAU
-    });
+    // Волна, повторяющаяся по длине (текстура стыкуется без шва)
+    const waveX = (amp, fMin, fMax) => {
+      const f = fMin + Math.floor(rnd() * (fMax - fMin + 1)), ph = rnd() * TAU;
+      const a = new Float32Array(W);
+      for (let x = 0; x < W; x++) a[x] = amp * Math.sin(TAU * f * x / W + ph);
+      return a;
+    };
 
-    // Ламели: ~60 мм каждая, тон подобран, у каждой свой рисунок
+    const flecks = [];
     for (let L = 0; L < N; L++) {
-      const y1 = L * LH;
-      const k = 1 + (rnd() - .5) * .07;
-      const tone = baseRGB.map(v => Math.max(0, Math.min(255, Math.round(v * k))));
-      for (const ctx of [g, bg]) { ctx.save(); ctx.beginPath(); ctx.rect(0, y1, W, LH); ctx.clip(); }
-      g.fillStyle = `rgb(${tone[0]},${tone[1]},${tone[2]})`;
-      g.fillRect(0, y1, W, LH);
-      for (let i = 0; i < 3; i++) {
-        const q = params(), y0 = y1 + rnd() * LH;
-        g.lineWidth = 6 + rnd() * 16;
-        g.strokeStyle = rnd() < .5 ? rgba(p.light, .04 + rnd() * .05) : rgba(p.band, .05 + rnd() * .07);
-        wavy(g, y0, q);
-      }
-      for (let i = 0; i < 32; i++) {
-        const q = params(), y0 = y1 - 4 + rnd() * (LH + 8), w = .6 + rnd() * 2, a = .07 + rnd() * .26;
-        g.lineWidth = w; g.strokeStyle = rgba(p.dark, a); wavy(g, y0, q);
-        bg.lineWidth = w; bg.strokeStyle = `rgba(0,0,0,${a * .9})`; wavy(bg, y0, q);
-      }
-      for (let i = 0; i < 700; i++) {
-        const x = rnd() * W, y = y1 + rnd() * LH, len = 3 + rnd() * 14, a = .12 + rnd() * .25;
-        for (const off of [0, -W]) {
-          g.fillStyle = rgba(p.dark, a); g.fillRect(x + off, y, len, 1);
-          bg.fillStyle = `rgba(0,0,0,${a * 1.4})`; bg.fillRect(x + off, y, len, 1.2);
+      const y0 = Math.round(L * LH), y1 = Math.round((L + 1) * LH);
+      const r = rnd();
+      const type = r < .4 ? "rift" : r < .75 ? "flat" : "slant";
+      const k = 1 + (rnd() - .5) * .06, hs = (rnd() - .5) * .03;
+      const tone = [base[0] * k * (1 + hs), base[1] * k, base[2] * k * (1 - hs)];
+      const ring = type === "rift" ? 3 + rnd() * 2.5 : 4 + rnd() * 3;
+      const w1 = waveX(type === "rift" ? 1.5 : 3, 1, 3), w2 = waveX(1, 5, 11);
+      const cy = y0 + LH * (.1 + rnd() * .8);
+      const cath = waveX(1, 1, 3), cAmp = 30 + rnd() * 40, curv = .012 + rnd() * .018;
+      const slant = waveX((80 + rnd() * 140) * (rnd() < .5 ? -1 : 1), 1, 2);
+      const nf = TAU * (2 + Math.floor(rnd() * 4)) / W, nph = rnd() * TAU, bph = rnd() * TAU;
+
+      for (let y = y0; y < y1; y++) {
+        for (let x = 0; x < W; x++) {
+          const wob = .9 * Math.sin(x * nf + y * .09 + nph);
+          let F;
+          if (type === "flat") {
+            const dy = y - cy + w1[x];
+            F = curv * dy * dy + cAmp * cath[x] + w2[x] + wob;
+          } else if (type === "slant") {
+            F = y + slant[x] + w1[x] + w2[x] + wob;
+          } else {
+            F = y + w1[x] + w2[x] * .6 + wob;
+          }
+          const t = F / ring, fr = t - Math.floor(t), d = fr - .55;
+          let dark = .34 * Math.exp(-d * d / .02) + .05 * Math.sin(t * .9 + bph);
+          if (fr < .35 && hash(x >> 2, y) < .22) dark += .2;
+          if (y === y0) dark += .22;
+          dark = Math.max(-.1, Math.min(.85, dark));
+          const i = (y * W + x) * 4;
+          D[i]     = tone[0] + (p.dark[0] - tone[0]) * dark;
+          D[i + 1] = tone[1] + (p.dark[1] - tone[1]) * dark;
+          D[i + 2] = tone[2] + (p.dark[2] - tone[2]) * dark;
+          D[i + 3] = 255;
+          const bv = 200 - dark * 120;
+          B[i] = B[i + 1] = B[i + 2] = bv;
+          B[i + 3] = 255;
         }
       }
-      for (let i = 0; i < 40; i++) {
-        const x = rnd() * W, y = y1 + rnd() * LH, rw = 5 + rnd() * 22, rh = 1 + rnd() * 2;
-        g.fillStyle = rgba(p.light, .08 + rnd() * .12);
-        for (const off of [0, -W]) { g.beginPath(); g.ellipse(x + off, y, rw, rh, 0, 0, TAU); g.fill(); }
-      }
-      g.restore(); bg.restore();
+      if (type === "rift") flecks.push([y0, y1]);
     }
-    // Едва заметные стыки между ламелями
-    for (let L = 0; L <= N; L++) {
-      const y = L * LH;
-      g.fillStyle = rgba(p.dark, .25); g.fillRect(0, y - .5, W, 1);
-      bg.fillStyle = "rgba(0,0,0,.4)"; bg.fillRect(0, y - .6, W, 1.2);
+    g.putImageData(img, 0, 0);
+    bg.putImageData(bimg, 0, 0);
+
+    // Крапинки (сердцевинные лучи) на прямослойных ламелях
+    for (const [y0, y1] of flecks) {
+      g.save(); g.beginPath(); g.rect(0, y0 + 1, W, y1 - y0 - 1); g.clip();
+      const n = 30 + Math.floor(rnd() * 30);
+      for (let i = 0; i < n; i++) {
+        const x = rnd() * W, y = y0 + rnd() * (y1 - y0), rw = 4 + rnd() * 16, rh = .7 + rnd() * 1.3;
+        g.fillStyle = rgba(p.light, .1 + rnd() * .14);
+        for (const off of [-W, 0, W]) {
+          g.beginPath(); g.ellipse(x + off, y, rw, rh, 0, 0, TAU); g.fill();
+        }
+      }
+      g.restore();
     }
 
     const map = new THREE.CanvasTexture(c);
