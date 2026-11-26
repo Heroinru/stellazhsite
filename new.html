@@ -1,1 +1,864 @@
 
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Стеллажи под вашу стену за 5 дней — дуб и латунь | Stella</title>
+  <meta name="description" content="Модульные стеллажи и полки под ваш размер. Изготовление 5 дней, достраиваются полками в любой момент. Пришлите размеры стены, и мы бесплатно пришлём 3D-модель и цену. Доставка по России, монтаж в Москве и МО.">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#ebe5d9">
+
+  <style>
+    :root {
+      --wall: #ebe5d9;
+      --paper: #f7f4ee;
+      --ink: #1c1a17;
+      --muted: #635d53;
+      --brass: #a47b43;
+      --line: rgba(28, 26, 23, .17);
+      --serif: "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+      --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      background: var(--wall);
+      color: var(--ink);
+      font-family: var(--sans);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: inherit; }
+
+    button, input { font: inherit; }
+
+    a:focus-visible, button:focus-visible, input:focus-visible {
+      outline: 3px solid var(--brass);
+      outline-offset: 5px;
+    }
+
+    .wrap {
+      width: min(1440px, calc(100% - 96px));
+      margin-inline: auto;
+    }
+
+    .header {
+      min-height: 88px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .logo {
+      text-decoration: none;
+      font-family: var(--serif);
+      font-size: 30px;
+      letter-spacing: -.04em;
+    }
+
+    .nav, .header-right {
+      display: flex;
+      align-items: center;
+      gap: 26px;
+    }
+
+    .nav a, .header-right a {
+      font-size: 14px;
+      text-decoration: none;
+    }
+
+    .nav a:hover, .header-right a:hover {
+      text-decoration: underline;
+      text-underline-offset: 5px;
+    }
+
+    .hero {
+      padding-top: 30px;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, .9fr) minmax(0, 1.25fr);
+      gap: 16px 30px;
+      align-items: center;
+      min-height: 580px;
+      padding-bottom: 38px;
+    }
+
+    .hero-heading {
+      grid-column: 1;
+      grid-row: 1;
+      align-self: end;
+      padding-top: 40px;
+    }
+
+    h1 {
+      margin: 0;
+      font-family: var(--serif);
+      font-size: clamp(48px, 5.2vw, 80px);
+      font-weight: 400;
+      line-height: 1.02;
+      letter-spacing: -.055em;
+      transition: opacity .35s ease;
+    }
+
+    h1 em {
+      display: block;
+      color: var(--brass);
+      font-weight: 400;
+    }
+
+    .subtitle {
+      max-width: 420px;
+      margin: 24px 0 0;
+      font-size: clamp(17px, 1.5vw, 20px);
+      line-height: 1.55;
+    }
+
+    .hero-actions {
+      grid-column: 1;
+      grid-row: 2;
+      align-self: start;
+      padding-top: 8px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 58px;
+      padding: 17px 26px;
+      border: 1px solid var(--ink);
+      border-radius: 3px;
+      background: var(--ink);
+      color: white;
+      font-size: 16px;
+      font-weight: 500;
+      text-align: center;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background .2s ease;
+    }
+
+    .button:hover { background: #39342c; }
+
+    .button:disabled {
+      opacity: .65;
+      cursor: wait;
+    }
+
+    .promise {
+      max-width: 360px;
+      margin: 14px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .models-link {
+      display: inline-block;
+      margin-top: 24px;
+      font-size: 14px;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 5px;
+    }
+
+    .visual {
+      position: relative;
+      grid-column: 2;
+      grid-row: 1 / 3;
+      align-self: center;
+      min-width: 0;
+      margin: 0;
+    }
+
+    .stage {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      isolation: isolate;
+    }
+
+    .stage img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      opacity: 0;
+      transition: opacity .35s ease;
+    }
+
+    .stage img.is-active { opacity: 1; }
+
+    .stage.is-instant img { transition: none; }
+
+    .stage-caption {
+      min-height: 52px;
+      margin: 0;
+      padding: 8px 16px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: var(--muted);
+      font-family: var(--serif);
+      font-size: clamp(19px, 2vw, 26px);
+      text-align: center;
+      line-height: 1.2;
+    }
+
+    .visual-label {
+      position: absolute;
+      right: 10px;
+      bottom: 8px;
+      color: var(--muted);
+      opacity: .65;
+      font-size: 11px;
+      letter-spacing: .02em;
+    }
+
+    .hero.is-playing h1 { opacity: 0; }
+
+    .facts {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px 0;
+      margin: 0;
+      padding: 23px 0;
+      border-top: 1px solid var(--line);
+      list-style: none;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .facts li + li::before {
+      content: "·";
+      display: inline-block;
+      margin-inline: 18px;
+    }
+
+    .request {
+      padding: 90px 0;
+      background: var(--paper);
+      scroll-margin-top: 24px;
+    }
+
+    .request-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 70px;
+      max-width: 1100px;
+      margin-inline: auto;
+    }
+
+    .eyebrow {
+      margin: 0 0 20px;
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+
+    h2 {
+      margin: 0;
+      font-family: var(--serif);
+      font-size: clamp(34px, 3.8vw, 54px);
+      font-weight: 400;
+      line-height: 1.08;
+      letter-spacing: -.04em;
+    }
+
+    .request-copy {
+      max-width: 420px;
+      margin: 22px 0;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.65;
+    }
+
+    .telegram {
+      display: inline-block;
+      font-size: 14px;
+      line-height: 1.6;
+      text-underline-offset: 4px;
+    }
+
+    .form {
+      position: relative;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px 16px;
+      align-content: start;
+    }
+
+    .field { min-width: 0; }
+
+    .field label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+
+    .field input {
+      display: block;
+      width: 100%;
+      min-height: 54px;
+      padding: 13px 14px;
+      border: 1px solid var(--line);
+      border-radius: 3px;
+      background: white;
+      color: var(--ink);
+      font-size: 16px;
+    }
+
+    .full { grid-column: 1 / -1; }
+
+    .form .button { width: 100%; }
+
+    .form-note {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .status {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .status:empty { display: none; }
+    .status.is-error { color: #9b3026; }
+    .status.is-success { color: #315c3b; }
+
+    .trap {
+      position: absolute;
+      left: -10000px;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+    }
+
+    .footer {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 14px 24px;
+      padding-block: 28px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+    .footer a { text-underline-offset: 3px; }
+
+    @media (min-width: 1500px) {
+      .hero-grid { min-height: 650px; }
+    }
+
+    @media (max-width: 1000px) {
+      .wrap { width: calc(100% - 48px); }
+      .nav { gap: 18px; }
+      .header-right .phone { display: none; }
+      .hero-grid {
+        min-height: 520px;
+        gap: 16px;
+      }
+      h1 { font-size: 54px; }
+      .request-grid { gap: 36px; }
+    }
+
+    @media (max-width: 700px) {
+      .wrap { width: calc(100% - 36px); }
+
+      .header {
+        min-height: 70px;
+        gap: 12px;
+      }
+
+      .logo { font-size: 27px; }
+      .nav { display: none; }
+      .header-right a { font-size: 13px; }
+
+      .hero { padding-top: 0; }
+
+      .hero-grid {
+        grid-template-columns: minmax(0, 1fr);
+        min-height: 0;
+        gap: 0;
+        padding-bottom: 30px;
+      }
+
+      .hero-heading {
+        grid-column: 1;
+        grid-row: 1;
+        padding-top: 34px;
+      }
+
+      h1 {
+        max-width: 440px;
+        font-size: clamp(42px, 11.8vw, 66px);
+      }
+
+      .hero.is-playing h1 { opacity: 1; }
+
+      .subtitle {
+        max-width: 390px;
+        margin-top: 17px;
+        font-size: 16px;
+        line-height: 1.5;
+      }
+
+      .visual {
+        grid-column: 1;
+        grid-row: 2;
+        width: 100%;
+        margin-top: 12px;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .stage {
+        order: 1;
+        aspect-ratio: 1 / 1;
+      }
+
+      .stage-caption {
+        order: 2;
+        min-height: 50px;
+        padding-inline: 0;
+        font-size: 21px;
+      }
+
+      .visual-label {
+        bottom: 59px;
+        right: 4px;
+        font-size: 10px;
+      }
+
+      .hero-actions {
+        grid-column: 1;
+        grid-row: 3;
+        padding-top: 13px;
+      }
+
+      .hero-actions .button { width: 100%; }
+
+      .promise {
+        max-width: none;
+        text-align: center;
+      }
+
+      .models-link {
+        display: block;
+        margin-top: 20px;
+        text-align: center;
+      }
+
+      .facts {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        padding-block: 22px;
+        font-size: 12px;
+      }
+
+      .facts li + li::before { content: none; }
+
+      .request { padding-block: 54px; }
+
+      .request-grid {
+        grid-template-columns: 1fr;
+        gap: 30px;
+      }
+
+      .request-copy { margin-bottom: 16px; }
+
+      .footer { padding-block: 24px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after {
+        transition: none !important;
+        animation: none !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="header wrap">
+    <a class="logo" href="/new.html" aria-label="Stella — главная">Stella</a>
+
+    <nav class="nav" aria-label="Основное меню">
+      <a href="/#ideas">Модели</a>
+      <a href="#request">Отправить размеры</a>
+      <a href="/#faq">Вопросы</a>
+    </nav>
+
+    <div class="header-right">
+      <a href="/designers.html">Дизайнерам</a>
+      <a class="phone" href="tel:+79164455131">8-916-445-5131</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero wrap" id="hero" aria-labelledby="hero-title">
+      <div class="hero-grid">
+        <div class="hero-heading">
+          <h1 id="hero-title">Стеллажи <em>под вашу стену</em></h1>
+          <p class="subtitle">
+            Изготовим за 5 дней. Достраивайте полками, когда захотите.
+          </p>
+        </div>
+
+        <figure class="visual">
+          <p class="stage-caption" id="stage-caption" aria-hidden="true">
+            Растёт вместе с вами
+          </p>
+
+          <div class="stage" id="stage"
+               role="img"
+               aria-label="Модульный стеллаж из дуба на трубах с латунными фитингами">
+            <img data-src="/stage1.webp" alt="" aria-hidden="true" decoding="async">
+            <img data-src="/stage2.webp" alt="" aria-hidden="true" decoding="async">
+            <img data-src="/stage3.webp" alt="" aria-hidden="true" decoding="async">
+            <img data-src="/stage4.webp" alt="" aria-hidden="true" decoding="async">
+            <img src="/stage5.webp" class="is-active" alt=""
+                 aria-hidden="true" decoding="async" fetchpriority="high">
+          </div>
+
+          <figcaption class="visual-label">Визуализация</figcaption>
+        </figure>
+
+        <div class="hero-actions">
+          <a class="button" id="hero-cta" href="#request">
+            Отправить размеры стены →
+          </a>
+          <p class="promise">
+            Пришлём 3D-модель и цену в течение дня. Бесплатно, без замера.
+          </p>
+          <a class="models-link" href="/#ideas">Посмотреть модели</a>
+        </div>
+      </div>
+
+      <ul class="facts" aria-label="Материалы, изготовление и доставка">
+        <li>Дуб и латунь</li>
+        <li>Изготовление 5 дней</li>
+        <li>Доставка по России</li>
+        <li>Монтаж в Москве и МО</li>
+      </ul>
+    </section>
+
+    <section class="request" id="request" aria-labelledby="request-title">
+      <div class="wrap">
+        <div class="request-grid">
+          <div>
+            <p class="eyebrow">Начнём с вашей стены</p>
+            <h2 id="request-title">Два размера —<br>и мы предложим стеллаж.</h2>
+            <p class="request-copy">
+              Укажите ширину и высоту свободного места.
+              Соберём 3D-модель и пришлём цену в течение дня.
+              Бесплатно, без выезда на замер.
+            </p>
+            <a class="telegram" href="https://t.me/heroinru"
+               target="_blank" rel="noopener noreferrer">
+              Удобнее в Telegram? Отправьте размеры и фото стены ↗
+            </a>
+          </div>
+
+          <form class="form" id="request-form">
+            <div class="field">
+              <label for="wall-width">Ширина стены, см</label>
+              <input id="wall-width" name="width" type="number"
+                     inputmode="numeric" min="1" max="2000" step="1"
+                     placeholder="Например, 180" required>
+            </div>
+
+            <div class="field">
+              <label for="wall-height">Высота стены, см</label>
+              <input id="wall-height" name="height" type="number"
+                     inputmode="numeric" min="1" max="2000" step="1"
+                     placeholder="Например, 250" required>
+            </div>
+
+            <div class="field full">
+              <label for="contact-phone">Ваш телефон</label>
+              <input id="contact-phone" name="phone" type="tel"
+                     inputmode="tel" autocomplete="tel"
+                     maxlength="30" placeholder="+7 916 123-45-67" required>
+            </div>
+
+            <div class="trap" aria-hidden="true">
+              <label for="website">Ваш сайт</label>
+              <input id="website" name="website" type="text"
+                     tabindex="-1" autocomplete="off">
+            </div>
+
+            <button class="button full" id="request-submit" type="submit">
+              Получить 3D-модель и цену →
+            </button>
+
+            <p class="form-note full">
+              Телефон используем, чтобы связаться с вами по этой заявке.
+              Фото можно отправить отдельно в Telegram.
+            </p>
+
+            <p class="status full" id="request-status"
+               role="status" aria-live="polite" aria-atomic="true"></p>
+
+            <noscript>
+              <p class="form-note full">
+                Для отправки формы включите JavaScript.
+                Или напишите нам в Telegram:
+                <a href="https://t.me/heroinru">t.me/heroinru</a>.
+              </p>
+            </noscript>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer wrap">
+    <span>Stella · ИП Журо · ИНН 410208801286</span>
+    <span>
+      <a href="tel:+79164455131">8-916-445-5131</a>
+      · Пн–Сб 10:00–19:00
+    </span>
+    <a href="mailto:devre2016@yandex.ru">devre2016@yandex.ru</a>
+  </footer>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const hero = document.getElementById("hero");
+      const stage = document.getElementById("stage");
+      const images = Array.from(stage.querySelectorAll("img"));
+      const caption = document.getElementById("stage-caption");
+      const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
+      const mobile = window.matchMedia("(max-width: 700px)");
+      const sessionKey = "stella.hero.seen.v1";
+
+      let timers = [];
+      let stopped = false;
+      let currentFrame = images.length - 1;
+
+      function seenBefore() {
+        try {
+          return sessionStorage.getItem(sessionKey) === "1";
+        } catch (_) {
+          return false;
+        }
+      }
+
+      function remember() {
+        try {
+          sessionStorage.setItem(sessionKey, "1");
+        } catch (_) {}
+      }
+
+      function updateCaption() {
+        const captions = [
+          "Начните с одной полки",
+          "Добавляйте, когда нужно",
+          "Добавляйте, когда нужно",
+          "Достройте до целой стены",
+          mobile.matches ? "Растёт вместе с вами" : ""
+        ];
+        caption.textContent = captions[currentFrame];
+      }
+
+      function showFrame(index) {
+        currentFrame = index;
+        images.forEach((image, i) => {
+          image.classList.toggle("is-active", i === index);
+        });
+        updateCaption();
+      }
+
+      function finish() {
+        stopped = true;
+        timers.forEach(clearTimeout);
+        timers = [];
+        stage.classList.add("is-instant");
+        showFrame(images.length - 1);
+        hero.classList.remove("is-playing");
+      }
+
+      async function loadImage(image) {
+        if (image.dataset.src) {
+          image.src = image.dataset.src;
+        }
+
+        if (typeof image.decode === "function") {
+          await image.decode();
+        } else {
+          await new Promise((resolve, reject) => {
+            if (image.complete) {
+              image.naturalWidth ? resolve() : reject(new Error("Image failed"));
+              return;
+            }
+            image.addEventListener("load", resolve, { once: true });
+            image.addEventListener("error", reject, { once: true });
+          });
+        }
+
+        if (!image.naturalWidth) {
+          throw new Error("Image failed");
+        }
+      }
+
+      async function startAnimation() {
+        updateCaption();
+
+        if (seenBefore() || motion.matches || document.hidden) {
+          finish();
+          return;
+        }
+
+        const loadTimeout = setTimeout(finish, 5000);
+
+        try {
+          await Promise.all(images.map(loadImage));
+          clearTimeout(loadTimeout);
+
+          if (stopped || motion.matches || document.hidden) {
+            finish();
+            return;
+          }
+
+          remember();
+          hero.classList.add("is-playing");
+          stage.classList.add("is-instant");
+          showFrame(0);
+
+          void stage.offsetWidth;
+          stage.classList.remove("is-instant");
+
+          const moments = [0, 750, 1250, 1900, 2650];
+
+          for (let i = 1; i < moments.length; i++) {
+            timers.push(setTimeout(() => {
+              showFrame(i);
+              if (i === images.length - 1) {
+                hero.classList.remove("is-playing");
+              }
+            }, moments[i]));
+          }
+        } catch (_) {
+          clearTimeout(loadTimeout);
+          finish();
+        }
+      }
+
+      document.addEventListener("visibilitychange", () => {
+        if (document.hidden) finish();
+      });
+
+      function onMotionChange() {
+        if (motion.matches) finish();
+      }
+
+      if (motion.addEventListener) {
+        motion.addEventListener("change", onMotionChange);
+        mobile.addEventListener("change", updateCaption);
+      } else {
+        motion.addListener(onMotionChange);
+        mobile.addListener(updateCaption);
+      }
+
+      startAnimation();
+
+      const form = document.getElementById("request-form");
+      const phone = document.getElementById("contact-phone");
+      const submit = document.getElementById("request-submit");
+      const status = document.getElementById("request-status");
+      let sending = false;
+
+      phone.addEventListener("input", () => {
+        phone.setCustomValidity("");
+      });
+
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        if (sending) return;
+
+        const digits = phone.value.replace(/\D/g, "");
+
+        phone.setCustomValidity(
+          digits.length >= 10 && digits.length <= 15
+            ? ""
+            : "Укажите телефон с кодом страны, от 10 до 15 цифр."
+        );
+
+        if (!form.reportValidity()) return;
+
+        const data = new FormData(form);
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 15000);
+
+        sending = true;
+        submit.disabled = true;
+        submit.textContent = "Отправляем…";
+        form.setAttribute("aria-busy", "true");
+        status.className = "status full";
+        status.textContent = "";
+
+        try {
+          const response = await fetch("/api/leads", {
+            method: "POST",
+            credentials: "same-origin",
+            headers: { "Content-Type": "application/json" },
+            signal: controller.signal,
+            body: JSON.stringify({
+              phone: String(data.get("phone")).trim(),
+              comment:
+                "Заявка с новой главной. " +
+                "Ширина стены: " + data.get("width") + " см. " +
+                "Высота стены: " + data.get("height") + " см.",
+              website: String(data.get("website") || "")
+            })
+          });
+
+          const result = await response.json().catch(() => null);
+
+          if (!response.ok || !result || result.ok !== true) {
+            throw new Error("Request failed");
+          }
+
+          form.reset();
+          status.className = "status full is-success";
+          status.textContent =
+            "Заявка отправлена. Подготовим 3D-модель и цену " +
+            "в течение дня и свяжемся с вами по указанному телефону.";
+        } catch (_) {
+          status.className = "status full is-error";
+          status.textContent =
+            "Не удалось получить подтверждение отправки. " +
+            "Данные оставлены в форме. Вы можете повторить попытку " +
+            "или написать нам в Telegram.";
+        } finally {
+          clearTimeout(timeout);
+          sending = false;
+          submit.disabled = false;
+          submit.textContent = "Получить 3D-модель и цену →";
+          form.removeAttribute("aria-busy");
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
